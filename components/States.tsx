@@ -18,6 +18,15 @@ export function Loading({ title, hint, elapsed }: { title: string; hint: string;
   );
 }
 
+export function Stat({ v, k }: { v: string; k: string }) {
+  return (
+    <div className="stat">
+      <div className="v">{v}</div>
+      <div className="k">{k}</div>
+    </div>
+  );
+}
+
 const TITLES: Record<string, string> = {
   not_found: "Nothing here",
   rate_limited: "Taking a breather",

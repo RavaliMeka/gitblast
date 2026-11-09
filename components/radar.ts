@@ -42,6 +42,9 @@ export interface RadarSector {
   total: number;
 }
 
+/** A file before it is placed on the radar. */
+type Seed = Omit<RadarNode, "x" | "y" | "r" | "order">;
+
 interface RadarLink {
   from: string;
   to: string;
@@ -67,7 +70,6 @@ export function arcPath(r: number, a: number, b: number): string {
 }
 
 export function buildRadar(files: PRFile[], impacted: Impacted[], edges: [string, string][], totals: Record<string, number>): Radar {
-  type Seed = Omit<RadarNode, "x" | "y" | "r" | "order">;
   const changed: Seed[] = [...files]
     .sort((a, b) => b.reach - a.reach || b.additions + b.deletions - (a.additions + a.deletions))
     .slice(0, MAX_CHANGED)
@@ -130,7 +132,7 @@ export function buildRadar(files: PRFile[], impacted: Impacted[], edges: [string
 }
 
 /** Spreads one ring's files across a slice, stacking them in up to three rows when crowded. */
-function placeRing(ring: Omit<RadarNode, "x" | "y" | "r" | "order">[], depth: 0 | 1 | 2 | 3, s: RadarSector, out: RadarNode[]) {
+function placeRing(ring: Seed[], depth: 0 | 1 | 2 | 3, s: RadarSector, out: RadarNode[]) {
   if (ring.length === 0) return;
   const radius = RINGS[depth];
   const span = s.end - s.start;

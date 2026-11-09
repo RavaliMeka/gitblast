@@ -8,7 +8,7 @@ import { useApi } from "@/lib/useApi";
 import { CopyLink } from "./CopyLink";
 import { GraphList, type GraphRow } from "./GraphList";
 import { BlastRadar, Legend } from "./BlastRadar";
-import { ErrorState, Loading } from "./States";
+import { ErrorState, Loading, Stat } from "./States";
 
 const LEVEL_COLOR: Record<Level, string> = { high: "var(--high)", medium: "var(--medium)", low: "var(--low)" };
 const LEVEL_TEXT: Record<Level, string> = {
@@ -54,8 +54,8 @@ function Report({ report }: { report: PRReport }) {
         </h1>
         <div className="meta-row">
           <span className={`pill pill-${pr.state}`}>{pr.draft && pr.state === "open" ? "Draft" : cap(pr.state)}</span>
-          <span className="who">
-            <span style={{ color: "var(--text)" }}>{pr.author}</span>
+          <span className="who" style={{ color: "var(--text)" }}>
+            {pr.author}
           </span>
           <span>
             <span className="branch" title={pr.head}>{pr.head}</span> → <span className="branch" title={pr.base}>{pr.base}</span>
@@ -158,15 +158,6 @@ function ScoreRing({ score, level }: { score: number; level: Level }) {
         />
       </svg>
       <div className="val">{score}</div>
-    </div>
-  );
-}
-
-function Stat({ v, k }: { v: string; k: string }) {
-  return (
-    <div className="stat">
-      <div className="v">{v}</div>
-      <div className="k">{k}</div>
     </div>
   );
 }

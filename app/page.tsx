@@ -3,8 +3,34 @@ import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { LogoMark, Wordmark } from "@/components/Logo";
 import { UrlBox } from "@/components/UrlBox";
 
-const REPO_EXAMPLES = ["facebook/react", "vercel/next.js", "golang/go"];
-const PR_EXAMPLES = ["sandeepkomal/blast-radius/pull/1"];
+const TOOLS = [
+  {
+    title: "Blast radius",
+    text: "For a pull request: what it changes, what imports the changed code and what to review first.",
+    background: "var(--blast)",
+    Icon: BlastIcon,
+    mode: "pr",
+    placeholder: "github.com/owner/repo/pull/123",
+    cta: "Show blast radius",
+    examples: ["sandeepkomal/blast-radius/pull/1"],
+  },
+  {
+    title: "Time-lapse",
+    text: "For a repository: watch it grow from the first commit to today, folder by folder.",
+    background: "linear-gradient(135deg, #40c8e0, #0a84ff 55%, #5e5ce6)",
+    Icon: TimelapseIcon,
+    mode: "repo",
+    placeholder: "github.com/owner/repo",
+    cta: "Play time-lapse",
+    examples: ["facebook/react", "vercel/next.js", "golang/go"],
+  },
+] as const;
+
+const STEPS = [
+  ["Reads the source.", "It downloads the public source at the pull request's latest commit and keeps it in memory only."],
+  ["Follows the imports.", "TypeScript, JavaScript, Python, Go, Rust, Java, Kotlin, Ruby, PHP, Dart, C and C++."],
+  ["Walks outwards.", "Up to three steps through everything that imports the change, then it flags what needs a closer look."],
+];
 
 export default function Home() {
   return (
@@ -77,21 +103,13 @@ export default function Home() {
               <p>gitblast reads code the way your editor does, so every line on the map can be traced back to an import.</p>
             </div>
             <div className="steps">
-              <div className="card step band-alt">
-                <div className="n gradient-text">1</div>
-                <h4>Reads the source.</h4>
-                <p>It downloads the public source at the pull request&apos;s latest commit and keeps it in memory only.</p>
-              </div>
-              <div className="card step band-alt">
-                <div className="n gradient-text">2</div>
-                <h4>Follows the imports.</h4>
-                <p>TypeScript, JavaScript, Python, Go, Rust, Java, Kotlin, Ruby, PHP, Dart, C and C++.</p>
-              </div>
-              <div className="card step band-alt">
-                <div className="n gradient-text">3</div>
-                <h4>Walks outwards.</h4>
-                <p>Up to three steps through everything that imports the change, then it flags what needs a closer look.</p>
-              </div>
+              {STEPS.map(([title, text], i) => (
+                <div key={title} className="card step band-alt">
+                  <div className="n gradient-text">{i + 1}</div>
+                  <h4>{title}</h4>
+                  <p>{text}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -115,42 +133,26 @@ export default function Home() {
 function Tools({ compact = false }: { compact?: boolean }) {
   return (
     <div className={`tools${compact ? " tools-compact" : ""}`}>
-      <div className="card tool">
-        <div className="tool-icon" style={{ background: "var(--blast)" }} aria-hidden="true">
-          <BlastIcon />
-        </div>
-        <h2>Blast radius</h2>
-        <p>For a pull request: what it changes, what imports the changed code and what to review first.</p>
-        <UrlBox mode="pr" placeholder="github.com/owner/repo/pull/123" cta="Show blast radius" />
-        {!compact && (
-          <div className="examples">
-            <span className="faint">Try</span>
-            {PR_EXAMPLES.map((e) => (
-              <Link key={e} href={`/${e}`}>
-                {e.replace("/pull/", "#")}
-              </Link>
-            ))}
+      {TOOLS.map(({ title, text, background, Icon, mode, placeholder, cta, examples }) => (
+        <div key={title} className="card tool">
+          <div className="tool-icon" style={{ background }} aria-hidden="true">
+            <Icon />
           </div>
-        )}
-      </div>
-      <div className="card tool">
-        <div className="tool-icon" style={{ background: "linear-gradient(135deg, #40c8e0, #0a84ff 55%, #5e5ce6)" }} aria-hidden="true">
-          <TimelapseIcon />
+          <h2>{title}</h2>
+          <p>{text}</p>
+          <UrlBox mode={mode} placeholder={placeholder} cta={cta} />
+          {!compact && (
+            <div className="examples">
+              <span className="faint">Try</span>
+              {examples.map((e) => (
+                <Link key={e} href={`/${e}`}>
+                  {e.replace("/pull/", "#")}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
-        <h2>Time-lapse</h2>
-        <p>For a repository: watch it grow from the first commit to today, folder by folder.</p>
-        <UrlBox mode="repo" placeholder="github.com/owner/repo" cta="Play time-lapse" />
-        {!compact && (
-          <div className="examples">
-            <span className="faint">Try</span>
-            {REPO_EXAMPLES.map((e) => (
-              <Link key={e} href={`/${e}`}>
-                {e}
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+      ))}
     </div>
   );
 }

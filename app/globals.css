@@ -132,10 +132,6 @@ body {
   overflow-x: hidden;
 }
 
-main.alt {
-  background: var(--bg);
-}
-
 main.alt .card {
   box-shadow: 0 0 0 1px var(--line-soft), var(--shadow);
 }
@@ -180,14 +176,6 @@ code,
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-
-.link {
-  color: var(--link);
-}
-
-.link:hover {
-  text-decoration: underline;
 }
 
 .chev::after {
@@ -609,12 +597,6 @@ main.alt {
   }
 }
 
-@media (max-width: 640px) {
-  .tool {
-    padding: 24px 20px;
-  }
-}
-
 .tool {
   padding: 30px 30px 28px;
   display: flex;
@@ -764,10 +746,6 @@ main.alt {
   margin: 0 auto 18px;
   color: var(--muted);
   max-width: 420px;
-}
-
-.feature code {
-  color: var(--text);
 }
 
 .feature .art {
@@ -1062,9 +1040,6 @@ main.alt {
 .map-head h2 {
   margin: 0;
 }
-
-
-
 
 .legend {
   display: flex;
@@ -1721,7 +1696,7 @@ main.alt {
 }
 
 /* Frosted surfaces turn solid for people who ask for less transparency or more contrast. */
-@media (prefers-reduced-transparency: reduce) {
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   .site-header,
   .tooltip {
     background: var(--surface);
@@ -1731,13 +1706,6 @@ main.alt {
 }
 
 @media (prefers-contrast: more) {
-  .site-header,
-  .tooltip {
-    background: var(--surface);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-
   .tooltip {
     box-shadow: 0 0 0 1px var(--text);
   }
@@ -1754,6 +1722,11 @@ main.alt {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* The graph's flowing signals are SMIL animations, which the rule above can't slow. */
+  .graph-pulse {
+    display: none;
   }
 }
 
@@ -1789,10 +1762,6 @@ main.alt {
   animation: graph-pop 0.35s cubic-bezier(0.3, 1.4, 0.5, 1) forwards;
 }
 
-.graph-dot.root {
-  animation-delay: 0s;
-}
-
 @keyframes graph-draw {
   to { stroke-dashoffset: 0; }
 }
@@ -1816,17 +1785,14 @@ main.alt {
   font-size: 15px;
   color: var(--muted);
   text-align: left;
-}
-
-button.graph-row {
-  cursor: pointer;
-}
-
-.graph-row {
   background-image: linear-gradient(color-mix(in srgb, var(--band) 8%, transparent), color-mix(in srgb, var(--band) 8%, transparent));
   background-repeat: no-repeat;
   background-size: 0% 100%;
   transition: background-size 0.5s cubic-bezier(0.3, 0.7, 0.2, 1), background-color 0.15s, color 0.3s;
+}
+
+button.graph-row {
+  cursor: pointer;
 }
 
 .graph-row.lit {
@@ -1853,7 +1819,6 @@ button.graph-row {
   to { transform: scale(3.2); opacity: 0; }
 }
 
-button.graph-row:hover,
 .graph-row:hover {
   background-color: color-mix(in srgb, var(--band) 10%, transparent);
   color: var(--text);
@@ -2197,10 +2162,4 @@ button.graph-row:hover,
 @keyframes graph-breathe {
   0%, 100% { transform: scale(1.1); opacity: 0.9; }
   50% { transform: scale(2.3); opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .graph-pulse {
-    display: none;
-  }
 }

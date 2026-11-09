@@ -14,9 +14,9 @@ const MARK_PATHS = {
 };
 
 /** The name: "git" in light code type, "blast" in the bold blast gradient. */
-export function Wordmark({ className = "" }: { className?: string }) {
+export function Wordmark() {
   return (
-    <span className={`wordmark ${className}`.trim()} aria-label="gitblast">
+    <span className="wordmark" aria-label="gitblast">
       <span className="wordmark-git" aria-hidden="true">git</span>
       <span className="wordmark-blast" aria-hidden="true">blast</span>
     </span>
@@ -33,12 +33,10 @@ export function LogoMark({ size = 26 }: { size?: number }) {
           <stop offset="1" stopColor="#ff2d55" />
         </linearGradient>
       </defs>
-      {MARK_PATHS.outer.map((p) => (
-        <path key={p.d} d={p.d} fill="none" stroke={p.color} strokeWidth="6" strokeLinecap="round" />
-      ))}
-      {MARK_PATHS.inner.map((p) => (
-        <path key={p.d} d={p.d} fill="none" stroke={p.color} strokeWidth="6" strokeLinecap="round" opacity="0.55" />
-      ))}
+      <g fill="none" strokeWidth="6" strokeLinecap="round">
+        {MARK_PATHS.outer.map((p) => <path key={p.d} d={p.d} stroke={p.color} />)}
+        {MARK_PATHS.inner.map((p) => <path key={p.d} d={p.d} stroke={p.color} opacity="0.55" />)}
+      </g>
       <circle cx="32" cy="32" r="8" fill="url(#gb-core)" />
     </svg>
   );

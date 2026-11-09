@@ -8,12 +8,15 @@ import type { Frame, PullSummary, Timelapse } from "@/lib/types";
 import { useApi } from "@/lib/useApi";
 import { CopyLink } from "./CopyLink";
 import { GraphList, type GraphRow } from "./GraphList";
-import { ErrorState, Loading } from "./States";
+import { ErrorState, Loading, Stat } from "./States";
 import { arcs, buildRings, geometry, hitTest, OTHER, ROOT, springStep, type RingModel } from "./rings";
 
 const SPEEDS = [0.5, 1, 2, 4];
 const NEUTRAL = "#a1a1a6";
 const FRAME_MS = 900;
+
+/** Colours read from the page's theme tokens, so the canvas follows light and dark mode. */
+type Theme = { font: string; surface: string; track: string; text: string; muted: string; dark: boolean };
 
 export function TimelapseView({ owner, repo }: { owner: string; repo: string }) {
   const q = `owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`;
@@ -93,8 +96,8 @@ function Player({ data }: { data: Timelapse }) {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    // Colours come from the page's theme tokens and follow light and dark mode.
-    const theme = { font: "", surface: "", track: "", text: "", muted: "", dark: false };
+    const scheme = window.matchMedia("(prefers-color-scheme: dark)");
+    const theme: Theme = { font: "", surface: "", track: "", text: "", muted: "", dark: false };
     const readTheme = () => {
       const css = getComputedStyle(document.documentElement);
       const v = (name: string) => css.getPropertyValue(name).trim();
@@ -103,10 +106,9 @@ function Player({ data }: { data: Timelapse }) {
       theme.track = v("--fill") || "#e8e8ed";
       theme.text = v("--text");
       theme.muted = v("--muted");
-      theme.dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      theme.dark = scheme.matches;
     };
     readTheme();
-    const scheme = window.matchMedia("(prefers-color-scheme: dark)");
     scheme.addEventListener("change", readTheme);
     let raf = 0;
     let prev = performance.now();
@@ -305,10 +307,10 @@ function Player({ data }: { data: Timelapse }) {
           <div className="card card-pad">
             <h2>At this point</h2>
             <div className="counter-grid">
-              <div className="stat"><div className="v">{num(current?.files ?? 0)}</div><div className="k">files</div></div>
-              <div className="stat"><div className="v">{bytes(current?.bytes ?? 0)}</div><div className="k">of code and assets</div></div>
-              <div className="stat"><div className="v">{num(tops)}</div><div className="k">top-level folders</div></div>
-              <div className="stat"><div className="v">{day(current?.date ?? "")}</div><div className="k">date</div></div>
+              <Stat v={num(current?.files ?? 0)} k="files" />
+              <Stat v={bytes(current?.bytes ?? 0)} k="of code and assets" />
+              <Stat v={num(tops)} k="top-level folders" />
+              <Stat v={day(current?.date ?? "")} k="date" />
             </div>
           </div>
           {current && <Languages frame={current} colors={data.langColors} />}
@@ -351,7 +353,7 @@ function drawRings(
   t: number,
   focus: number | null,
   weights: number[],
-  theme: { font: string; surface: string; track: string; text: string; muted: string; dark: boolean },
+  theme: Theme,
 ) {
   const done = Math.floor(t);
   const raw = t - done;

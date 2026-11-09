@@ -19,13 +19,11 @@ const HINT: Record<Mode, string> = {
 export function UrlBox({
   mode = "any",
   compact = false,
-  autoFocus = false,
   placeholder,
   cta,
 }: {
   mode?: Mode;
   compact?: boolean;
-  autoFocus?: boolean;
   placeholder?: string;
   cta?: string;
 }) {
@@ -58,7 +56,6 @@ export function UrlBox({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder ?? (compact ? "owner/repo or a GitHub link" : "https://github.com/owner/repo")}
-          autoFocus={autoFocus}
           autoComplete="off"
           spellCheck={false}
           aria-invalid={error ? true : undefined}

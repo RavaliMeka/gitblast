@@ -57,8 +57,6 @@ export function BlastRadar({
     return box ? { x: e.clientX - box.left, y: e.clientY - box.top } : { x: 0, y: 0 };
   }
 
-  const changedCount = files.length;
-
   return (
     <div className="radar" ref={wrapRef} onMouseLeave={() => { setTip(null); setArea(null); onActive(null); }}>
       <svg viewBox={`-60 -40 ${SIZE + 120} ${SIZE + 80}`} role="img" aria-label="Blast radar: the files this pull request changes at the centre, and the files that import them on rings further out, grouped by area">
@@ -153,7 +151,7 @@ export function BlastRadar({
         {/* Core: click to replay the shockwave */}
         <g className="radar-core" onClick={() => setWave((w) => w + 1)}>
           <circle cx={CENTER} cy={CENTER} r={CORE} fill="url(#radar-core)" />
-          <text x={CENTER} y={CENTER - 4} className="radar-core-n">{num(changedCount)}</text>
+          <text x={CENTER} y={CENTER - 4} className="radar-core-n">{num(files.length)}</text>
           <text x={CENTER} y={CENTER + 24} className="radar-core-k">changed</text>
         </g>
       </svg>
