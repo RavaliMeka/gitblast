@@ -6,6 +6,7 @@ import { createHash, randomBytes } from "node:crypto";
 
 const WINDOW_MS = 10 * 60 * 1000;
 const LIMIT = 40;
+const MAX_CLIENTS = 100_000;
 const SALT = randomBytes(16);
 const hits = new Map<string, { count: number; reset: number }>();
 let nextSweep = 0;
@@ -18,6 +19,8 @@ export function allow(client: string): { ok: boolean; retryAfter: number } {
   }
   const key = createHash("sha256").update(SALT).update(client).digest("base64url");
   const h = hits.get(key);
+  // Without a trusted proxy, forged addresses could grow this map without end; fail closed instead.
+  if (!h && hits.size >= MAX_CLIENTS) return { ok: false, retryAfter: 60 };
   if (!h || h.reset <= now) {
     hits.set(key, { count: 1, reset: now + WINDOW_MS });
     return { ok: true, retryAfter: 0 };

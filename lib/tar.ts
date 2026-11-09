@@ -113,7 +113,8 @@ class TarParser {
     }
     this.path = stripRoot(full);
 
-    const meta = this.type === "x" || this.type === "L";
+    // Long-name headers are tiny in real archives; refuse to buffer a huge one.
+    const meta = (this.type === "x" || this.type === "L") && this.size <= 64 * 1024;
     const regular = this.type === "0" || this.type === "\0" || this.type === "7";
     this.body = meta || (regular && this.path !== "" && this.want(this.path, this.size)) ? [] : null;
     this.remaining = this.size;

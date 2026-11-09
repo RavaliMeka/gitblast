@@ -135,7 +135,7 @@ repository was too large to read in full.
 Requires Node.js 20.9 or later.
 
 ```bash
-git clone https://github.com/SandeepKomal/gitblast.git
+git clone https://github.com/RavaliMeka/gitblast.git
 cd gitblast
 npm ci
 cp .env.example .env.local   # optional: add a GITHUB_TOKEN
@@ -187,7 +187,8 @@ most load balancers do).
   cached in memory.
 - Visitors' browsers only ever talk to gitblast: no third-party scripts, fonts or images. IP addresses are used
   only for rate limiting, held in memory as salted hashes for ten minutes and never logged.
-- gitblast is not affiliated with GitHub. It uses neither GitHub's logo nor "GitHub" in its name.
+- gitblast is not affiliated with or endorsed by GitHub, Inc. or the Git project. It uses neither GitHub's logo nor
+  "GitHub" in its name. Git is a trademark of Software Freedom Conservancy, and GitHub is a trademark of GitHub, Inc.
 
 See [SECURITY.md](SECURITY.md) for how to report a vulnerability.
 

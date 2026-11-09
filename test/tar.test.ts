@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { Readable } from "node:stream";
+import { gzipSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import { readTarGz, type TarFile } from "@/lib/tar";
 
@@ -56,5 +57,22 @@ describe("readTarGz", () => {
     const buf = archive({ "a.ts": "1", "b.ts": "2".repeat(5000) }, "pax");
     const { truncated } = await readTarGz(stream(buf.subarray(0, Math.floor(buf.length * 0.6))), LIMITS, () => true, () => undefined);
     expect(truncated).toBe(true);
+  });
+
+  it("does not buffer an oversized long-name header", async () => {
+    const header = (name: string, size: number, type: string) => {
+      const h = Buffer.alloc(512);
+      h.write(name, 0);
+      h.write(size.toString(8).padStart(11, "0"), 124);
+      h.write(type, 156);
+      h.write("ustar", 257);
+      return h;
+    };
+    const huge = 200 * 1024;
+    const tar = Buffer.concat([header("r/x", huge, "L"), Buffer.alloc(huge, 0x61), header("r/a.ts", 2, "0"), Buffer.from("ok"), Buffer.alloc(510), Buffer.alloc(1024)]);
+    const seen: TarFile[] = [];
+    const { truncated } = await readTarGz(stream(gzipSync(tar), 4096), LIMITS, () => true, (f) => seen.push(f));
+    expect(truncated).toBe(false);
+    expect(seen.map((f) => [f.path, f.content?.toString()])).toEqual([["a.ts", "ok"]]);
   });
 });

@@ -101,17 +101,7 @@ export async function analyzeTimelapse(owner: string, repo: string): Promise<Tim
   }
 
   return {
-    repo: {
-      owner: meta.owner,
-      repo: meta.repo,
-      description: meta.description,
-      stars: meta.stars,
-      defaultBranch: meta.defaultBranch,
-      createdAt: meta.createdAt,
-      language: meta.language,
-      license: meta.license,
-      forks: meta.forks,
-    },
+    repo: meta,
     totalCommits: total,
     frames,
     milestones: milestones(frames),
