@@ -29,16 +29,23 @@ export default function Privacy() {
 
           <h2>What it doesn&apos;t do</h2>
           <ul>
-            <li>No accounts, no database and no logs of who visited.</li>
+            <li>No accounts, no database, and gitblast itself keeps no logs of who visited.</li>
             <li>No cookies, no analytics, no tracking pixels, no advertising.</li>
             <li>No third-party scripts, fonts or images. Your browser only talks to gitblast.</li>
             <li>
-              Your IP address is used only to rate-limit requests. It is held in memory as an anonymous hash for ten
-              minutes, then dropped, and never written anywhere.
+              gitblast uses your IP address only to rate-limit requests. It holds it in memory as an anonymous hash for
+              ten minutes, then drops it, and never writes it anywhere.
             </li>
             <li>No AI model is sent your code. Every result comes from parsing the code directly.</li>
             <li>Nothing is written to GitHub. gitblast only reads.</li>
           </ul>
+
+          <h2>Hosting</h2>
+          <p>
+            The site runs on a hosting provider (Vercel), which, like any web host, processes each request, including
+            your IP address, to deliver the page and protect against abuse. That is covered by the provider&apos;s own
+            privacy policy, not by gitblast.
+          </p>
 
           <h2 id="opt-out">Opting out</h2>
           <p>
@@ -52,8 +59,8 @@ export default function Privacy() {
 
           <h2>Trademarks</h2>
           <p>
-            GitHub is a trademark of GitHub, Inc. gitblast is an independent open-source project and is not affiliated
-            with, sponsored by or endorsed by GitHub.
+            Git is a trademark of Software Freedom Conservancy and GitHub is a trademark of GitHub, Inc. gitblast is an
+            independent open-source project and is not affiliated with, sponsored by or endorsed by either.
           </p>
         </article>
       </main>

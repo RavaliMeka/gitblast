@@ -183,7 +183,7 @@ most load balancers do).
 
 - Only public repositories are shown. Private ones are refused even if the token could read them.
 - Repository owners can opt out by adding the `gitblast-optout` topic to their repository.
-- No accounts, database, cookies, analytics or tracking. Source code is never stored; only the derived report is
+- No accounts, database, cookies, analytics or tracking. (The hosting provider still sees requests, as any web host does.) Source code is never stored; only the derived report is
   cached in memory.
 - Visitors' browsers only ever talk to gitblast: no third-party scripts, fonts or images. IP addresses are used
   only for rate limiting, held in memory as salted hashes for ten minutes and never logged.
