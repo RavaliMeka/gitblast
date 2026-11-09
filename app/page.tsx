@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { LogoMark, Wordmark } from "@/components/Logo";
 import { UrlBox } from "@/components/UrlBox";
+import { SITE, swapParts } from "@/lib/site";
 
 const TOOLS = [
   {
@@ -44,21 +45,11 @@ export default function Home() {
           </div>
           <h1>Change one word. See your code differently.</h1>
           <p className="lede">
-            Swap github for gitblast in any link. Two tools, no install and no sign-in: the blast radius of a pull
+            Swap github.com for {SITE.host} in any link. Two tools, no install and no sign-in: the blast radius of a pull
             request, and a time-lapse of how a repository grew.
           </p>
 
-          <div className="swap" aria-label="Replace github with gitblast in the address">
-            <span className="faint">https://git</span>
-            <span className="slot">
-              <span className="old">hub</span>
-              <span className="new gradient-text" aria-hidden="true">
-                blast
-              </span>
-            </span>
-            <span className="faint">.com/</span>
-            <span>owner/repo</span>
-          </div>
+          <Swap />
 
           <Tools />
         </section>
@@ -118,7 +109,7 @@ export default function Home() {
           <div className="wrap">
             <div className="band-head" style={{ marginBottom: 40 }}>
               <h2>Try it on any repository.</h2>
-              <p>Paste a link below, or just change github to gitblast in your address bar.</p>
+              <p>Paste a link below, or just change github.com to {SITE.host} in your address bar.</p>
             </div>
             <Tools compact />
           </div>
@@ -223,5 +214,22 @@ function TimelapseArt() {
         </g>
       ))}
     </svg>
+  );
+}
+
+function Swap() {
+  const { pre, old, next, post } = swapParts();
+  return (
+    <div className="swap" aria-label={`Replace github.com with ${SITE.host} in the address`}>
+      <span className="faint">https://{pre}</span>
+      <span className="slot" style={{ minWidth: `${Math.max(old.length, next.length)}ch` }}>
+        <span className="old">{old}</span>
+        <span className="new gradient-text" aria-hidden="true">
+          {next}
+        </span>
+      </span>
+      <span className="faint">{post}/</span>
+      <span>owner/repo</span>
+    </div>
   );
 }

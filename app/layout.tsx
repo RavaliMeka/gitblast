@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: { default: "gitblast · see what a pull request really touches", template: "%s · gitblast" },
   description:
-    "Swap github.com for gitblast.com. See the blast radius of any pull request, and watch any repository grow commit by commit.",
+    `Swap github.com for ${SITE.host}. See the blast radius of any pull request, and watch any repository grow commit by commit.`,
   openGraph: { siteName: "gitblast", type: "website" },
   twitter: { card: "summary_large_image" },
 };

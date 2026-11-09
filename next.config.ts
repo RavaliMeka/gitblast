@@ -23,7 +23,13 @@ const securityHeaders = [
   },
 ];
 
+// The address this deployment is actually served from. Never default to a domain we don't own.
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
+
 const config: NextConfig = {
+  env: { NEXT_PUBLIC_SITE_URL: siteUrl },
   poweredByHeader: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

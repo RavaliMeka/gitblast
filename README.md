@@ -22,8 +22,8 @@ gitblast has two tools, both free, open source and with no sign-in:
   cover it, and what to review first.
 - **Time-lapse**: for a repository, how it grew from its first commit to today, folder by folder.
 
-> gitblast.com is not deployed yet. Until it is, [run it locally](#running-it-locally) and use
-> `http://localhost:3000` in place of `https://gitblast.com` in the steps below.
+> The examples use `gitblast.com`. Use your own deployment's address instead (for example
+> `gitblast.vercel.app`), or `http://localhost:3000` when [running it locally](#running-it-locally).
 
 ## How to use it
 
@@ -151,7 +151,7 @@ has **public repositories (read-only)** access and nothing else, the limit is 5,
 | --- | --- |
 | `GITHUB_TOKEN` | Raises the GitHub API limit. Give it no permissions beyond reading public repositories. |
 | `GITBLAST_BLOCKLIST` | Comma-separated owners or `owner/repo` pairs that asked not to be shown. |
-| `NEXT_PUBLIC_SITE_URL` | The public address, used for canonical links and social cards. Defaults to `https://gitblast.com`. |
+| `NEXT_PUBLIC_SITE_URL` | The public address, used in links, page text and social cards. On Vercel it defaults to the project's production address (e.g. `https://gitblast.vercel.app`); locally, to `http://localhost:3000`. Set it only once you own a custom domain. |
 
 ```bash
 npm test            # unit tests
@@ -167,9 +167,10 @@ gitblast is a standard Next.js app. The simplest home is [Vercel](https://vercel
 size of project:
 
 1. Import this repository in Vercel. It detects Next.js; no build settings are needed.
-2. Add the environment variables: `GITHUB_TOKEN` (fine-grained, public repositories read-only) and
-   `NEXT_PUBLIC_SITE_URL=https://gitblast.com`.
-3. Add the `gitblast.com` domain under the project's domain settings and point DNS at Vercel.
+2. Add the environment variable `GITHUB_TOKEN` (fine-grained, public repositories read-only). The site uses its
+   free `*.vercel.app` address automatically; no domain is needed.
+3. Optional: if you buy a domain, add it under the project's domain settings, point DNS at Vercel and set
+   `NEXT_PUBLIC_SITE_URL` to it.
 
 Every pull request then gets its own preview URL, and every push to `main` deploys to production.
 
