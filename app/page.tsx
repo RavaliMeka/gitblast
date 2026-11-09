@@ -7,28 +7,28 @@ import { SITE, swapParts } from "@/lib/site";
 const TOOLS = [
   {
     title: "Blast radius",
-    text: "For a pull request: what it changes, what imports the changed code and what to review first.",
+    text: "For any repository, file, commit, branch or pull request: what a change reaches and what to review first.",
     background: "var(--blast)",
     Icon: BlastIcon,
-    mode: "pr",
-    placeholder: "github.com/owner/repo/pull/123",
+    mode: "any",
+    placeholder: "Any GitHub link",
     cta: "Show blast radius",
-    examples: ["sandeepkomal/blast-radius/pull/1"],
+    examples: ["facebook/react", "vercel/next.js", "sandeepkomal/blast-radius/pull/1"],
   },
   {
     title: "Time-lapse",
     text: "For a repository: watch it grow from the first commit to today, folder by folder.",
     background: "linear-gradient(135deg, #40c8e0, #0a84ff 55%, #5e5ce6)",
     Icon: TimelapseIcon,
-    mode: "repo",
+    mode: "timelapse",
     placeholder: "github.com/owner/repo",
     cta: "Play time-lapse",
-    examples: ["facebook/react", "vercel/next.js", "golang/go"],
+    examples: ["facebook/react/timelapse", "golang/go/timelapse"],
   },
 ] as const;
 
 const STEPS = [
-  ["Reads the source.", "It downloads the public source at the pull request's latest commit and keeps it in memory only."],
+  ["Reads the source.", "It downloads the public source at the commit you are looking at and keeps it in memory only."],
   ["Follows the imports.", "TypeScript, JavaScript, Python, Go, Rust, Java, Kotlin, Ruby, PHP, Dart, C and C++."],
   ["Walks outwards.", "Up to three steps through everything that imports the change, then it flags what needs a closer look."],
 ];
@@ -62,18 +62,19 @@ export default function Home() {
             </div>
             <div className="features">
               <article className="card feature">
-                <div className="kicker">/owner/repo/pull/123</div>
+                <div className="kicker">any GitHub link</div>
                 <h3>Blast radius.</h3>
                 <p>
-                  Every changed file on a map of the whole repository, with the code that imports it rippling outwards.
-                  Plus the tests that cover it, a risk score and the best order to review it in.
+                  On a repository or a file, see what would break if it changed. On a pull request, commit or branch, see
+                  every changed file with the code that imports it rippling outwards, the tests that cover it, a risk
+                  score and the best order to review it in.
                 </p>
                 <div className="art">
                   <BlastArt />
                 </div>
               </article>
               <article className="card feature">
-                <div className="kicker">/owner/repo</div>
+                <div className="kicker">/owner/repo/timelapse</div>
                 <h3>Time-lapse.</h3>
                 <p>
                   Watch the codebase grow from its first commit to today. New folders appear, languages arrive, and big
@@ -137,7 +138,7 @@ function Tools({ compact = false }: { compact?: boolean }) {
               <span className="faint">Try</span>
               {examples.map((e) => (
                 <Link key={e} href={`/${e}`}>
-                  {e.replace("/pull/", "#")}
+                  {e.replace("/pull/", "#").replace("/timelapse", "")}
                 </Link>
               ))}
             </div>

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ago, num, plural } from "@/lib/format";
-import type { Impacted, Level, PRFile, PRReport } from "@/lib/types";
+import { githubUrl, type Route } from "@/lib/route";
+import type { ChangeKind, Impacted, Level, PRFile, PRReport } from "@/lib/types";
 import { useApi } from "@/lib/useApi";
 import { CopyLink } from "./CopyLink";
 import { GraphList, type GraphRow } from "./GraphList";
@@ -17,24 +18,38 @@ const LEVEL_TEXT: Record<Level, string> = {
   low: "Looks contained",
 };
 
-export function PRView({ owner, repo, number }: { owner: string; repo: string; number: number }) {
-  const state = useApi<PRReport>(`/api/pr?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}&number=${number}`);
-  const ghUrl = `https://github.com/${owner}/${repo}/pull/${number}`;
+const KIND: Record<ChangeKind, string> = { pr: "pull request", commit: "commit", compare: "comparison" };
+
+type Change = Extract<Route, { kind: ChangeKind }>;
+
+/** The blast radius of a pull request, a commit, or one branch compared with another. */
+export function PRView({ route }: { route: Change }) {
+  const { owner, repo } = route;
+  const q = `owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`;
+  const state = useApi<PRReport>(
+    route.kind === "pr"
+      ? `/api/pr?${q}&number=${route.number}`
+      : route.kind === "commit"
+        ? `/api/change?${q}&sha=${route.sha}`
+        : `/api/change?${q}&base=${encodeURIComponent(route.base)}&head=${encodeURIComponent(route.head)}`,
+  );
+  const ghUrl = githubUrl(route);
+  const name = route.kind === "pr" ? `#${route.number}` : route.kind === "commit" ? route.sha.slice(0, 7) : route.head;
 
   if (state.status === "loading") {
     return (
       <Loading
-        title={`Mapping ${owner}/${repo} #${number}`}
+        title={`Mapping ${owner}/${repo} ${name}`}
         hint="Downloading the source and following every import. Large repositories can take up to a minute."
         elapsed={state.elapsed}
       />
     );
   }
   if (state.status === "error") return <ErrorState error={state.error} githubUrl={ghUrl} />;
-  return <Report report={state.data} />;
+  return <Report report={state.data} ghUrl={ghUrl} />;
 }
 
-function Report({ report }: { report: PRReport }) {
+function Report({ report, ghUrl }: { report: PRReport; ghUrl: string }) {
   const { repo, pr } = report;
   const [active, setActive] = useState<string | null>(null);
   const fileUrl = (path: string) => `https://github.com/${repo.owner}/${repo.repo}/blob/${pr.headSha}/${path.split("/").map(encodeURIComponent).join("/")}`;
@@ -47,26 +62,31 @@ function Report({ report }: { report: PRReport }) {
             {repo.owner}/<b style={{ color: "var(--text)", fontWeight: 600 }}>{repo.repo}</b>
           </Link>
           <span className="sep">/</span>
-          <span>Pull request</span>
+          <span>{cap(KIND[pr.kind])}</span>
         </div>
         <h1 className="page-title">
-          {pr.title} <span className="num">#{pr.number}</span>
+          {pr.title} <span className="num">{pr.kind === "compare" ? "" : pr.ref}</span>
         </h1>
         <div className="meta-row">
-          <span className={`pill pill-${pr.state}`}>{pr.draft && pr.state === "open" ? "Draft" : cap(pr.state)}</span>
-          <span className="who" style={{ color: "var(--text)" }}>
-            {pr.author}
-          </span>
-          <span>
-            <span className="branch" title={pr.head}>{pr.head}</span> → <span className="branch" title={pr.base}>{pr.base}</span>
-          </span>
+          {pr.kind === "pr" && <span className={`pill pill-${pr.state}`}>{pr.draft && pr.state === "open" ? "Draft" : cap(pr.state)}</span>}
+          {pr.author && (
+            <span className="who" style={{ color: "var(--text)" }}>
+              {pr.author}
+            </span>
+          )}
+          {pr.kind !== "commit" && (
+            <span>
+              <span className="branch" title={pr.head}>{pr.head}</span> → <span className="branch" title={pr.base}>{pr.base}</span>
+            </span>
+          )}
+          {pr.kind === "compare" && <span>{plural(pr.commits, "commit")}</span>}
           <span className="mono">
             <span className="plus">+{num(pr.additions)}</span> <span className="minus">−{num(pr.deletions)}</span>
           </span>
-          <span>{ago(pr.createdAt)}</span>
+          {pr.createdAt && <span>{ago(pr.createdAt)}</span>}
           <span className="head-actions">
             <CopyLink />
-            <a className="btn btn-primary btn-sm" href={`https://github.com/${repo.owner}/${repo.repo}/pull/${pr.number}`} target="_blank" rel="noopener noreferrer">
+            <a className="btn btn-primary btn-sm" href={ghUrl} target="_blank" rel="noopener noreferrer">
               Open on GitHub ↗
             </a>
           </span>
@@ -130,7 +150,7 @@ function Report({ report }: { report: PRReport }) {
         <div className="stack">
           <Risks report={report} />
           <ReviewOrder files={report.files} active={active} onActive={setActive} fileUrl={fileUrl} />
-          <Ripple files={report.files} impacted={report.impacted} total={report.impactedTotal} onActive={setActive} />
+          <Ripple kind={pr.kind} files={report.files} impacted={report.impacted} total={report.impactedTotal} onActive={setActive} />
           <Tests tests={report.tests} />
           <Areas areas={report.areas} />
         </div>
@@ -248,7 +268,7 @@ function ReviewOrder({
                   <i className="dot" style={{ background: f.color, width: 7, height: 7 }} /> {f.lang}
                 </span>
                 {f.status !== "modified" && <span>{f.status}</span>}
-                {f.usedBy > 0 && <span>used by {f.usedBy} in this PR</span>}
+                {f.usedBy > 0 && <span>used by {f.usedBy} in this change</span>}
                 {f.reach > 0 && <span style={{ color: "var(--ripple1)" }}>reaches {f.reach}</span>}
               </div>
             </div>
@@ -325,11 +345,13 @@ function rippleRows(files: PRFile[], impacted: Impacted[], onActive: (p: string 
 }
 
 function Ripple({
+  kind,
   files,
   impacted,
   total,
   onActive,
 }: {
+  kind: ChangeKind;
   files: PRFile[];
   impacted: Impacted[];
   total: number;
@@ -364,7 +386,7 @@ function Ripple({
         })
       ) : (
         <GraphList
-          root={{ label: `This pull request changes ${plural(files.length, "file")}`, color: "var(--changed)" }}
+          root={{ label: `This ${KIND[kind]} changes ${plural(files.length, "file")}`, color: "var(--changed)" }}
           lanes={BRANCH_COLORS}
           rows={rippleRows(files, impacted, onActive)}
         />
@@ -388,7 +410,7 @@ function Tests({ tests }: { tests: PRReport["tests"] }) {
       <h2>Tests</h2>
       {tests.changed.length > 0 && (
         <>
-          <div className="muted" style={{ fontSize: 13 }}>Changed in this PR</div>
+          <div className="muted" style={{ fontSize: 13 }}>Changed here</div>
           <ul className="path-list" style={{ marginBottom: 14 }}>
             {tests.changed.slice(0, 20).map((t) => <li key={t} title={t}>{t}</li>)}
           </ul>

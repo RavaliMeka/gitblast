@@ -11,6 +11,8 @@ interface RepoSummary {
   stars: number;
 }
 
+export type ChangeKind = "pr" | "commit" | "compare";
+
 export interface PRFile {
   path: string;
   previous?: string;
@@ -45,6 +47,11 @@ export interface Risk {
 export interface PRReport {
   repo: RepoSummary;
   pr: {
+    /** What produced the change. Commits and comparisons reuse the pull request report. */
+    kind: ChangeKind;
+    /** Short name for a commit or comparison, e.g. "7f3e9a1" or "main...feature". */
+    ref: string;
+    /** 0 unless `kind` is "pr". */
     number: number;
     title: string;
     author: string;
@@ -111,6 +118,24 @@ export interface Timelapse {
   milestones: Milestone[];
   contributors: { login: string; contributions: number }[];
   langColors: Record<string, string>;
+  partial: boolean;
+  generatedAt: string;
+}
+
+/** The import graph of a whole repository at its default branch. */
+export interface RepoMap {
+  repo: RepoSummary & { defaultBranch: string };
+  /** The commit the map was read at. */
+  sha: string;
+  /** Every file that imports or is imported by another. Edges index into this list. */
+  files: string[];
+  /** [importer, imported] pairs. */
+  edges: [number, number][];
+  /** The files the most other files depend on, most load-bearing first. */
+  top: { path: string; reach: number; direct: number }[];
+  /** Files per area across the whole repository. */
+  areaTotals: Record<string, number>;
+  filesScanned: number;
   partial: boolean;
   generatedAt: string;
 }

@@ -4,17 +4,16 @@ import { useRouter } from "next/navigation";
 import { useId, useState, type FormEvent } from "react";
 import { parseInput, routePath } from "@/lib/route";
 
-type Mode = "any" | "pr" | "repo";
+type Mode = "any" | "timelapse";
 
 const HINT: Record<Mode, string> = {
   any: "Paste a GitHub link, or type owner/repo or owner/repo#123.",
-  pr: "Paste a pull request link, or type owner/repo#123.",
-  repo: "Paste a repository link, or type owner/repo.",
+  timelapse: "Paste a repository link, or type owner/repo.",
 };
 
 /**
- * A search box that turns whatever is pasted into a gitblast page. `pr` only
- * accepts pull requests; `repo` opens the time-lapse even for a PR link.
+ * A search box that turns whatever is pasted into a gitblast page. `timelapse`
+ * opens the repository's time-lapse whatever kind of link is pasted.
  */
 export function UrlBox({
   mode = "any",
@@ -35,8 +34,7 @@ export function UrlBox({
   function submit(e: FormEvent) {
     e.preventDefault();
     let route = parseInput(value);
-    if (route && mode === "pr" && route.kind !== "pr") route = null;
-    if (route && mode === "repo" && route.kind === "pr") route = { kind: "repo", owner: route.owner, repo: route.repo };
+    if (route && mode === "timelapse") route = { kind: "repo", owner: route.owner, repo: route.repo, view: "timelapse" };
     if (!route) {
       setError(HINT[mode]);
       return;
@@ -49,7 +47,7 @@ export function UrlBox({
     <form onSubmit={submit} role="search">
       <div className={`urlbox${compact ? " compact" : ""}`}>
         <label htmlFor={id} className="sr-only">
-          {mode === "pr" ? "GitHub pull request" : mode === "repo" ? "GitHub repository" : "GitHub repository or pull request"}
+          {mode === "timelapse" ? "GitHub repository" : "GitHub link"}
         </label>
         <input
           id={id}

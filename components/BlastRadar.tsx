@@ -15,9 +15,9 @@ const STATE_COLOR: Record<State, string> = {
 };
 
 const STATE_LABEL: Record<State, string> = {
-  changed: "Changed in this PR",
-  added: "Added in this PR",
-  removed: "Deleted in this PR",
+  changed: "Changed here",
+  added: "Added here",
+  removed: "Deleted here",
   ripple1: "Imports the change directly",
   ripple2: "Two imports away from the change",
   ripple3: "Three imports away from the change",
@@ -33,6 +33,8 @@ export function BlastRadar({
   active,
   onActive,
   fileUrl,
+  onPick,
+  core,
 }: {
   files: PRFile[];
   impacted: Impacted[];
@@ -41,8 +43,12 @@ export function BlastRadar({
   active: string | null;
   onActive: (path: string | null) => void;
   fileUrl: (path: string) => string;
+  /** Called when a file is clicked. Without it, a click opens the file on GitHub. */
+  onPick?: (path: string) => void;
+  /** Replaces the count of changed files at the centre. */
+  core?: { n: string; k: string };
 }) {
-  const radar = useMemo(() => buildRadar(files, impacted, edges, totals), [files, impacted, edges, totals]);
+  const radar = useMemo(() => buildRadar(files, impacted, edges, totals, Boolean(core)), [files, impacted, edges, totals, core]);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [tip, setTip] = useState<Tip | null>(null);
   const [area, setArea] = useState<string | null>(null);
@@ -59,7 +65,7 @@ export function BlastRadar({
 
   return (
     <div className="radar" ref={wrapRef} onMouseLeave={() => { setTip(null); setArea(null); onActive(null); }}>
-      <svg viewBox={`-60 -40 ${SIZE + 120} ${SIZE + 80}`} role="img" aria-label="Blast radar: the files this pull request changes at the centre, and the files that import them on rings further out, grouped by area">
+      <svg viewBox={`-60 -40 ${SIZE + 120} ${SIZE + 80}`} role="img" aria-label="Blast radar: the changed files at the centre, and the files that import them on rings further out, grouped by area">
         <defs>
           <radialGradient id="radar-core" cx="40%" cy="35%" r="70%">
             <stop offset="0" stopColor="#ffb340" />
@@ -124,7 +130,7 @@ export function BlastRadar({
         )}
 
         {/* Files */}
-        {radar.nodes.map((n) => {
+        {radar.nodes.filter((n) => n.r > 0).map((n) => {
           const isActive = active === n.path;
           return (
             <circle
@@ -143,7 +149,7 @@ export function BlastRadar({
               onMouseEnter={(e) => { onActive(n.path); setTip({ ...place(e), node: n }); }}
               onMouseMove={(e) => setTip({ ...place(e), node: n })}
               onMouseLeave={() => { onActive(null); setTip(null); }}
-              onClick={() => n.state !== "removed" && window.open(fileUrl(n.path), "_blank", "noopener,noreferrer")}
+              onClick={() => n.state !== "removed" && (onPick ? onPick(n.path) : window.open(fileUrl(n.path), "_blank", "noopener,noreferrer"))}
             />
           );
         })}
@@ -151,8 +157,8 @@ export function BlastRadar({
         {/* Core: click to replay the shockwave */}
         <g className="radar-core" onClick={() => setWave((w) => w + 1)}>
           <circle cx={CENTER} cy={CENTER} r={CORE} fill="url(#radar-core)" />
-          <text x={CENTER} y={CENTER - 4} className="radar-core-n">{num(files.length)}</text>
-          <text x={CENTER} y={CENTER + 24} className="radar-core-k">changed</text>
+          <text x={CENTER} y={CENTER - 4} className="radar-core-n">{core?.n ?? num(files.length)}</text>
+          <text x={CENTER} y={CENTER + 24} className="radar-core-k">{core?.k ?? "changed"}</text>
         </g>
       </svg>
 
@@ -209,11 +215,10 @@ function basename(p: string): string {
   return p.slice(p.lastIndexOf("/") + 1);
 }
 
-export function Legend() {
+export function Legend({ single = false }: { single?: boolean }) {
   const items: [State, string][] = [
-    ["changed", "Changed"],
-    ["added", "Added"],
-    ["removed", "Deleted"],
+    ["changed", single ? "Selected file" : "Changed"],
+    ...(single ? [] : ([["added", "Added"], ["removed", "Deleted"]] as [State, string][])),
     ["ripple1", "Imports it"],
     ["ripple2", "2 steps away"],
     ["ripple3", "3 steps away"],

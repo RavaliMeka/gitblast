@@ -1,13 +1,13 @@
 // Builds the blast-radius report for one pull request: what it changes, what
 // imports the changed code, which tests cover it and what deserves a closer look.
 
-import { api, getRepo, tarball, type RepoMeta } from "./github";
+import { api, getRepo, GitHubError, tarball, type RepoMeta } from "./github";
 import { extractImports, indexFiles, isManifest, noteManifest, resolveImports } from "./imports";
 import { extOf, isTest, langOf, SOURCE_EXTS } from "./lang";
 import { areaOf } from "./area";
 import { num, plural } from "./format";
 import { readTarGz } from "./tar";
-import type { Impacted, Level, PRFile, PRReport, Risk, Role } from "./types";
+import type { ChangeKind, Impacted, Level, PRFile, PRReport, Risk, Role } from "./types";
 
 interface RawPull {
   number: number;
@@ -23,6 +23,9 @@ interface RawPull {
   deletions: number;
   commits: number;
   changed_files: number;
+  /** Set when the change is a commit or a comparison dressed as a pull request. */
+  kind?: ChangeKind;
+  ref?: string;
 }
 
 interface RawFile {
@@ -52,8 +55,82 @@ export async function analyzePR(owner: string, repo: string, number: number): Pr
     if (data.length < 100) break;
   }
 
-  const scan = await scanSource(meta, pull, rawFiles);
+  const scan = await scanSource(meta, [pull.head.sha, `refs/pull/${pull.number}/head`], rawFiles);
   return buildReport(meta, pull, rawFiles, scan);
+}
+
+interface RawCommit {
+  sha: string;
+  commit: { message: string; author: { name: string; date: string } | null };
+  author: { login: string } | null;
+  parents: { sha: string }[];
+  files?: RawFile[];
+}
+
+const sum = (files: RawFile[], key: "additions" | "deletions") => files.reduce((s, f) => s + f[key], 0);
+const firstLine = (message: string) => message.split("\n")[0].slice(0, 200);
+
+/** The blast radius of a single commit. */
+export async function analyzeCommit(owner: string, repo: string, sha: string): Promise<PRReport> {
+  const meta = await getRepo(owner, repo);
+  const base = `/repos/${meta.owner}/${meta.repo}/commits/${sha}`;
+  const { data: first } = await api<RawCommit>(`${base}?per_page=100`);
+  const rawFiles = first.files ?? [];
+  for (let page = 2; page <= MAX_FILE_PAGES && rawFiles.length === (page - 1) * 100; page++) {
+    rawFiles.push(...((await api<RawCommit>(`${base}?per_page=100&page=${page}`)).data.files ?? []));
+  }
+  const pull: RawPull = {
+    kind: "commit",
+    ref: first.sha.slice(0, 7),
+    number: 0,
+    title: firstLine(first.commit.message),
+    user: { login: first.author?.login ?? first.commit.author?.name ?? "unknown" },
+    state: "closed",
+    merged_at: null,
+    base: { ref: first.parents[0]?.sha.slice(0, 7) ?? "", sha: first.parents[0]?.sha ?? "" },
+    head: { ref: first.sha.slice(0, 7), sha: first.sha, repo: null },
+    created_at: first.commit.author?.date ?? "",
+    additions: sum(rawFiles, "additions"),
+    deletions: sum(rawFiles, "deletions"),
+    commits: 1,
+    changed_files: rawFiles.length,
+  };
+  return buildReport(meta, pull, rawFiles, await scanSource(meta, [first.sha], rawFiles));
+}
+
+interface RawCompare {
+  total_commits: number;
+  commits: RawCommit[];
+  files?: RawFile[];
+}
+
+/** The blast radius of everything on `head` that isn't on `base` (the default branch when empty). */
+export async function analyzeCompare(owner: string, repo: string, base: string, head: string): Promise<PRReport> {
+  const meta = await getRepo(owner, repo);
+  const from = base || meta.defaultBranch;
+  const enc = (ref: string) => ref.split("/").map(encodeURIComponent).join("/");
+  const { data } = await api<RawCompare>(`/repos/${meta.owner}/${meta.repo}/compare/${enc(from)}...${enc(head)}`);
+  const rawFiles = data.files ?? [];
+  if (data.total_commits === 0) throw new GitHubError("not_found", `${head} has nothing that ${from} doesn't, so there is no change to map.`, 404);
+  // GitHub lists at most 250 commits; past that the newest one isn't in the list, so read the branch by name.
+  const last = data.commits.length === data.total_commits ? data.commits[data.commits.length - 1] : undefined;
+  const pull: RawPull = {
+    kind: "compare",
+    ref: `${from}...${head}`,
+    number: 0,
+    title: data.total_commits === 1 && last ? firstLine(last.commit.message) : `${head} compared with ${from}`,
+    user: { login: last?.author?.login ?? last?.commit.author?.name ?? "" },
+    state: "open",
+    merged_at: null,
+    base: { ref: from, sha: "" },
+    head: { ref: head, sha: last?.sha ?? head, repo: null },
+    created_at: last?.commit.author?.date ?? "",
+    additions: sum(rawFiles, "additions"),
+    deletions: sum(rawFiles, "deletions"),
+    commits: data.total_commits,
+    changed_files: rawFiles.length,
+  };
+  return buildReport(meta, pull, rawFiles, await scanSource(meta, [pull.head.sha], rawFiles));
 }
 
 export interface SourceScan {
@@ -64,18 +141,19 @@ export interface SourceScan {
   failed: boolean;
 }
 
-async function scanSource(meta: RepoMeta, pull: RawPull, files: RawFile[]): Promise<SourceScan> {
+/** Downloads the source at the first of `refs` that GitHub will serve and reads every import in it. */
+export async function scanSource(meta: RepoMeta, refs: string[], files: { filename: string; status: string }[] = []): Promise<SourceScan> {
   const scan: SourceScan = { paths: [], imports: new Map(), manifests: new Map(), complete: true, failed: false };
-  let stream: ReadableStream<Uint8Array>;
-  try {
-    stream = await tarball(meta.owner, meta.repo, pull.head.sha);
-  } catch {
+  let stream: ReadableStream<Uint8Array> | undefined;
+  for (const ref of refs) {
     try {
-      stream = await tarball(meta.owner, meta.repo, `refs/pull/${pull.number}/head`);
+      stream = await tarball(meta.owner, meta.repo, ref);
+      break;
     } catch {
-      return { ...scan, complete: false, failed: true };
+      // Try the next ref.
     }
   }
+  if (!stream) return { ...scan, complete: false, failed: true };
   // Large repositories are read up to the limits; the report says so.
   const { truncated } = await readTarGz(
     stream,
@@ -98,16 +176,10 @@ async function scanSource(meta: RepoMeta, pull: RawPull, files: RawFile[]): Prom
   return scan;
 }
 
-export function buildReport(meta: RepoMeta, pull: RawPull, rawFiles: RawFile[], scan: SourceScan): PRReport {
-  const removed = new Set<string>();
-  for (const f of rawFiles) {
-    if (f.status === "removed") removed.add(f.filename);
-    if (f.status === "renamed" && f.previous_filename) removed.add(f.previous_filename);
-  }
+/** Resolves every import in a scan: importer → imported (`deps`), and the reverse (`users`). */
+export function importGraph(scan: SourceScan, removed: Iterable<string> = []) {
   const idx = indexFiles(scan.paths, removed);
   for (const [p, text] of scan.manifests) noteManifest(idx, p, text);
-
-  // importer → imported, and the reverse.
   const deps = new Map<string, string[]>();
   const users = new Map<string, string[]>();
   for (const [file, specs] of scan.imports) {
@@ -119,6 +191,16 @@ export function buildReport(meta: RepoMeta, pull: RawPull, rawFiles: RawFile[], 
       else users.set(t, [file]);
     }
   }
+  return { deps, users };
+}
+
+export function buildReport(meta: RepoMeta, pull: RawPull, rawFiles: RawFile[], scan: SourceScan): PRReport {
+  const removed = new Set<string>();
+  for (const f of rawFiles) {
+    if (f.status === "removed") removed.add(f.filename);
+    if (f.status === "renamed" && f.previous_filename) removed.add(f.previous_filename);
+  }
+  const { deps, users } = importGraph(scan, removed);
 
   const present = rawFiles.filter((f) => f.status !== "removed").map((f) => f.filename);
   const changed = new Set(present);
@@ -181,6 +263,8 @@ export function buildReport(meta: RepoMeta, pull: RawPull, rawFiles: RawFile[], 
   return {
     repo: { owner: meta.owner, repo: meta.repo, description: meta.description, stars: meta.stars },
     pr: {
+      kind: pull.kind ?? "pr",
+      ref: pull.ref ?? `#${pull.number}`,
       number: pull.number,
       title: pull.title,
       author: pull.user?.login ?? "ghost",
@@ -302,7 +386,7 @@ function findRisks(
       id: "dangling",
       level: "high",
       title: "Deleted files are still imported",
-      detail: `${plural(users.length, "file")} still seem${users.length === 1 ? "s" : ""} to import ${plural(dangling.size, "file")} this PR deletes or renames. That usually breaks the build.`,
+      detail: `${plural(users.length, "file")} still seem${users.length === 1 ? "s" : ""} to import ${plural(dangling.size, "file")} this change deletes or renames. That usually breaks the build.`,
       files: users,
     });
   }
@@ -391,8 +475,8 @@ function findRisks(
     add({
       id: "size",
       level: lines > 3000 ? "medium" : "low",
-      title: "Large pull request",
-      detail: `${num(lines)} lines across ${plural(raw.length, "file")}. Large PRs get shallower reviews; consider splitting it.`,
+      title: "Large change",
+      detail: `${num(lines)} lines across ${plural(raw.length, "file")}. Large changes get shallower reviews; consider splitting it.`,
       files: [],
     });
   }
@@ -455,7 +539,7 @@ function summarize(
   if (scan.failed) {
     out.push("The ripple effect couldn't be worked out because the source couldn't be downloaded.");
   } else if (impacted.size === 0) {
-    out.push(scan.imports.size > 0 ? "Nothing else in the repository imports the changed code, so the blast radius stays inside this PR." : "None of the changed files are code gitblast can follow imports for.");
+    out.push(scan.imports.size > 0 ? "Nothing else in the repository imports the changed code, so the blast radius stays inside this change." : "None of the changed files are code gitblast can follow imports for.");
   } else {
     const direct = [...impacted.values()].filter((i) => i.depth === 1).length;
     const t = tests.affected.length;

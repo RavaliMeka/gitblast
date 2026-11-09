@@ -69,7 +69,8 @@ export function arcPath(r: number, a: number, b: number): string {
   return `M ${x1} ${y1} A ${r} ${r} 0 ${b - a > Math.PI ? 1 : 0} 1 ${x2} ${y2}`;
 }
 
-export function buildRadar(files: PRFile[], impacted: Impacted[], edges: [string, string][], totals: Record<string, number>): Radar {
+/** With `centred`, the changed files sit on the core itself instead of on the ring around it. */
+export function buildRadar(files: PRFile[], impacted: Impacted[], edges: [string, string][], totals: Record<string, number>, centred = false): Radar {
   const changed: Seed[] = [...files]
     .sort((a, b) => b.reach - a.reach || b.additions + b.deletions - (a.additions + a.deletions))
     .slice(0, MAX_CHANGED)
@@ -118,6 +119,7 @@ export function buildRadar(files: PRFile[], impacted: Impacted[], edges: [string
     at += span + GAP;
   });
 
+  if (centred) for (const n of nodes) if (n.depth === 0) Object.assign(n, { x: CENTER, y: CENTER, r: 0 });
   const byPath = new Map(nodes.map((n) => [n.path, n]));
   const links: RadarLink[] = [];
   for (const [from, to] of edges) {

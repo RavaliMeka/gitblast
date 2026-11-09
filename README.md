@@ -10,16 +10,30 @@
 **Change one word in any GitHub link and see your code differently.**
 
 ```
-https://github.com/owner/repo/pull/123   →   https://gitblast.com/owner/repo/pull/123
-https://github.com/owner/repo            →   https://gitblast.com/owner/repo
+https://github.com/owner/repo                     →   https://gitblast.com/owner/repo
+https://github.com/owner/repo/pull/123            →   https://gitblast.com/owner/repo/pull/123
+https://github.com/owner/repo/commit/7f3e9a1      →   https://gitblast.com/owner/repo/commit/7f3e9a1
+https://github.com/owner/repo/compare/main...fix  →   https://gitblast.com/owner/repo/compare/main...fix
+https://github.com/owner/repo/blob/main/src/a.ts  →   https://gitblast.com/owner/repo/blob/main/src/a.ts
 ```
+
+Every GitHub link gives a blast result:
+
+| On GitHub you are looking at | gitblast shows |
+| --- | --- |
+| A repository | The **blast map**: its most load-bearing files, and what a change to any file would reach |
+| A file or a folder (`/blob/…`, `/tree/…`) | The blast map centred on that file, or ranked within that folder |
+| A pull request, a commit or a branch comparison | The **blast radius** report of that change |
+| `/owner/repo/timelapse` | The **time-lapse** |
+| `/owner/repo/pulls` | The open pull requests, each one click from its blast radius |
 
 ![The gitblast landing page, with a search box for each of the two tools](docs/images/01-home.png)
 
 gitblast has two tools, both free, open source and with no sign-in:
 
-- **Blast radius**: for a pull request, what it changes, everything that imports the changed code, the tests that
-  cover it, and what to review first.
+- **Blast radius**: for a repository or a file, what would break if it changed. For a pull request, commit or
+  branch, what it changes, everything that imports the changed code, the tests that cover it, and what to review
+  first.
 - **Time-lapse**: for a repository, how it grew from its first commit to today, folder by folder.
 
 > The examples use `gitblast.com`. Use your own deployment's address instead (for example
@@ -34,18 +48,30 @@ There are three ways in. All of them work for both tools.
 2. **Paste the whole link after the domain.** `gitblast.com/https://github.com/owner/repo/pull/123` works too,
    which is handy from a bookmarklet.
 3. **Use a search box.** On the home page, paste a link into the tool you want:
-   - **Blast radius** takes a pull request: a PR link, or `owner/repo#123`.
-   - **Time-lapse** takes a repository: a repository link or `owner/repo`. Given a PR link, it opens that
-     PR's repository.
+   - **Blast radius** takes any GitHub link, `owner/repo` or `owner/repo#123`.
+   - **Time-lapse** takes a repository: a repository link or `owner/repo`. Given any other link, it opens that
+     link's repository.
 
    The search box at the top of every page takes either kind.
 
 Only public repositories work. Large repositories can take up to a minute the first time, after which results
 are cached.
 
+## Blast map
+
+Open `/owner/repo`.
+
+One file sits at the centre of the radar, and every file a change to it would reach sits on the rings around it: the
+files that import it, then two and three imports away, sliced by area.
+
+- **Click any file** on the radar to put it at the centre. The address changes with it, so the link can be shared.
+- **Most load-bearing files** ranks the files a change travels furthest from. Click a row to centre it, or type in
+  the box to find any file.
+- **Tests to run** lists the existing tests that import the file, directly or not.
+
 ## Blast radius
 
-Open `/owner/repo/pull/123`.
+Open `/owner/repo/pull/123`, `/owner/repo/commit/<sha>` or `/owner/repo/compare/<base>...<head>`.
 
 ![A pull request report: blast score, a plain-English summary, and the blast radar](docs/images/02-pull-request.png)
 
@@ -82,7 +108,7 @@ reaches.
 
 ## Time-lapse
 
-Open `/owner/repo`.
+Open `/owner/repo/timelapse`.
 
 ![The time-lapse: growth rings for each point in history, folder chips, and the History graph](docs/images/04-time-lapse.png)
 
@@ -142,7 +168,7 @@ cp .env.example .env.local   # optional: add a GITHUB_TOKEN
 npm run dev                  # http://localhost:3000
 ```
 
-Then open `http://localhost:3000/owner/repo` or `http://localhost:3000/owner/repo/pull/123`.
+Then open `http://localhost:3000/owner/repo` or any other GitHub path, such as `/owner/repo/pull/123`.
 
 Without a token GitHub allows 60 API requests an hour, which is enough to try it. With a fine-grained token that
 has **public repositories (read-only)** access and nothing else, the limit is 5,000 an hour.

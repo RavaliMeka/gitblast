@@ -23,8 +23,15 @@ export async function GET(req: Request) {
   const path = new URL(req.url).searchParams.get("path") ?? "";
   const route = parseSegments(path.split("/"));
   const name = route ? `${route.owner}/${route.repo}` : "gitblast";
-  const kicker = route?.kind === "pr" ? `Pull request #${route.number}` : "Repository time-lapse";
-  const line = route?.kind === "pr" ? "What it changes, what imports it, what to review first." : "Watch it grow from the first commit to today.";
+  const timelapse = route?.kind === "repo" && route.view === "timelapse";
+  const kicker =
+    route?.kind === "pr" ? `Pull request #${route.number}`
+      : route?.kind === "commit" ? `Commit ${route.sha.slice(0, 7)}`
+        : route?.kind === "compare" ? `Branch ${route.head.slice(0, 40)}`
+          : timelapse ? "Repository time-lapse" : "Repository blast map";
+  const line =
+    route && route.kind !== "repo" ? "What it changes, what imports it, what to review first."
+      : timelapse ? "Watch it grow from the first commit to today." : "What breaks if a file changes.";
 
   return new ImageResponse(
     (
