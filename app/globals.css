@@ -2286,3 +2286,73 @@ button.graph-row {
   height: 100%;
   background: var(--blast);
 }
+
+.map-col .map-card {
+  position: relative;
+  top: 0;
+}
+
+.dep-scroll {
+  overflow-x: auto;
+}
+
+.dep-grid {
+  border-collapse: separate;
+  border-spacing: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.dep-grid th {
+  font-weight: 400;
+  color: var(--muted);
+  white-space: nowrap;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dep-grid thead th {
+  height: 96px;
+  vertical-align: bottom;
+  padding-bottom: 6px;
+}
+
+.dep-grid thead th span {
+  display: inline-block;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  max-height: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dep-grid tbody th {
+  text-align: right;
+  padding-right: 8px;
+}
+
+.dep-grid tbody th a:hover {
+  color: var(--link);
+}
+
+.dep-grid td {
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  border-radius: 9px;
+  text-align: center;
+  background: var(--bg-alt);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.dep-grid thead td {
+  background: none;
+}
+
+.dep-grid td.self {
+  background: none;
+  border: 1px dashed var(--line);
+  color: var(--faint);
+}

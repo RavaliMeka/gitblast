@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { areaOf } from "@/lib/area";
 import { compact, num, plural } from "@/lib/format";
 import { rank, reachOf, type Ranked } from "@/lib/graph";
 import { isTest, langOf } from "@/lib/lang";
@@ -139,6 +140,7 @@ function Explorer({ map, focus }: { map: RepoMap; focus?: string[] }) {
       )}
 
       <section className="report-grid">
+        <div className="stack map-col">
         <div className="card map-card">
           <div className="map-head">
             <h2 className="map-file" title={center}>
@@ -159,6 +161,8 @@ function Explorer({ map, focus }: { map: RepoMap; focus?: string[] }) {
             core={view.core}
           />
           <Legend single />
+        </div>
+        <FolderGrid map={map} home={home} />
         </div>
 
         <div className="stack">
@@ -223,6 +227,74 @@ function Explorer({ map, focus }: { map: RepoMap; focus?: string[] }) {
         </div>
       </section>
     </>
+  );
+}
+
+const GRID_AREAS = 8;
+
+/** Which areas of the repository import which: one square per pair, darker for more imports. */
+function FolderGrid({ map, home }: { map: RepoMap; home: string }) {
+  const { areas, count, max } = useMemo(() => {
+    const count = new Map<string, number>();
+    const weight = new Map<string, number>();
+    for (const [from, to] of map.edges) {
+      const a = areaOf(map.files[from]);
+      const b = areaOf(map.files[to]);
+      count.set(`${a}>${b}`, (count.get(`${a}>${b}`) ?? 0) + 1);
+      if (a !== b) for (const x of [a, b]) weight.set(x, (weight.get(x) ?? 0) + 1);
+    }
+    const areas = [...weight.entries()].sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0])).slice(0, GRID_AREAS).map(([a]) => a);
+    const max = Math.max(1, ...areas.flatMap((a) => areas.filter((b) => b !== a).map((b) => count.get(`${a}>${b}`) ?? 0)));
+    return { areas, count, max };
+  }, [map]);
+  if (areas.length < 2) return null;
+  const link = (area: string) => (area.startsWith("(") ? home : `${home}/tree/${[map.repo.defaultBranch, ...area.split("/")].map(encodeURIComponent).join("/")}`);
+
+  return (
+    <div className="card card-pad">
+      <h2>How the areas depend on each other</h2>
+      <p className="muted" style={{ margin: "0 0 14px", fontSize: 13 }}>
+        Each square counts the imports from the area on the left into the area on top. A full column is an area everything leans on.
+      </p>
+      <div className="dep-scroll">
+        <table className="dep-grid">
+          <thead>
+            <tr>
+              <td />
+              {areas.map((a) => (
+                <th key={a} scope="col" title={a}>
+                  <span>{a}</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {areas.map((from) => (
+              <tr key={from}>
+                <th scope="row" title={from}>
+                  <Link href={link(from)}>{from}</Link>
+                </th>
+                {areas.map((to) => {
+                  const n = count.get(`${from}>${to}`) ?? 0;
+                  const t = n / max;
+                  return from === to ? (
+                    <td key={to} className="self" title={`${num(n)} imports inside ${from}`}>{n > 0 ? num(n) : ""}</td>
+                  ) : (
+                    <td
+                      key={to}
+                      title={`${from} imports from ${to} ${num(n)} time${n === 1 ? "" : "s"}`}
+                      style={n > 0 ? { background: `color-mix(in srgb, var(--changed) ${Math.round(12 + t * 78)}%, transparent)`, color: t > 0.45 ? "#fff" : undefined } : undefined}
+                    >
+                      {n > 0 ? num(n) : ""}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 
