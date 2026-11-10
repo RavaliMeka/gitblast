@@ -147,9 +147,16 @@ function Player({ data, secondary }: { data: Timelapse; secondary: boolean }) {
       const ease = stillRef.current ? 1 : 1 - Math.exp(-dt / 70);
       weights.forEach((w, i) => (weights[i] = w + ((focus === null || focus === i ? 1 : 0) - w) * ease));
 
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
+      // Draw at the screen's real pixel density (which also grows with browser zoom), using the
+      // box's exact size: a whole-number size on a fractional box is stretched and comes out soft.
+      const dpr = Math.min(4, window.devicePixelRatio || 1);
+      const box = canvas.getBoundingClientRect();
+      const w = box.width;
+      const h = box.height;
+      if (w === 0 || h === 0) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
       if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
         canvas.width = Math.round(w * dpr);
         canvas.height = Math.round(h * dpr);
@@ -157,7 +164,7 @@ function Player({ data, secondary }: { data: Timelapse; secondary: boolean }) {
       // The scrubber follows the same clock as the rings, every frame.
       const pos = `${last === 0 ? 100 : (tRef.current / last) * 100}%`;
       if (pos !== shownPos) canvas.parentElement?.style.setProperty("--pos", (shownPos = pos));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
       ctx.clearRect(0, 0, w, h);
       drawRings(ctx, model, geometry(w, h, frames.length), tRef.current, focus, weights, theme);
       raf = requestAnimationFrame(draw);
@@ -352,8 +359,9 @@ function drawRings(
   const done = Math.floor(t);
   const raw = t - done;
   const sweep = raw * raw * (3 - 2 * raw);
-  // Thin rings need less of a gap, or many of them turn into stripes.
-  const thick = g.band * (model.counts.length > 20 ? 0.9 : 0.78);
+  // A gap narrower than a pixel can't be drawn sharply and turns into a haze of stripes, so thick
+  // rings get a clear 2px gap and thin ones touch, told apart by their fade alone.
+  const thick = g.band >= 7 ? g.band - 2 : g.band + 0.4;
   const TOP = -Math.PI / 2;
 
   // Faint tracks show where the rings still to come will go.
@@ -382,11 +390,12 @@ function drawRings(
       // less, or they sink into the page.
       const base = model.folders[a.folder].color;
       const color = theme.dark ? mix(base, "#ffffff", 0.18) : base;
-      const faded = mix(color, theme.surface, age * (theme.dark ? 0.32 : 0.55) * (1 - dim));
+      const faded = mix(color, theme.surface, age * (theme.dark ? 0.3 : 0.42) * (1 - dim));
       ctx.beginPath();
       ctx.arc(g.cx, g.cy, r, a.start, Math.min(a.end, limit));
       ctx.strokeStyle = faded;
-      const low = theme.dark ? 0.22 : 0.13;
+      // Folders that aren't singled out step back, but stay readable.
+      const low = theme.dark ? 0.34 : 0.26;
       ctx.globalAlpha = low + (1 - low) * weights[a.folder];
       ctx.lineWidth = thick;
       ctx.stroke();
