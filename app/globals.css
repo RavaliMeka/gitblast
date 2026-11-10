@@ -1901,7 +1901,7 @@ button.graph-row {
 .radar {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1340 / 1096;
 }
 
 .radar svg {
@@ -1914,8 +1914,8 @@ button.graph-row {
 .radar-guide {
   fill: none;
   stroke: var(--radar-guide);
-  stroke-width: 1.2;
-  stroke-dasharray: 3 7;
+  stroke-width: 2;
+  stroke-dasharray: 4 9;
   opacity: 0;
   animation: radar-fade 0.6s ease-out forwards;
 }
@@ -1963,7 +1963,7 @@ button.graph-row {
 }
 
 .radar-label {
-  font-size: 17px;
+  font-size: 26px;
   font-weight: 500;
   fill: var(--muted);
   transition: fill 0.3s var(--settle);
@@ -1977,10 +1977,10 @@ button.graph-row {
 .radar-links path {
   fill: none;
   stroke: var(--map-edge);
-  stroke-width: 1.4;
+  stroke-width: 2.2;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  opacity: 0.3;
+  opacity: 0.4;
   animation: graph-draw 0.9s ease-out forwards;
   transition: opacity 0.3s var(--settle);
 }
@@ -1988,7 +1988,7 @@ button.graph-row {
 .radar-trace path {
   fill: none;
   stroke: var(--changed);
-  stroke-width: 2.6;
+  stroke-width: 4;
   stroke-linecap: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
@@ -2033,13 +2033,13 @@ button.graph-row {
 }
 
 .radar-core-n {
-  font-size: 40px;
+  font-size: 46px;
   font-weight: 700;
   letter-spacing: -1px;
 }
 
 .radar-core-k {
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 500;
   opacity: 0.9;
 }
@@ -2394,5 +2394,12 @@ button.graph-row {
   }
   .gets dl > div {
     grid-template-columns: 1fr;
+  }
+}
+
+/* The radar is drawn in its own units and scaled to fit, so on a phone its type needs to start larger. */
+@media (max-width: 640px) {
+  .radar-label {
+    font-size: 34px;
   }
 }

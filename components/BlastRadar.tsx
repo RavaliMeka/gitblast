@@ -23,6 +23,11 @@ const STATE_LABEL: Record<State, string> = {
   ripple3: "Three imports away from the change",
 };
 
+// Room around the circle for the area names, which are set large enough to read once the drawing is scaled down.
+const PAD_X = 170;
+const PAD_Y = 48;
+const LABEL_CHARS = 13;
+
 type Tip = { x: number; y: number } & ({ node: RadarNode } | { sector: RadarSector });
 
 export function BlastRadar({
@@ -65,7 +70,7 @@ export function BlastRadar({
 
   return (
     <div className="radar" ref={wrapRef} onMouseLeave={() => { setTip(null); setArea(null); onActive(null); }}>
-      <svg viewBox={`-60 -40 ${SIZE + 120} ${SIZE + 80}`} role="img" aria-label="Blast radar: the changed files at the centre, and the files that import them on rings further out, grouped by area">
+      <svg viewBox={`-${PAD_X} -${PAD_Y} ${SIZE + PAD_X * 2} ${SIZE + PAD_Y * 2}`} role="img" aria-label="Blast radar: the changed files at the centre, and the files that import them on rings further out, grouped by area">
         <defs>
           <radialGradient id="radar-core" cx="40%" cy="35%" r="70%">
             <stop offset="0" stopColor="#ffb340" />
@@ -192,8 +197,8 @@ function SectorLabel({ sector, on }: { sector: RadarSector; on: boolean }) {
   const [x, y] = polar(LABEL, mid);
   const cos = Math.cos(mid);
   const anchor = cos > 0.25 ? "start" : cos < -0.25 ? "end" : "middle";
-  const room = Math.max(6, Math.round(((sector.end - sector.start) * LABEL) / 9));
-  const name = sector.area.length > Math.max(room, 14) ? `${sector.area.slice(0, Math.max(room, 14) - 1)}…` : sector.area;
+  // Names sit outside the circle, so they are cut to what fits in the margin beside it.
+  const name = sector.area.length > LABEL_CHARS ? `${sector.area.slice(0, LABEL_CHARS - 1)}…` : sector.area;
   return (
     <text x={x} y={y + 6} textAnchor={anchor} className={`radar-label${on ? " on" : ""}`}>
       {name}
