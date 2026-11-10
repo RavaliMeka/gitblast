@@ -2356,3 +2356,15 @@ button.graph-row {
   border: 1px dashed var(--line);
   color: var(--faint);
 }
+
+/* A second map under the first on a repository page */
+.lazy {
+  display: grid;
+  place-items: center;
+  padding: 56px 0 8px;
+}
+
+.report-grid ~ .page-head,
+.tl-grid ~ .page-head {
+  padding-top: 72px;
+}

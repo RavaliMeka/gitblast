@@ -21,10 +21,10 @@ Every GitHub link gives a blast result:
 
 | On GitHub you are looking at | gitblast shows |
 | --- | --- |
-| A repository | The **blast map**: its most load-bearing files, and what a change to any file would reach |
+| A repository | Both maps on one page: the **blast map** (its most load-bearing files, and what a change to any file would reach), then the **time-lapse** |
 | A file or a folder (`/blob/…`, `/tree/…`) | The blast map centred on that file, or ranked within that folder |
 | A pull request, a commit or a branch comparison | The **blast radius** report of that change |
-| `/owner/repo/timelapse` | The **time-lapse** |
+| `/owner/repo/timelapse` | The same page with the **time-lapse** first |
 | `/owner/repo/pulls` | The open pull requests, each one click from its blast radius |
 
 ![The gitblast landing page, with a search box for each of the two tools](docs/images/01-home.png)

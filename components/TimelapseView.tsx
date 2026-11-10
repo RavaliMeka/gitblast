@@ -16,7 +16,8 @@ const FRAME_MS = 900;
 /** Colours read from the page's theme tokens, so the canvas follows light and dark mode. */
 type Theme = { font: string; surface: string; track: string; text: string; muted: string; dark: boolean };
 
-export function TimelapseView({ owner, repo }: { owner: string; repo: string }) {
+/** With `secondary`, the view sits under another map on the same page and takes a smaller heading. */
+export function TimelapseView({ owner, repo, secondary = false }: { owner: string; repo: string; secondary?: boolean }) {
   const q = `owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`;
   const state = useApi<Timelapse>(`/api/timelapse?${q}`);
   if (state.status === "loading") {
@@ -29,10 +30,11 @@ export function TimelapseView({ owner, repo }: { owner: string; repo: string }) 
     );
   }
   if (state.status === "error") return <ErrorState error={state.error} githubUrl={`https://github.com/${owner}/${repo}`} />;
-  return <Player data={state.data} />;
+  return <Player data={state.data} secondary={secondary} />;
 }
 
-function Player({ data }: { data: Timelapse }) {
+function Player({ data, secondary }: { data: Timelapse; secondary: boolean }) {
+  const Title = secondary ? "h2" : "h1";
   const { repo, frames } = data;
   const model = useMemo(() => buildRings(frames), [frames]);
   const colors = useMemo(() => new Map(model.folders.map((f) => [f.key, f.color])), [model]);
@@ -206,9 +208,9 @@ function Player({ data }: { data: Timelapse }) {
   return (
     <>
       <header className="page-head">
-        <h1 className="page-title">How {repo.repo} grew</h1>
+        <Title className="page-title">How {repo.repo} grew</Title>
         <div className="meta-row">
-          {repo.description && <span style={{ flexBasis: "100%", color: "var(--muted)" }}>{repo.description}</span>}
+          {repo.description && !secondary && <span style={{ flexBasis: "100%", color: "var(--muted)" }}>{repo.description}</span>}
           <span>★ {compact(repo.stars)}</span>
           <span>{compact(repo.forks)} forks</span>
           {repo.language && <span>{repo.language}</span>}

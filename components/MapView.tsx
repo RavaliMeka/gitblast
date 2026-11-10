@@ -17,7 +17,8 @@ const MAX_SHOWN = 400;
 const MAX_EDGES = 900;
 const TOP_SHOWN = 10;
 
-export function MapView({ owner, repo, focus }: { owner: string; repo: string; focus?: string[] }) {
+/** With `secondary`, the view sits under another map on the same page and takes a smaller heading. */
+export function MapView({ owner, repo, focus, secondary = false }: { owner: string; repo: string; focus?: string[]; secondary?: boolean }) {
   const state = useApi<RepoMap>(`/api/map?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`);
   if (state.status === "loading") {
     return (
@@ -29,10 +30,11 @@ export function MapView({ owner, repo, focus }: { owner: string; repo: string; f
     );
   }
   if (state.status === "error") return <ErrorState error={state.error} githubUrl={`https://github.com/${owner}/${repo}`} />;
-  return <Explorer map={state.data} focus={focus} />;
+  return <Explorer map={state.data} focus={focus} secondary={secondary} />;
 }
 
-function Explorer({ map, focus }: { map: RepoMap; focus?: string[] }) {
+function Explorer({ map, focus, secondary }: { map: RepoMap; focus?: string[]; secondary: boolean }) {
+  const Title = secondary ? "h2" : "h1";
   const { repo } = map;
   const home = `/${repo.owner}/${repo.repo}`;
   const users = useMemo(() => {
@@ -113,9 +115,9 @@ function Explorer({ map, focus }: { map: RepoMap; focus?: string[] }) {
   return (
     <>
       <header className="page-head">
-        <h1 className="page-title">What breaks if this changes</h1>
+        <Title className="page-title">What breaks if this changes</Title>
         <div className="meta-row">
-          {repo.description && <span style={{ flexBasis: "100%", color: "var(--muted)" }}>{repo.description}</span>}
+          {repo.description && !secondary && <span style={{ flexBasis: "100%", color: "var(--muted)" }}>{repo.description}</span>}
           <span>★ {compact(repo.stars)}</span>
           <span>{plural(map.files.length, "connected file")}</span>
           <span>{plural(map.edges.length, "import")}</span>

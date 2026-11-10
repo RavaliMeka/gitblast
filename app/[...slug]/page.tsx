@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { Lazy } from "@/components/Lazy";
 import { MapView } from "@/components/MapView";
 import { PRView } from "@/components/PRView";
 import { PullList } from "@/components/PullList";
@@ -27,9 +28,9 @@ function describe(route: Route): { title: string; description: string } {
   if (route.kind === "compare") {
     return { title: `${name} ${route.head}`, description: `The blast radius of ${route.head} in ${name}, before it becomes a pull request.` };
   }
-  if (route.view === "timelapse") return { title: `${name} time-lapse`, description: `Watch ${name} grow from its first commit to today.` };
+  if (route.view === "timelapse") return { title: `${name} time-lapse`, description: `Watch ${name} grow from its first commit to today, and see what breaks if a file changes.` };
   if (route.view === "pulls") return { title: `${name} pull requests`, description: `See the blast radius of any open pull request in ${name}.` };
-  return { title: `${name} blast map`, description: `What breaks if a file in ${name} changes: its most load-bearing files and everything that imports them.` };
+  return { title: `${name} blast map`, description: `What breaks if a file in ${name} changes, and how the repository grew from its first commit to today.` };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -66,12 +67,22 @@ export default async function Page({ params }: Props) {
                 <b style={{ color: "var(--text)", fontWeight: 600 }}>{route.repo}</b>
               </div>
               <RepoTabs owner={route.owner} repo={route.repo} view={route.view} />
-              {route.view === "timelapse" ? (
-                <TimelapseView owner={route.owner} repo={route.repo} />
-              ) : route.view === "pulls" ? (
+              {route.view === "pulls" ? (
                 <PullList owner={route.owner} repo={route.repo} />
+              ) : route.view === "timelapse" ? (
+                <>
+                  <TimelapseView owner={route.owner} repo={route.repo} />
+                  <Lazy label="Show the blast map">
+                    <MapView owner={route.owner} repo={route.repo} secondary />
+                  </Lazy>
+                </>
               ) : (
-                <MapView owner={route.owner} repo={route.repo} focus={route.focus} />
+                <>
+                  <MapView owner={route.owner} repo={route.repo} focus={route.focus} />
+                  <Lazy label="Show the time-lapse">
+                    <TimelapseView owner={route.owner} repo={route.repo} secondary />
+                  </Lazy>
+                </>
               )}
             </>
           ) : (
