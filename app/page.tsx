@@ -4,28 +4,16 @@ import { LogoMark, Wordmark } from "@/components/Logo";
 import { UrlBox } from "@/components/UrlBox";
 import { SITE, swapParts } from "@/lib/site";
 
-const TOOLS = [
-  {
-    title: "Blast radius",
-    text: "For any repository, file, commit, branch or pull request: what a change reaches and what to review first.",
-    background: "var(--blast)",
-    Icon: BlastIcon,
-    mode: "any",
-    placeholder: "Any GitHub link",
-    cta: "Show blast radius",
-    examples: ["facebook/react", "vercel/next.js", "sandeepkomal/blast-radius/pull/1"],
-  },
-  {
-    title: "Time-lapse",
-    text: "For a repository: watch it grow from the first commit to today, folder by folder.",
-    background: "linear-gradient(135deg, #40c8e0, #0a84ff 55%, #5e5ce6)",
-    Icon: TimelapseIcon,
-    mode: "timelapse",
-    placeholder: "github.com/owner/repo",
-    cta: "Play time-lapse",
-    examples: ["facebook/react/timelapse", "golang/go/timelapse"],
-  },
-] as const;
+const EXAMPLES = ["facebook/react", "vercel/next.js", "golang/go", "sandeepkomal/blast-radius/pull/1"];
+
+const PROMISES = ["Free and open source", "No sign-in, no install", "Public repositories only", "Your code is never stored"];
+
+/** What each kind of GitHub link turns into. */
+const GETS = [
+  ["A repository", "github.com/owner/repo", "The blast map, the ripple effect, how its areas depend on each other and the time-lapse, all on one page."],
+  ["A file or a folder", "…/blob/main/src/app.ts", "The same map, centred on that file or ranked within that folder."],
+  ["A pull request, a commit or a branch", "…/pull/123 · …/commit/7f3e9a1 · …/compare/main...fix", "The blast radius report: a risk score, every file the change reaches, the tests to run and the order to review it in."],
+];
 
 const STEPS = [
   ["Reads the source.", "It downloads the public source at the commit you are looking at and keeps it in memory only."],
@@ -45,36 +33,41 @@ export default function Home() {
           </div>
           <h1>Change one word. See your code differently.</h1>
           <p className="lede">
-            Swap github.com for {SITE.host} in any link. Two tools, no install and no sign-in: the blast radius of a pull
-            request, and a time-lapse of how a repository grew.
+            Swap github.com for {SITE.host} in any GitHub link and get a map of the code: what breaks if it changes, how
+            far a change ripples, and how the repository grew.
           </p>
 
           <Swap />
 
-          <Tools />
+          <Start />
+
+          <ul className="promises">
+            {PROMISES.map((p) => (
+              <li key={p}>{p}</li>
+            ))}
+          </ul>
         </section>
 
         <section className="band band-alt">
           <div className="wrap">
             <div className="band-head">
-              <h2>What each tool shows you.</h2>
-              <p>Both work on any public repository and read the code itself, so every result can be traced back.</p>
+              <h2>One swap. Everything about the code.</h2>
+              <p>Every result comes from reading the code itself, so each line on a map can be traced back to an import.</p>
             </div>
             <div className="features">
               <article className="card feature">
-                <div className="kicker">any GitHub link</div>
+                <div className="kicker">what breaks if this changes?</div>
                 <h3>Blast radius.</h3>
                 <p>
-                  On a repository or a file, see what would break if it changed. On a pull request, commit or branch, see
-                  every changed file with the code that imports it rippling outwards, the tests that cover it, a risk
-                  score and the best order to review it in.
+                  Pick any file and see everything a change to it would reach, the ripple it sends through the code and
+                  the tests to run. On a pull request, commit or branch you also get a risk score and a review order.
                 </p>
                 <div className="art">
                   <BlastArt />
                 </div>
               </article>
               <article className="card feature">
-                <div className="kicker">/owner/repo/timelapse</div>
+                <div className="kicker">how did it get here?</div>
                 <h3>Time-lapse.</h3>
                 <p>
                   Watch the codebase grow from its first commit to today. New folders appear, languages arrive, and big
@@ -84,6 +77,21 @@ export default function Home() {
                   <TimelapseArt />
                 </div>
               </article>
+            </div>
+
+            <div className="card gets">
+              <h3>What you get from each link</h3>
+              <dl>
+                {GETS.map(([what, link, get]) => (
+                  <div key={what}>
+                    <dt>
+                      {what}
+                      <span className="mono">{link}</span>
+                    </dt>
+                    <dd>{get}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           </div>
         </section>
@@ -112,7 +120,7 @@ export default function Home() {
               <h2>Try it on any repository.</h2>
               <p>Paste a link below, or just change github.com to {SITE.host} in your address bar.</p>
             </div>
-            <Tools compact />
+            <Start examples={false} />
           </div>
         </section>
       </main>
@@ -121,51 +129,22 @@ export default function Home() {
   );
 }
 
-/** The two tools side by side, each with its own search box. */
-function Tools({ compact = false }: { compact?: boolean }) {
+/** One search box for any GitHub link, with a few repositories to try. */
+function Start({ examples = true }: { examples?: boolean }) {
   return (
-    <div className={`tools${compact ? " tools-compact" : ""}`}>
-      {TOOLS.map(({ title, text, background, Icon, mode, placeholder, cta, examples }) => (
-        <div key={title} className="card tool">
-          <div className="tool-icon" style={{ background }} aria-hidden="true">
-            <Icon />
-          </div>
-          <h2>{title}</h2>
-          <p>{text}</p>
-          <UrlBox mode={mode} placeholder={placeholder} cta={cta} />
-          {!compact && (
-            <div className="examples">
-              <span className="faint">Try</span>
-              {examples.map((e) => (
-                <Link key={e} href={`/${e}`}>
-                  {e.replace("/pull/", "#").replace("/timelapse", "")}
-                </Link>
-              ))}
-            </div>
-          )}
+    <div className="start">
+      <UrlBox placeholder="Paste any GitHub link, or type owner/repo" cta="Show me" />
+      {examples && (
+        <div className="examples">
+          <span className="faint">Try</span>
+          {EXAMPLES.map((e) => (
+            <Link key={e} href={`/${e}`}>
+              {e.replace("/pull/", "#")}
+            </Link>
+          ))}
         </div>
-      ))}
+      )}
     </div>
-  );
-}
-
-function BlastIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" strokeWidth="1.8">
-      <circle cx="12" cy="12" r="3" fill="#fff" stroke="none" />
-      <circle cx="12" cy="12" r="6.5" strokeOpacity="0.8" />
-      <circle cx="12" cy="12" r="10" strokeOpacity="0.45" />
-    </svg>
-  );
-}
-
-function TimelapseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff">
-      <circle cx="5" cy="15" r="2" fillOpacity="0.6" />
-      <circle cx="11" cy="13" r="3.2" fillOpacity="0.8" />
-      <circle cx="18.5" cy="10.5" r="4.5" />
-    </svg>
   );
 }
 

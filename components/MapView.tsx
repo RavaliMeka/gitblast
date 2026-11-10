@@ -1,16 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { areaOf } from "@/lib/area";
 import { compact, num, plural } from "@/lib/format";
-import { rank, reachOf, type Ranked } from "@/lib/graph";
+import { rank, reachOf, type Ranked, type Reach } from "@/lib/graph";
 import { isTest, langOf } from "@/lib/lang";
 import { resolveFocus } from "@/lib/route";
 import type { Impacted, PRFile, RepoMap } from "@/lib/types";
 import { useApi } from "@/lib/useApi";
 import { BlastRadar, Legend } from "./BlastRadar";
 import { CopyLink } from "./CopyLink";
+import { GraphList, type GraphRow } from "./GraphList";
 import { ErrorState, Loading, Stat } from "./States";
 
 const MAX_SHOWN = 400;
@@ -61,11 +62,11 @@ function Explorer({ map, focus, secondary }: { map: RepoMap; focus?: string[]; s
   useEffect(() => {
     if (picked) window.history.replaceState(null, "", `${home}/blob/${[repo.defaultBranch, ...center.split("/")].map(encodeURIComponent).join("/")}`);
   }, [picked, center, home, repo.defaultBranch]);
-  const pick = (path: string) => {
+  const pick = useCallback((path: string) => {
     setCenter(path);
     setPicked(true);
     setActive(null);
-  };
+  }, []);
 
   const view = useMemo(() => {
     const reach = reachOf(center, users);
@@ -80,6 +81,7 @@ function Explorer({ map, focus, secondary }: { map: RepoMap; focus?: string[]; s
       files: [file],
       impacted,
       edges,
+      reach,
       total: reach.size,
       core: { n: num(reach.size), k: "reached" },
       direct: all.filter(([, r]) => r.depth === 1).length,
@@ -116,6 +118,9 @@ function Explorer({ map, focus, secondary }: { map: RepoMap; focus?: string[]; s
     <>
       <header className="page-head">
         <Title className="page-title">What breaks if this changes</Title>
+        <p className="page-intro">
+          Pick any file to see everything a change to it would reach.{!secondary && " How this repository grew is further down the page."}
+        </p>
         <div className="meta-row">
           {repo.description && !secondary && <span style={{ flexBasis: "100%", color: "var(--muted)" }}>{repo.description}</span>}
           <span>★ {compact(repo.stars)}</span>
@@ -215,6 +220,8 @@ function Explorer({ map, focus, secondary }: { map: RepoMap; focus?: string[]; s
             )}
           </div>
 
+          <Ripple center={center} reach={view.reach} onActive={setActive} onPick={pick} />
+
           {view.tests.length > 0 && (
             <div className="card card-pad">
               <h2>
@@ -229,6 +236,87 @@ function Explorer({ map, focus, secondary }: { map: RepoMap; focus?: string[]; s
         </div>
       </section>
     </>
+  );
+}
+
+const LANES = ["var(--lane-1)", "var(--lane-2)", "var(--lane-3)"];
+const PER_LANE = 4;
+const QUIET = 4;
+const DEPTH_TEXT = ["", "Import it directly", "Two steps away", "Three steps away"];
+const DEPTH_COLOR = ["", "var(--ripple1)", "var(--ripple2)", "var(--ripple3)"];
+
+/**
+ * The ripple as a git graph: the selected file is the root, the importers that carry
+ * the change furthest each get a lane, and the files reached through them hang off it.
+ */
+function Ripple({ center, reach, onActive, onPick }: { center: string; reach: Reach; onActive: (p: string | null) => void; onPick: (p: string) => void }) {
+  const [list, setList] = useState(false);
+  const rows = useMemo(() => {
+    // Every reached file leads back to one direct importer; group the ripple by it.
+    const carried = new Map<string, string[]>();
+    for (const [path, r] of reach) {
+      if (r.depth === 1) {
+        if (!carried.has(path)) carried.set(path, []);
+        continue;
+      }
+      let via = r.via;
+      while ((reach.get(via)?.depth ?? 1) > 1) via = reach.get(via)!.via;
+      carried.set(via, [...(carried.get(via) ?? []), path]);
+    }
+    const direct = [...carried.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+    const lanes = direct.filter(([, onward]) => onward.length > 0).slice(0, LANES.length);
+    const row = (path: string, lane: number, tag: string, extra: Partial<GraphRow> = {}): GraphRow => ({
+      key: `${lane}:${path}`,
+      lane,
+      label: <span className="graph-mono">{path}</span>,
+      title: path,
+      tag,
+      onHover: (on) => onActive(on ? path : null),
+      onClick: () => onPick(path),
+      ...extra,
+    });
+    const out: GraphRow[] = [];
+    lanes.forEach(([path, onward], i) => {
+      out.push(row(path, i + 1, "imports it", { lit: true, meta: `carries it to ${num(onward.length)}` }));
+      for (const p of onward.slice(0, PER_LANE)) out.push(row(p, i + 1, isTest(p) ? "test" : `${reach.get(p)?.depth} steps`));
+    });
+    for (const [path] of direct.filter((d) => !lanes.includes(d)).slice(0, QUIET)) out.push(row(path, 0, isTest(path) ? "test" : "imports it"));
+    return out;
+  }, [reach, onActive, onPick]);
+
+  if (reach.size === 0) return null;
+  const groups = ([1, 2, 3] as const).map((d) => [...reach.entries()].filter(([, r]) => r.depth === d).map(([p]) => p).sort()).filter((g) => g.length > 0);
+  return (
+    <div className="card card-pad">
+      <h2>
+        Ripple effect <span className="count">{num(reach.size)}</span>
+      </h2>
+      {list ? (
+        groups.map((g) => {
+          const d = reach.get(g[0])!.depth;
+          return (
+            <div className="ripple-group" key={d}>
+              <h3>
+                <i className="dot" style={{ background: DEPTH_COLOR[d] }} />
+                {DEPTH_TEXT[d]} <span className="faint">{g.length}</span>
+              </h3>
+              <ul className="path-list">
+                {g.slice(0, 200).map((p) => (
+                  <li key={p} title={p} onMouseEnter={() => onActive(p)} onMouseLeave={() => onActive(null)}>
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })
+      ) : (
+        <GraphList root={{ label: `A change to ${center.slice(center.lastIndexOf("/") + 1)} reaches ${plural(reach.size, "file")}`, color: "var(--changed)" }} lanes={LANES} rows={rows} />
+      )}
+      <button className="btn btn-ghost graph-more" onClick={() => setList(!list)}>
+        {list ? "Show as graph" : `Show all ${num(reach.size)} files`}
+      </button>
+    </div>
   );
 }
 

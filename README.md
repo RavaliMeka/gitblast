@@ -67,7 +67,12 @@ files that import it, then two and three imports away, sliced by area.
 - **Click any file** on the radar to put it at the centre. The address changes with it, so the link can be shared.
 - **Most load-bearing files** ranks the files a change travels furthest from. Click a row to centre it, or type in
   the box to find any file.
+- **Ripple effect** draws the change as a graph: the importers that carry it furthest each get a branch, with the
+  files reached through them hanging off it. Click a row to centre that file.
+- **How the areas depend on each other** counts the imports from each area of the repository into every other.
 - **Tests to run** lists the existing tests that import the file, directly or not.
+
+The time-lapse sits below the map on the same page and loads when you scroll to it.
 
 ## Blast radius
 

@@ -4,24 +4,14 @@ import { useRouter } from "next/navigation";
 import { useId, useState, type FormEvent } from "react";
 import { parseInput, routePath } from "@/lib/route";
 
-type Mode = "any" | "timelapse";
+const HINT = "Paste a GitHub link, or type owner/repo or owner/repo#123.";
 
-const HINT: Record<Mode, string> = {
-  any: "Paste a GitHub link, or type owner/repo or owner/repo#123.",
-  timelapse: "Paste a repository link, or type owner/repo.",
-};
-
-/**
- * A search box that turns whatever is pasted into a gitblast page. `timelapse`
- * opens the repository's time-lapse whatever kind of link is pasted.
- */
+/** A search box that turns whatever is pasted into a gitblast page. */
 export function UrlBox({
-  mode = "any",
   compact = false,
   placeholder,
   cta,
 }: {
-  mode?: Mode;
   compact?: boolean;
   placeholder?: string;
   cta?: string;
@@ -33,10 +23,9 @@ export function UrlBox({
 
   function submit(e: FormEvent) {
     e.preventDefault();
-    let route = parseInput(value);
-    if (route && mode === "timelapse") route = { kind: "repo", owner: route.owner, repo: route.repo, view: "timelapse" };
+    const route = parseInput(value);
     if (!route) {
-      setError(HINT[mode]);
+      setError(HINT);
       return;
     }
     setError("");
@@ -47,7 +36,7 @@ export function UrlBox({
     <form onSubmit={submit} role="search">
       <div className={`urlbox${compact ? " compact" : ""}`}>
         <label htmlFor={id} className="sr-only">
-          {mode === "timelapse" ? "GitHub repository" : "GitHub link"}
+          GitHub link
         </label>
         <input
           id={id}
