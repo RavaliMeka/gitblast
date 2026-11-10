@@ -24,9 +24,9 @@ const STATE_LABEL: Record<State, string> = {
 };
 
 // Room around the circle for the area names, which are set large enough to read once the drawing is scaled down.
-const PAD_X = 170;
-const PAD_Y = 48;
-const LABEL_CHARS = 13;
+const PAD_X = 96;
+const PAD_Y = 40;
+const LABEL_CHARS = 10;
 
 type Tip = { x: number; y: number } & ({ node: RadarNode } | { sector: RadarSector });
 

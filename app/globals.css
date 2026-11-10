@@ -1901,7 +1901,7 @@ button.graph-row {
 .radar {
   position: relative;
   width: 100%;
-  aspect-ratio: 1340 / 1096;
+  aspect-ratio: 1192 / 1080;
 }
 
 .radar svg {
@@ -2400,6 +2400,6 @@ button.graph-row {
 /* The radar is drawn in its own units and scaled to fit, so on a phone its type needs to start larger. */
 @media (max-width: 640px) {
   .radar-label {
-    font-size: 34px;
+    font-size: 30px;
   }
 }
