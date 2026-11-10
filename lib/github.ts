@@ -16,7 +16,24 @@ export class GitHubError extends Error {
   }
 }
 
-const API = "https://api.github.com";
+// The trailing slash fixes the host: nothing appended after it can point the request anywhere else.
+const API = "https://api.github.com/";
+const API_ORIGIN = "https://api.github.com";
+
+/**
+ * Builds a GitHub API URL from a path such as "/repos/o/r/commits/abc", refusing anything that could
+ * step outside the API: "." or ".." segments, backslashes, encoded slashes, or a different host.
+ */
+export function apiUrl(path: string): URL {
+  const [route] = path.split("?");
+  if (!route.startsWith("/") || /(^|\/)\.{1,2}(\/|$)|\\|%2e|%2f|%5c|\/\//i.test(route)) {
+    throw new GitHubError("not_found", "That isn't a valid repository path.", 404);
+  }
+  const url = new URL(API + path.slice(1));
+  if (url.origin !== API_ORIGIN) throw new GitHubError("not_found", "That isn't a valid repository path.", 404);
+  return url;
+}
+
 const UA = "gitblast/0.1 (open-source repository visualiser)";
 
 function headers(accept = "application/vnd.github+json"): HeadersInit {
@@ -32,8 +49,9 @@ function headers(accept = "application/vnd.github+json"): HeadersInit {
 
 export async function api<T>(path: string, timeoutMs = 15_000): Promise<{ data: T; headers: Headers }> {
   let res: Response;
+  const url = apiUrl(path);
   try {
-    res = await fetch(API + path, { headers: headers(), signal: AbortSignal.timeout(timeoutMs), cache: "no-store" });
+    res = await fetch(url, { headers: headers(), signal: AbortSignal.timeout(timeoutMs), cache: "no-store" });
   } catch {
     throw new GitHubError("upstream", "GitHub didn't answer in time. Try again in a moment.");
   }

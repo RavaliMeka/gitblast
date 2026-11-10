@@ -13,7 +13,7 @@ const MAX_EDGES = 30_000;
 export async function analyzeRepoMap(owner: string, repo: string): Promise<RepoMap> {
   const meta = await getRepo(owner, repo);
   // Pin the branch to a commit so file links keep pointing at what was read.
-  const { data: branch } = await api<{ sha: string }>(`/repos/${meta.owner}/${meta.repo}/commits/${encodeURIComponent(meta.defaultBranch)}`);
+  const { data: branch } = await api<{ sha: string }>(`/repos/${meta.owner}/${meta.repo}/commits/${meta.defaultBranch.split("/").map(encodeURIComponent).join("/")}`);
   const scan = await scanSource(meta, [branch.sha]);
   return {
     repo: { owner: meta.owner, repo: meta.repo, description: meta.description, stars: meta.stars, defaultBranch: meta.defaultBranch },
