@@ -134,7 +134,8 @@ export async function getRepo(owner: string, repo: string): Promise<RepoMeta> {
   if (blocked(owner, repo)) {
     throw new GitHubError("unavailable", "The owner of this repository asked not to be shown on gitblast.", 403);
   }
-  const { data: r } = await api<RawRepo>(`/repos/${owner}/${repo}`);
+  // Already checked against GitHub's naming rules above; encoded too, so only a name can reach the request URL.
+  const { data: r } = await api<RawRepo>(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`);
   if (r.private || (r.visibility && r.visibility !== "public")) {
     throw new GitHubError("not_found", "That repository doesn't exist, or isn't public.", 404);
   }

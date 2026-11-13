@@ -18,8 +18,12 @@ export async function GET(req: Request) {
   const base = q.get("base") ?? "";
   const head = q.get("head") ?? "";
   if (!validOwner(owner) || !validRepo(repo)) return fail("bad_request", "That isn't a valid repository.", 400);
-  if (sha !== null ? !validSha(sha) : !validRef(head) || (base !== "" && !validRef(base))) {
-    return fail("bad_request", "That isn't a valid commit or comparison.", 400);
+  const bad = () => fail("bad_request", "That isn't a valid commit or comparison.", 400);
+  if (sha !== null) {
+    if (!validSha(sha)) return bad();
+  } else {
+    if (!validRef(head)) return bad();
+    if (base !== "" && !validRef(base)) return bad();
   }
   // Branch names are case-sensitive, so only the repository part is folded.
   const key = `${owner}/${repo}`.toLowerCase() + `@${sha ?? `${base}...${head}`}`;

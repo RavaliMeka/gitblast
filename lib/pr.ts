@@ -7,6 +7,7 @@ import { extOf, isTest, langOf, SOURCE_EXTS } from "./lang";
 import { areaOf } from "./area";
 import { num, plural } from "./format";
 import { readTarGz } from "./tar";
+import { validRef, validSha } from "./route";
 import type { ChangeKind, Impacted, Level, PRFile, PRReport, Risk, Role } from "./types";
 
 interface RawPull {
@@ -72,8 +73,10 @@ const firstLine = (message: string) => message.split("\n")[0].slice(0, 200);
 
 /** The blast radius of a single commit. */
 export async function analyzeCommit(owner: string, repo: string, sha: string): Promise<PRReport> {
+  // Checked here as well as in the route, and encoded, so nothing but a commit id can reach the request URL.
+  if (!validSha(sha)) throw new GitHubError("not_found", "That isn't a valid commit.", 404);
   const meta = await getRepo(owner, repo);
-  const base = `/repos/${meta.owner}/${meta.repo}/commits/${sha}`;
+  const base = `/repos/${meta.owner}/${meta.repo}/commits/${encodeURIComponent(sha)}`;
   const { data: first } = await api<RawCommit>(`${base}?per_page=100`);
   const rawFiles = first.files ?? [];
   for (let page = 2; page <= MAX_FILE_PAGES && rawFiles.length === (page - 1) * 100; page++) {
@@ -106,9 +109,12 @@ interface RawCompare {
 
 /** The blast radius of everything on `head` that isn't on `base` (the default branch when empty). */
 export async function analyzeCompare(owner: string, repo: string, base: string, head: string): Promise<PRReport> {
+  if (!validRef(head)) throw new GitHubError("not_found", "That isn't a valid branch.", 404);
+  if (base !== "" && !validRef(base)) throw new GitHubError("not_found", "That isn't a valid branch.", 404);
   const meta = await getRepo(owner, repo);
   const from = base || meta.defaultBranch;
-  const enc = (ref: string) => ref.split("/").map(encodeURIComponent).join("/");
+  // Branch names may contain slashes, so each part is encoded on its own.
+  const enc = (ref: string) => ref.split("/").map((part) => encodeURIComponent(part)).join("/");
   const { data } = await api<RawCompare>(`/repos/${meta.owner}/${meta.repo}/compare/${enc(from)}...${enc(head)}`);
   const rawFiles = data.files ?? [];
   if (data.total_commits === 0) throw new GitHubError("not_found", `${head} has nothing that ${from} doesn't, so there is no change to map.`, 404);
