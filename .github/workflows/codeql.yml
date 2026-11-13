@@ -37,3 +37,11 @@ jobs:
       - uses: github/codeql-action/analyze@v4
         with:
           category: /language:${{ matrix.language }}
+      # Print each finding and the path the scanner traced to it, so an open alert can be read from the job log.
+      - name: List findings
+        if: always()
+        run: |
+          for f in ../results/*.sarif; do
+            jq -r '.runs[].results[] | "FINDING \(.ruleId) \(.locations[0].physicalLocation.artifactLocation.uri):\(.locations[0].physicalLocation.region.startLine)", ((.codeFlows // [])[:4][] | "  PATH " + ([.threadFlows[0].locations[].location | "\(.physicalLocation.artifactLocation.uri):\(.physicalLocation.region.startLine)"] | join(" > ")))' "$f"
+          done
+          echo "FINDINGS LISTED"

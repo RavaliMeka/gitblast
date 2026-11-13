@@ -110,9 +110,13 @@ interface RawCompare {
 /** The blast radius of everything on `head` that isn't on `base` (the default branch when empty). */
 export async function analyzeCompare(owner: string, repo: string, base: string, head: string): Promise<PRReport> {
   if (!validRef(head)) throw new GitHubError("not_found", "That isn't a valid branch.", 404);
-  if (base !== "" && !validRef(base)) throw new GitHubError("not_found", "That isn't a valid branch.", 404);
   const meta = await getRepo(owner, repo);
-  const from = base || meta.defaultBranch;
+  // Either GitHub's own default branch, or a base that has passed the check on its own line.
+  let from = meta.defaultBranch;
+  if (base !== "") {
+    if (!validRef(base)) throw new GitHubError("not_found", "That isn't a valid branch.", 404);
+    from = base;
+  }
   // Branch names may contain slashes, so each part is encoded on its own.
   const enc = (ref: string) => ref.split("/").map((part) => encodeURIComponent(part)).join("/");
   const { data } = await api<RawCompare>(`/repos/${meta.owner}/${meta.repo}/compare/${enc(from)}...${enc(head)}`);
