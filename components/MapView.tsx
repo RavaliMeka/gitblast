@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { areaOf } from "@/lib/area";
@@ -10,10 +11,16 @@ import { resolveFocus } from "@/lib/route";
 import type { Impacted, PRFile, RepoMap } from "@/lib/types";
 import { useApi } from "@/lib/useApi";
 import { BlastRadar, Legend } from "./BlastRadar";
+import { riskOf } from "./chain";
 import { CopyLink } from "./CopyLink";
 import { GraphList, type GraphRow } from "./GraphList";
 import { ErrorState, Loading, Stat } from "./States";
 
+// The 3D view brings in a graphics library, so it is fetched only when a repository map is opened.
+const ChainReaction = dynamic(() => import("./ChainReaction"), { ssr: false, loading: () => <div className="chain chain-loading">Setting the table…</div> });
+
+const CHAIN_KEY = [["#ff3b30", "Selected file"], ["#ff7a00", "Imports it"], ["#f5b000", "2 steps away"], ["#4c8dff", "3 steps away"], ["var(--fill-hover)", "Still standing"]];
+const RISK_TEXT = { high: "High risk", medium: "Medium risk", low: "Low risk", none: "Safe to change" };
 const MAX_SHOWN = 400;
 const MAX_EDGES = 900;
 const TOP_SHOWN = 10;
@@ -54,6 +61,16 @@ function Explorer({ map, focus, secondary }: { map: RepoMap; focus?: string[]; s
   const [center, setCenter] = useState(target.file ?? ranked[0]?.path ?? map.files[0] ?? "");
   const [active, setActive] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [flat, setFlat] = useState(false);
+  const [noGl, setNoGl] = useState(false);
+  const [replay, setReplay] = useState(0);
+  // A domino stands taller the more files import it directly.
+  const weight = useMemo(() => {
+    let most = 1;
+    for (const list of users.values()) most = Math.max(most, list.length);
+    return (path: string) => (users.get(path)?.length ?? 0) / most;
+  }, [users]);
+  const unsupported = useCallback(() => setNoGl(true), []);
   const [all, setAll] = useState(false);
 
   // Keep the address in step with the file at the centre, so the link can be shared
@@ -88,6 +105,8 @@ function Explorer({ map, focus, secondary }: { map: RepoMap; focus?: string[]; s
       tests: all.filter(([p]) => isTest(p)).map(([p]) => p),
     };
   }, [center, users]);
+
+  const risk = riskOf(view.total, Math.max(map.filesScanned, map.files.length));
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -153,21 +172,51 @@ function Explorer({ map, focus, secondary }: { map: RepoMap; focus?: string[]; s
             <h2 className="map-file" title={center}>
               <bdi>{center}</bdi>
             </h2>
-            <span className="faint" style={{ fontSize: 12 }}>Click a file to put it at the centre</span>
+            {!noGl && (
+              <span className="map-tools">
+                {!flat && (
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => setReplay((n) => n + 1)}>
+                    Knock it over again
+                  </button>
+                )}
+                <span className="seg" role="group" aria-label="How to draw the result">
+                  <button type="button" aria-pressed={!flat} onClick={() => setFlat(false)}>Dominoes</button>
+                  <button type="button" aria-pressed={flat} onClick={() => setFlat(true)}>Radar</button>
+                </span>
+              </span>
+            )}
           </div>
-          <BlastRadar
-            key={center}
-            files={view.files}
-            impacted={view.impacted}
-            edges={view.edges}
-            totals={map.areaTotals}
-            active={active}
-            onActive={setActive}
-            fileUrl={fileUrl}
-            onPick={pick}
-            core={view.core}
-          />
-          <Legend single />
+          {flat || noGl ? (
+            <BlastRadar
+              key={center}
+              files={view.files}
+              impacted={view.impacted}
+              edges={view.edges}
+              totals={map.areaTotals}
+              active={active}
+              onActive={setActive}
+              fileUrl={fileUrl}
+              onPick={pick}
+              core={view.core}
+            />
+          ) : (
+            <ChainReaction center={center} reach={view.reach} others={map.files} weight={weight} replay={replay} onPick={pick} onUnsupported={unsupported} />
+          )}
+          {flat || noGl ? (
+            <Legend single />
+          ) : (
+            <div className="legend">
+              {CHAIN_KEY.map(([color, label]) => (
+                <span key={label}>
+                  <i className="dot" style={{ background: color }} />
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
+          <p className="faint map-hint">
+            {flat || noGl ? "Click a file to put it at the centre." : "Click any domino to knock that file over instead. Drag to turn the table."}
+          </p>
         </div>
         <FolderGrid map={map} home={home} />
         </div>
@@ -175,13 +224,18 @@ function Explorer({ map, focus, secondary }: { map: RepoMap; focus?: string[]; s
         <div className="stack">
           <div className="card card-pad">
             <h2>If this file changes</h2>
+            <div className="verdict">
+              <b>{risk.percent >= 10 || risk.percent === 0 ? Math.round(risk.percent) : risk.percent.toFixed(risk.percent < 1 ? 1 : 0)}%</b>
+              <span>of the code gitblast could read falls with it</span>
+              <span className={`badge badge-${risk.level === "none" ? "low" : risk.level}`}>{RISK_TEXT[risk.level]}</span>
+            </div>
             <div className="stat-grid stat-grid-3">
               <Stat v={num(view.total)} k="files reached" />
               <Stat v={num(view.direct)} k="import it directly" />
               <Stat v={num(view.tests.length)} k="tests to run" />
             </div>
             {view.total === 0 && <p className="muted" style={{ margin: "16px 0 0" }}>Nothing imports this file, so a change stays inside it.</p>}
-            {view.total > MAX_SHOWN && (
+            {view.total > MAX_SHOWN && (flat || noGl) && (
               <p className="faint" style={{ fontSize: 12.5, margin: "12px 0 0" }}>
                 The radar shows the nearest {num(MAX_SHOWN)} of {num(view.total)}.
               </p>

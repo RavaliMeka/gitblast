@@ -61,10 +61,13 @@ are cached.
 
 Open `/owner/repo`.
 
-One file sits at the centre of the radar, and every file a change to it would reach sits on the rings around it: the
-files that import it, then two and three imports away, sliced by area.
+Every file is a domino on a round table, drawn in 3D. The picked file falls first, then every file a change to it
+would reach: the files that import it, then two and three imports away, ring by ring. Fallen dominoes are the files
+that break; the ones still standing are safe. A percentage and a risk level beside the table say the same in words.
 
-- **Click any file** on the radar to put it at the centre. The address changes with it, so the link can be shared.
+- **Click any domino** to knock that file over instead. The address changes with it, so the link can be shared.
+- **Drag** to turn the table, and use **Knock it over again** to replay.
+- **Radar** switches to the flat view of the same result, which is also what devices that can't draw 3D get.
 - **Most load-bearing files** ranks the files a change travels furthest from. Click a row to centre it, or type in
   the box to find any file.
 - **Ripple effect** draws the change as a graph: the importers that carry it furthest each get a branch, with the

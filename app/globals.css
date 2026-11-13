@@ -2403,3 +2403,139 @@ button.graph-row {
     font-size: 30px;
   }
 }
+
+/* The chain reaction: a 3D table of dominoes with two labels and a tooltip laid over it */
+.chain {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.chain canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+
+.chain canvas:active {
+  cursor: grabbing;
+}
+
+.chain-loading {
+  display: grid;
+  place-items: center;
+  color: var(--faint);
+  font-size: 14px;
+}
+
+.chain-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+.chain-sel {
+  translate: -50% -150%;
+  padding: 3px 9px;
+  border-radius: 8px;
+  background: var(--changed);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--changed) 40%, transparent);
+}
+
+.chain-edge {
+  translate: -50% -50%;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--changed) 40%, transparent);
+  background: var(--surface);
+  color: var(--high);
+  font-size: 11.5px;
+}
+
+.chain-tip {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 10px;
+  animation: none;
+}
+
+.map-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--fill);
+}
+
+.seg button {
+  border: 0;
+  border-radius: 999px;
+  padding: 5px 12px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.seg button:focus-visible {
+  outline: 3px solid var(--focus);
+}
+
+.map-hint {
+  margin: 8px 6px 0;
+  font-size: 12.5px;
+}
+
+.verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+  margin-bottom: 18px;
+}
+
+.verdict b {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+
+.verdict span:not(.badge) {
+  color: var(--muted);
+  font-size: 15px;
+  max-width: 13em;
+  line-height: 1.3;
+}
+
+@media (max-width: 640px) {
+  .map-head {
+    flex-wrap: wrap;
+  }
+}
