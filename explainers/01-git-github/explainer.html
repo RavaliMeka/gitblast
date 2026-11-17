@@ -401,6 +401,24 @@ function charSvg(t, talking, mood) {
   </g>`;
 }
 
+
+/* ---------- Avatar presenter: a ready-made character whose mouth and eyes swap per frame ---------- */
+// window.AVATAR = { closed, mid, open, wide?, blink } (SVG data URIs), set by render.mjs --avatar
+window.AVATAR = null;
+function avatarSvg(t, talking) {
+  const A = window.AVATAR, { open } = speech(t, talking);
+  const blink = (t % 3.6) < .13 || ((t + 1.7) % 7.3) < .11;
+  let src = blink && A.blink ? A.blink : open > .8 && A.wide ? A.wide : open > .5 ? A.open : open > .2 ? A.mid : A.closed;
+  let pop = 1;
+  if (A.poses) {                         // pose pictures (3D): change with the scene, bounce a little while talking
+    const p = poseAt(t); src = A.poses[p.name] || A.poses.present;
+    pop = lerp(.9, 1, backOut(p.k)) * (1 + open * .02);
+  }
+  const bob = Math.sin(t * 2.2) * 4 - open * 4;
+  const tilt = Math.sin(t * 1.2) * 2 + (talking ? Math.sin(t * 2.1) * 1.5 : 0);
+  return `<g transform="translate(0 ${bob}) rotate(${tilt} 200 760) translate(200 740) scale(${pop}) translate(-200 -740)"><image href="${src}" x="-20" y="300" width="440" height="440"/></g>`;
+}
+
 /* ---------- Render one moment ---------- */
 const $ = id => document.getElementById(id);
 function render(t) {
@@ -423,7 +441,7 @@ function render(t) {
   $("caption").innerHTML = ci >= 0 ? `<div style="transform:scale(${lerp(.9, 1, backOut(cl / .25))});opacity:${clamp(cl / .12)}">${sc.cap[ci][1]}</div>` : "";
   const talking = ci >= 0 && lt < capEnd - 0.25 && cl < Math.max(1.1, sc.cap[ci][1].length * 0.075);
 
-  $("char").innerHTML = charSvg(t, talking, sc.mood);
+  $("char").innerHTML = window.AVATAR ? avatarSvg(t, talking) : charSvg(t, talking, sc.mood);
   $("prop").innerHTML = P[sc.prop](lt);
 }
 

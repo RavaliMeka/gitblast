@@ -21,6 +21,11 @@ const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, de
 await page.goto("file://" + path.join(here, "explainer.html") + "?render=1");
 await page.evaluate(() => document.fonts.ready);
 await page.evaluate(() => window.READY);
+if (opt("--avatar")) {
+  // a JSON file of avatar frames: { closed, mid, open, wide?, blink }
+  const { readFileSync } = await import("node:fs");
+  await page.evaluate(a => { window.AVATAR = a; }, JSON.parse(readFileSync(opt("--avatar"), "utf8")));
+}
 if (voice) {
   // loudness of the recording per video frame drives the mouth
   const pcm = await new Promise((res, rej) => {
@@ -50,16 +55,17 @@ if (opt("--stills")) {
 }
 
 const duration = await page.evaluate(() => window.DURATION);
-const frames = Math.ceil(duration * FPS);
+const from = Number(opt("--from") || 0), to = Number(opt("--to") || duration);
+const frames = Math.ceil((to - from) * FPS);
 const ff = spawn("ffmpeg", [
   "-y", "-v", "error", "-f", "image2pipe", "-framerate", String(FPS), "-i", "-",
   ...(voice ? ["-i", voice] : ["-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo"]),
   "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "medium", "-crf", "20",
-  "-c:a", "aac", "-b:a", "160k", "-t", String(duration), "-movflags", "+faststart", out,
+  "-c:a", "aac", "-b:a", "160k", "-t", String(to - from), "-movflags", "+faststart", out,
 ], { stdio: ["pipe", "inherit", "inherit"] });
 
 for (let f = 0; f < frames; f++) {
-  await page.evaluate(t => window.render(t), f / FPS);
+  await page.evaluate(t => window.render(t), from + f / FPS);
   const buf = await stage.screenshot({ type: "jpeg", quality: 92 });
   if (!ff.stdin.write(buf)) await new Promise(r => ff.stdin.once("drain", r));
   if (f % 150 === 0) console.log(`frame ${f}/${frames}`);
