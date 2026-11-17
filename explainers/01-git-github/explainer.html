@@ -320,7 +320,8 @@ function buildLips() {
     const k = speak / units; let tt = start;
     sylls.forEach((x, i) => {
       const dur = x.len * k, shape = /[ou]/.test(x.vowel) ? .1 : /[eiy]/.test(x.vowel) ? .85 : .55;
-      LIPS.push({ a: tt, b: tt + dur, amp: .55 + hash(i * 31 + si) * .45, shape });
+      const vAmp = /[ao]/.test(x.vowel) ? 1 : /[u]/.test(x.vowel) ? .7 : .6;     // a/o open wider than e/i
+      LIPS.push({ a: tt, b: tt + dur, amp: vAmp * (.7 + hash(i * 31 + si) * .3), shape, joined: x.gapAfter === 0 });
       tt += dur + x.gapAfter * k;
     });
   }));
@@ -336,7 +337,10 @@ function speech(t, talking) {
   while (lo <= hi) { const m = (lo + hi) >> 1; if (LIPS[m].b < t) lo = m + 1; else if (LIPS[m].a > t) hi = m - 1; else { hit = LIPS[m]; break; } }
   if (!hit) { const prev = LIPS[Math.max(0, hi)]; return { open: 0, wide: prev ? prev.shape : .55 }; }
   const f = (t - hit.a) / (hit.b - hit.a);
-  return { open: hit.amp * Math.pow(Math.sin(Math.PI * f), .7), wide: hit.shape };
+  // inside a word the mouth doesn't fully close between syllables; it closes between words
+  const floor = hit.joined || f < .5 ? .28 : 0, curve = Math.pow(Math.sin(Math.PI * f), .7);
+  const lead = f < .5 && !(LIPS[lo - 1] || {}).joined ? curve : Math.max(curve, floor);
+  return { open: hit.amp * lead, wide: hit.shape };
 }
 
 // messy hair: tufts around the top of the head
