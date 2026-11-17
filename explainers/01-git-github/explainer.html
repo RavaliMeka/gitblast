@@ -450,10 +450,12 @@ function avatarCard(t, talking, A, open, blink) {
   const sinceStart = (() => { let st = 0; S.forEach(s => s.pose.forEach(([d]) => { if (s.t + d <= t) st = s.t + d; })); return t - st; })();
   const cut = A.cuts && A.cuts[p.name] && sinceStart < 1.8 ? A.cuts[p.name] : null;
   // clean mouth swaps on 12 fps steps (no cross-fading, which shows two mouths at once)
-  const tq = Math.floor(t * 12) / 12;
+  const tq = Math.floor(t * 15) / 15;
   const sp = speech(tq, talking);
   const blinking = (t % 3.6) < .12 || ((t + 1.7) % 7.3) < .1;
-  const face = blinking && A.blink ? A.blink : sp.open > .32 ? A.mid : A.closed;   // closed / talking mouth, plus blinks
+  // mouth size follows the syllable: closed, barely, small, medium, open
+  const lv = A.levels ? (sp.open < .12 ? -1 : sp.open < .32 ? 0 : sp.open < .55 ? 1 : sp.open < .8 ? 2 : 3) : (sp.open > .32 ? 2 : -1);
+  const face = blinking && A.blink && lv < 0 ? A.blink : lv < 0 ? A.closed : A.levels ? A.levels[lv] : A.mid;
   const x = 4, y = 226, w = 392, h = 530, r = 40;
   const zoom = 1;
   const pop = 1;
