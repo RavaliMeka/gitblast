@@ -454,11 +454,11 @@ function avatarCard(t, talking, A, open, blink) {
   const sinceStart = (() => { let st = 0; S.forEach(s => s.pose.forEach(([d]) => { if (s.t + d <= t) st = s.t + d; })); return t - st; })();
   const cut = A.cuts && A.cuts[p.name] && sinceStart < 1.8 ? A.cuts[p.name] : null;
   // clean mouth swaps on 12 fps steps (no cross-fading, which shows two mouths at once)
-  const tq = Math.floor(t * 15) / 15;
-  const sp = speech(tq, talking);
-  const blinking = (t % 3.6) < .12 || ((t + 1.7) % 7.3) < .1;
-  // mouth size follows the syllable: closed, barely, small, medium, open
-  const lv = A.levels ? (sp.open < .12 ? -1 : sp.open < .32 ? 0 : sp.open < .55 ? 1 : sp.open < .8 ? 2 : 3) : (sp.open > .32 ? 2 : -1);
+  // subtle mouth: smoothed over ~0.25 s, changes at most 10 times a second, never wider than the medium shape
+  const tq = Math.floor(t * 10) / 10;
+  let sm = 0; for (let i = 0; i < 8; i++) sm += speech(tq - i * .032, talking).open; sm = sm / 8 * .8;
+  const blinking = (t % 4.1) < .12 || ((t + 1.7) % 7.9) < .1;
+  const lv = sm < .1 ? -1 : sm < .24 ? 0 : sm < .4 ? 1 : 2;
   const face = blinking && A.blink && lv < 0 ? A.blink : lv < 0 ? A.closed : A.levels ? A.levels[lv] : A.mid;
   const x = 4, y = 226, w = 392, h = 530, r = 40;
   const zoom = 1;
