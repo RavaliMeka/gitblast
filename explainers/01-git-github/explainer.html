@@ -408,6 +408,7 @@ window.AVATAR = null;
 function avatarSvg(t, talking) {
   const A = window.AVATAR, { open } = speech(t, talking);
   const blink = (t % 3.6) < .13 || ((t + 1.7) % 7.3) < .11;
+  if (A.card) return avatarCard(t, talking, A, open, blink);
   let src = blink && A.blink ? A.blink : open > .8 && A.wide ? A.wide : open > .5 ? A.open : open > .2 ? A.mid : A.closed;
   let pop = 1;
   if (A.poses) {                         // pose pictures (3D): change with the scene, bounce a little while talking
@@ -417,6 +418,29 @@ function avatarSvg(t, talking) {
   const bob = Math.sin(t * 2.2) * 4 - open * 4;
   const tilt = Math.sin(t * 1.2) * 2 + (talking ? Math.sin(t * 2.1) * 1.5 : 0);
   return `<g transform="translate(0 ${bob}) rotate(${tilt} 200 760) translate(200 740) scale(${pop}) translate(-200 -740)"><image href="${src}" x="-20" y="300" width="440" height="440"/></g>`;
+}
+
+
+// Presenter card: talking face frames, with short cuts to pose pictures when the scene's gesture starts
+function avatarCard(t, talking, A, open, blink) {
+  const p = poseAt(t);
+  const sinceStart = (() => { let st = 0; S.forEach(s => s.pose.forEach(([d]) => { if (s.t + d <= t) st = s.t + d; })); return t - st; })();
+  const cut = A.cuts && A.cuts[p.name] && sinceStart < 1.8 ? A.cuts[p.name] : null;
+  const face = blink ? A.blink : open > .62 ? A.open : open > .18 ? A.mid : A.closed;
+  const x = 4, y = 226, w = 392, h = 530, r = 40;
+  const zoom = 1 + (t % 6) / 6 * .03;                       // slow push-in
+  const pop = cut ? lerp(.94, 1, backOut(sinceStart / .3)) : 1;
+  const img = cut
+    ? `<image href="${cut}" x="${x - 150}" y="${y + h - (w + 300) * .745}" width="${w + 300}" height="${(w + 300) * .745}" preserveAspectRatio="xMidYMid meet" transform="translate(200 ${y + h / 2}) scale(${pop}) translate(-200 ${-(y + h / 2)})"/>`
+    : `<image href="${face}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMin slice" transform="translate(200 ${y}) scale(${zoom}) translate(-200 ${-y})"/>`;
+  const bob = Math.sin(t * 2.2) * 3;
+  return `<defs><clipPath id="card"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/></clipPath>
+      <filter id="cs" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-opacity=".22"/></filter></defs>
+    <g transform="translate(0 ${bob}) rotate(${Math.sin(t * .9) * .8} 200 ${y + h})">
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${A.bg}" filter="url(#cs)"/>
+      <g clip-path="url(#card)">${img}</g>
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="#fff" stroke-width="10"/>
+    </g>`;
 }
 
 /* ---------- Render one moment ---------- */

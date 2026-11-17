@@ -19,7 +19,19 @@ node render.mjs --voice my-voice.m4a
 
 ## The presenter
 
-A simple original cartoon guy (messy black hair, big brown eyes, blue sweater), drawn in SVG inside `explainer.html`. Change the colours in the `LOOK` block. While a line is spoken the mouth moves through open, round and wide shapes, the eyes blink and the arms gesture at the visuals. With `--voice`, the mouth follows the loudness of your recording.
+`presenter.json` holds your own 3D character (made with Google Gemini): four face frames (mouth closed, talking, wide open, eyes closed) and four poses (pointing, arms crossed, thumbs up, cheering). He sits in a rounded card on the left. While a line is spoken the face frames switch with the speech, he blinks every few seconds, and when a scene's gesture starts the card cuts to the matching pose for a moment.
+
+Render with him:
+
+```bash
+node render.mjs --avatar presenter.json
+```
+
+Add your recording and the mouth follows your voice:
+
+```bash
+node render.mjs --avatar presenter.json --voice my-voice.m4a
+```
 
 ## Change the words or timing
 
