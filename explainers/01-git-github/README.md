@@ -1,6 +1,6 @@
 # DevOps explainers: Episode 1, Git & GitHub
 
-A 64-second vertical (1080×1920) explainer in short-video style: a dark background, a headline with one highlighted word, a bright "screen" panel with the visuals, English captions, and you as the talking head at the bottom.
+A 64-second vertical (1080×1920) cartoon explainer: an original look-alike presenter, a headline with one highlighted word, a visual on the right, and English captions.
 
 | File | What it is |
 | --- | --- |
@@ -19,7 +19,7 @@ node render.mjs --voice my-voice.m4a
 
 ## The presenter
 
-`presenter.png` is your picture with the background removed (`presenter.js` holds the same picture so the page can animate it). It sits bottom-left with the captions in a speech bubble. While a line is spoken the jaw opens and closes with the mouth showing inside, the eyes blink every few seconds, the brows lift as each new line starts, and the head nods slightly. With `--voice`, the mouth follows the loudness of your recording instead of a made-up rhythm.
+An original cartoon look-alike (messy dark hair, round glasses, beard, red hoodie), drawn in SVG inside `explainer.html`. Change the colours in the `LOOK` block. While a line is spoken the mouth moves through open, round and wide shapes, the jaw and beard drop with it, the eyes blink and the arms gesture at the visuals. With `--voice`, the mouth follows the loudness of your recording.
 
 ## Change the words or timing
 
