@@ -320,8 +320,7 @@ function buildLips() {
     const k = speak / units; let tt = start;
     sylls.forEach((x, i) => {
       const dur = x.len * k, shape = /[ou]/.test(x.vowel) ? .1 : /[eiy]/.test(x.vowel) ? .85 : .55;
-      const vAmp = /[ao]/.test(x.vowel) ? 1 : /[u]/.test(x.vowel) ? .7 : .6;     // a/o open wider than e/i
-      LIPS.push({ a: tt, b: tt + dur, amp: vAmp * (.7 + hash(i * 31 + si) * .3), shape, joined: x.gapAfter === 0 });
+      LIPS.push({ a: tt, b: tt + dur, amp: .55 + hash(i * 31 + si) * .45, shape });
       tt += dur + x.gapAfter * k;
     });
   }));
@@ -337,10 +336,7 @@ function speech(t, talking) {
   while (lo <= hi) { const m = (lo + hi) >> 1; if (LIPS[m].b < t) lo = m + 1; else if (LIPS[m].a > t) hi = m - 1; else { hit = LIPS[m]; break; } }
   if (!hit) { const prev = LIPS[Math.max(0, hi)]; return { open: 0, wide: prev ? prev.shape : .55 }; }
   const f = (t - hit.a) / (hit.b - hit.a);
-  // inside a word the mouth doesn't fully close between syllables; it closes between words
-  const floor = hit.joined || f < .5 ? .28 : 0, curve = Math.pow(Math.sin(Math.PI * f), .7);
-  const lead = f < .5 && !(LIPS[lo - 1] || {}).joined ? curve : Math.max(curve, floor);
-  return { open: hit.amp * lead, wide: hit.shape };
+  return { open: hit.amp * Math.pow(Math.sin(Math.PI * f), .7), wide: hit.shape };
 }
 
 // messy hair: tufts around the top of the head
@@ -454,12 +450,10 @@ function avatarCard(t, talking, A, open, blink) {
   const sinceStart = (() => { let st = 0; S.forEach(s => s.pose.forEach(([d]) => { if (s.t + d <= t) st = s.t + d; })); return t - st; })();
   const cut = A.cuts && A.cuts[p.name] && sinceStart < 1.8 ? A.cuts[p.name] : null;
   // clean mouth swaps on 12 fps steps (no cross-fading, which shows two mouths at once)
-  // subtle mouth: smoothed over ~0.25 s, changes at most 10 times a second, never wider than the medium shape
-  const tq = Math.floor(t * 10) / 10;
-  let sm = 0; for (let i = 0; i < 8; i++) sm += speech(tq - i * .032, talking).open; sm = sm / 8 * .8;
-  const blinking = (t % 4.1) < .12 || ((t + 1.7) % 7.9) < .1;
-  const lv = sm < .1 ? -1 : sm < .24 ? 0 : sm < .4 ? 1 : 2;
-  const face = blinking && A.blink && lv < 0 ? A.blink : lv < 0 ? A.closed : A.levels ? A.levels[lv] : A.mid;
+  const tq = Math.floor(t * 12) / 12;
+  const sp = speech(tq, talking);
+  const blinking = (t % 3.6) < .12 || ((t + 1.7) % 7.3) < .1;
+  const face = sp.open > .32 ? A.mid : A.closed;            // just two mouths: closed and talking
   const x = 4, y = 226, w = 392, h = 530, r = 40;
   const zoom = 1;
   const pop = 1;
