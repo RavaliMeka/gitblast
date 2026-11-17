@@ -19,17 +19,16 @@ node render.mjs --voice my-voice.m4a
 
 ## The presenter
 
-`presenter.json` holds your own 3D character (made with Google Gemini): four face frames (mouth closed, talking, wide open, eyes closed) and four poses (pointing, arms crossed, thumbs up, cheering). He sits in a rounded card on the left. While a line is spoken the face frames switch with the speech, he blinks every few seconds, and when a scene's gesture starts the card cuts to the matching pose for a moment.
+Your own 3D character (made with Google Gemini), cut out of his grey background so he stands in the scene with soft, faded edges. The mouth switches cleanly between closed, talking and a light "ee" shape following the words; he blinks every few seconds and cheers once, when the code goes live.
 
-Render with him:
+| File | What it is |
+| --- | --- |
+| `presenter.json` | The blended presenter (used by default) |
+| `presenter-card.json` | The same presenter in a rounded card, if you ever want that look back |
+| `../tools/cutout.py` | Makes a blended presenter from a card one: `python3 ../tools/cutout.py presenter-card.json presenter.json` (then set `"card": true`) |
 
 ```bash
 node render.mjs --avatar presenter.json
-```
-
-Add your recording and the mouth follows your voice:
-
-```bash
 node render.mjs --avatar presenter.json --voice my-voice.m4a
 ```
 
