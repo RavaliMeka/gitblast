@@ -1,6 +1,6 @@
 # DevOps explainers: Episode 1, Git & GitHub
 
-A 64-second vertical (1080×1920) cartoon explainer in short-video style: a doodle presenter, a headline with one highlighted word, a prop on the right, and Tenglish captions.
+A 64-second vertical (1080×1920) cartoon explainer in short-video style: a doodle presenter, a headline with one highlighted word, a prop on the right, and English captions.
 
 | File | What it is |
 | --- | --- |
