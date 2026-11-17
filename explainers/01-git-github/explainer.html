@@ -20,7 +20,7 @@
       radial-gradient(700px 500px at 85% 8%, rgba(47,111,228,.28), transparent 70%),
       linear-gradient(rgba(255,255,255,.035) 2px, transparent 2px) 0 0 / 90px 90px,
       linear-gradient(90deg, rgba(255,255,255,.035) 2px, transparent 2px) 0 0 / 90px 90px,
-      linear-gradient(180deg, #0b0f1a, #131a2c 60%, #1a1220);
+      linear-gradient(180deg, #0b0f1a, #141b2e 55%, #2a1622);
   }
   #ep { left: 50px; top: 62px; font-weight: 700; font-size: 24px; letter-spacing: 2px; color: #c9d1e3; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); border-radius: 30px; padding: 10px 20px; }
   #ep b { color: #ff6b6f; }
@@ -31,7 +31,7 @@
   #panel .bar { height: 58px; background: #ffffffd9; border-bottom: 2px solid #e6e4dc; display: flex; align-items: center; gap: 12px; padding: 0 26px; }
   #panel .bar i { width: 18px; height: 18px; border-radius: 50%; }
   #panel .bar span { margin-left: 14px; font: 600 22px "DejaVu Sans Mono", monospace; color: #8a8a8a; }
-  #glow { left: -120px; top: 1260px; width: 760px; height: 760px; border-radius: 50%; background: radial-gradient(circle, rgba(255,90,90,.35), rgba(224,58,60,.1) 55%, transparent 70%); }
+  #glow { left: -120px; top: 1260px; width: 760px; height: 760px; border-radius: 50%; background: radial-gradient(circle, rgba(255,110,100,.42), rgba(224,58,60,.14) 55%, transparent 72%); }
   #me { left: -40px; top: 1290px; width: 640px; height: 640px; transform-origin: 50% 100%; filter: drop-shadow(0 20px 40px rgba(0,0,0,.5)); }
   .abs { position: absolute; }
   #steps { left: 0; right: 0; top: 62px; display: flex; justify-content: center; gap: 14px; }
@@ -264,19 +264,28 @@ const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&
 /* ---------- Talking face: warps presenter.png per frame ---------- */
 // Landmarks in the 900x900 presenter image
 const FACE = {
-  mouthX: 452, seamY: 600, mouthHalf: 78,           // lip seam centre; smile corners sit ~90px out
+  mouthX: 452, seamY: 612, mouthHalf: 55,           // relaxed lips just under the moustache (bottom at y 601)
   jawBottom: 772, jawHalf: 190,                     // beard and chin move with the jaw
   eyes: [{ x: 362, y: 455, hw: 54, hh: 28 }, { x: 555, y: 464, hw: 53, hh: 29 }],
 };
 const fc = document.createElement("canvas"); fc.width = fc.height = 900;
 const fctx = fc.getContext("2d", { willReadFrequently: true });
-let SRC = null, OUT = null, LID = [];
+let SRC = null, OUT = null, LID = [], STACHE = null;
 window.READY = new Promise(res => {
   const img = new Image();
   img.onload = () => {
     fctx.drawImage(img, 0, 0, 900, 900);
     SRC = fctx.getImageData(0, 0, 900, 900);
     OUT = fctx.createImageData(900, 900);
+    // the moustache, lifted out so the lips can be drawn underneath it
+    STACHE = document.createElement("canvas"); STACHE.width = STACHE.height = 900;
+    const sc2 = STACHE.getContext("2d"), st = sc2.createImageData(900, 900);
+    for (let y = 560; y < 616; y++) for (let x = 330; x < 575; x++) {
+      const i = (y * 900 + x) * 4, d = SRC.data, l = d[i] * .3 + d[i + 1] * .59 + d[i + 2] * .11;
+      const a = clamp((120 - l) / 45) * (1 - sstep(608, 615, y));
+      st.data[i] = d[i]; st.data[i + 1] = d[i + 1]; st.data[i + 2] = d[i + 2]; st.data[i + 3] = a * 255;
+    }
+    sc2.putImageData(st, 0, 0);
     // eyelid colour: the lit skin around each eye (measured from the picture)
     LID = [[238, 152, 108], [226, 140, 98]];
     res();
@@ -296,9 +305,12 @@ function faceAt(t, talking, capStarts) {
   } else {
     // syllable rhythm: ~6.5 syllables a second, each with its own size, some nearly closed
     const sy = t * 6.5, k = Math.floor(sy), f = sy - k;
-    const amp = hash(k) < .18 ? .15 : .45 + hash(k + 99) * .55;
+    const amp = hash(k) < .18 ? .12 : .4 + hash(k + 99) * .6;
     open = talking ? amp * Math.pow(Math.sin(Math.PI * f), .8) : 0;
   }
+  // mouth shape changes per syllable: round "oo", neutral "ah", wide "ee"
+  const k2 = Math.floor(t * 6.5), f2 = t * 6.5 - k2;
+  const wide = lerp(hash(k2 + 7), hash(k2 + 8), sstep(.6, 1, f2));
   // blinks: every 2.6-4.6 s, 140 ms long
   let blink = 0, bt = 0, bk = 0;
   while (bt <= t + 5) { const next = bt + 2.6 + hash(bk) * 2; if (t >= bt && t < bt + .14) blink = Math.sin(Math.PI * (t - bt) / .14); bt = next; bk++; }
@@ -306,7 +318,7 @@ function faceAt(t, talking, capStarts) {
   let brow = 0; capStarts.forEach(c => { if (t >= c) brow = Math.max(brow, Math.exp(-(t - c) * 3)); });
   const nod = -open * 4 - brow * 3;
   const tilt = Math.sin(t * .9) * .8 + (talking ? Math.sin(t * 2.3) * .5 : 0);
-  return { open, blink, brow, nod, tilt };
+  return { open, blink, brow, nod: nod * .6, tilt, wide };
 }
 
 function sample(x, y, out, o) {
@@ -319,7 +331,7 @@ function sample(x, y, out, o) {
 function drawFace(f) {
   if (!SRC) return;
   const D = OUT.data; D.set(SRC.data);
-  const F = FACE, gap = f.open * 33, lift = f.brow * 6;
+  const F = FACE, gap = f.open * 22, lift = f.brow * 5;
   // brows and forehead lift a few pixels
   if (lift > .2) for (let y = 330; y < 440; y++) {
     const w = sstep(330, 380, y) * (1 - sstep(400, 438, y));
@@ -333,28 +345,11 @@ function drawFace(f) {
   if (gap > .3) for (let y = F.seamY - 30; y < F.jawBottom + 40; y++) {
     for (let x = F.mouthX - F.jawHalf; x < F.mouthX + F.jawHalf; x++) {
       const ax = Math.abs(x - F.mouthX);
-      const seam = F.seamY - 10 * Math.pow(ax / 90, 2);          // the smile curves up at the corners
-      const soft = ax < F.mouthHalf ? 1.5 : 1.5 + (ax - F.mouthHalf) * .35;
+      const seam = F.seamY + 2;
+      const soft = ax < F.mouthHalf ? 2 : 2 + (ax - F.mouthHalf) * .4;
       const w = sstep(seam - soft, seam + soft, y) * (1 - sstep(F.jawBottom - 10, F.jawBottom + 35, y)) * (1 - sstep(F.jawHalf * .72, F.jawHalf, ax));
       if (w <= 0) continue;
       const o = (y * 900 + x) * 4, dy = gap * w;
-      // inside the opened mouth
-      const mw = F.mouthHalf * (.8 + .2 * f.open);
-      if (ax < mw) {
-        const h = gap * Math.pow(1 - Math.pow(ax / mw, 2), .6);
-        const top = seam - .5, bot = seam + h;
-        if (y >= top && y <= bot && h > .8) {
-          const k = (y - top) / Math.max(h, 1);
-          let c = [58, 16, 20];                                   // dark mouth
-          if (y - top < Math.min(8, h * .3) && ax < mw * .8) c = [238, 232, 224]; // upper teeth
-          else if (k > .7) c = [150, 62, 66];                    // tongue
-          const edge = Math.min(1, Math.min(y - top, bot - y) * .9, (mw - ax) * .5);
-          sample(x, y - dy, D, o);
-          for (let ch = 0; ch < 3; ch++) D[o + ch] = D[o + ch] * (1 - edge) + c[ch] * edge;
-          D[o + 3] = 255;
-          continue;
-        }
-      }
       sample(x, y - dy, D, o);
     }
   }
@@ -381,8 +376,64 @@ function drawFace(f) {
     }
   });
   fctx.putImageData(OUT, 0, 0);
+  drawMouth(fctx, f, gap);
+  fctx.drawImage(STACHE, 0, 0);
   const ctx = $("me").getContext("2d");
   ctx.clearRect(0, 0, 900, 900); ctx.drawImage(fc, 0, 0);
+}
+
+
+// Lips, teeth and tongue, painted to match the picture's soft 3D shading
+function drawMouth(c, f, gap) {
+  const F = FACE, cx = F.mouthX, y0 = F.seamY;
+  const W = F.mouthHalf * (1 + (f.wide - .5) * .34 - f.open * .1);
+  c.save(); c.filter = "blur(0.6px)";
+  const g = (y1, y2, stops) => { const gr = c.createLinearGradient(0, y1, 0, y2); stops.forEach(([o, col]) => gr.addColorStop(o, col)); return gr; };
+  // opening
+  if (gap > 1) {
+    c.beginPath();
+    c.moveTo(cx - W * .9, y0 + gap * .2);
+    c.bezierCurveTo(cx - W * .5, y0 - 2, cx + W * .5, y0 - 2, cx + W * .9, y0 + gap * .2);
+    c.bezierCurveTo(cx + W * .55, y0 + gap + 3, cx - W * .55, y0 + gap + 3, cx - W * .9, y0 + gap * .2);
+    c.closePath();
+    c.fillStyle = g(y0, y0 + gap, [[0, "#3a1012"], [1, "#6a2226"]]); c.fill();
+    c.save(); c.clip();
+    // tongue
+    c.fillStyle = "#a54a4e"; c.beginPath(); c.ellipse(cx, y0 + gap + 3, W * .55, Math.max(2, gap * .38), 0, 0, Math.PI * 2); c.fill();
+    // upper teeth, in the lip's shadow
+    const th = Math.min(7, gap * .42);
+    c.fillStyle = g(y0 - 2, y0 + th, [[0, "#b8aca2"], [.35, "#efe8df"], [1, "#d9cfc4"]]);
+    c.beginPath(); c.moveTo(cx - W * .62, y0 - 2); c.lineTo(cx + W * .62, y0 - 2);
+    c.quadraticCurveTo(cx + W * .6, y0 + th, cx + W * .45, y0 + th); c.lineTo(cx - W * .45, y0 + th);
+    c.quadraticCurveTo(cx - W * .6, y0 + th, cx - W * .62, y0 - 2); c.fill();
+    c.restore();
+  }
+  // lower lip
+  const ly = y0 + gap;
+  c.beginPath();
+  c.moveTo(cx - W, y0 + gap * .25 + 1);
+  c.bezierCurveTo(cx - W * .5, ly - 1, cx + W * .5, ly - 1, cx + W, y0 + gap * .25 + 1);
+  c.bezierCurveTo(cx + W * .6, ly + 16, cx - W * .6, ly + 16, cx - W, y0 + gap * .25 + 1);
+  c.closePath();
+  c.fillStyle = g(ly - 1, ly + 15, [[0, "#a2402f"], [.4, "#d97e62"], [1, "#c06548"]]); c.fill();
+  c.fillStyle = "rgba(255,214,190,.3)"; c.beginPath(); c.ellipse(cx, ly + 5.5, W * .3, 2.4, 0, 0, Math.PI * 2); c.fill();
+  // upper lip (mostly under the moustache)
+  c.beginPath();
+  c.moveTo(cx - W, y0 + gap * .2);
+  c.bezierCurveTo(cx - W * .6, y0 - 9, cx - W * .15, y0 - 10, cx, y0 - 8);
+  c.bezierCurveTo(cx + W * .15, y0 - 10, cx + W * .6, y0 - 9, cx + W, y0 + gap * .2);
+  c.bezierCurveTo(cx + W * .5, y0 + 1, cx - W * .5, y0 + 1, cx - W, y0 + gap * .2);
+  c.closePath();
+  c.fillStyle = g(y0 - 9, y0 + 1, [[0, "#8e3a28"], [1, "#bf5f46"]]); c.fill();
+  // lip line when closed, and soft corners
+  if (gap < 2) {
+    c.strokeStyle = `rgba(110,38,36,${.75 - gap * .3})`; c.lineWidth = 1.6;
+    c.beginPath(); c.moveTo(cx - W, y0 + 1); c.bezierCurveTo(cx - W * .5, y0 + .5, cx + W * .5, y0 + .5, cx + W, y0 + 1); c.stroke();
+  }
+  [-1, 1].forEach(sd => { const gr = c.createRadialGradient(cx + sd * W, y0 + gap * .2 + 1, 0, cx + sd * W, y0 + gap * .2 + 1, 6); gr.addColorStop(0, "rgba(90,30,28,.45)"); gr.addColorStop(1, "rgba(90,30,28,0)"); c.fillStyle = gr; c.fillRect(cx + sd * W - 6, y0 + gap * .2 - 5, 12, 12); });
+  // shadow under the lower lip
+  c.fillStyle = "rgba(120,55,40,.10)"; c.beginPath(); c.ellipse(cx, ly + 17, W * .5, 4, 0, 0, Math.PI * 2); c.fill();
+  c.restore();
 }
 
 /* ---------- Render one moment ---------- */
