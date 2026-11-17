@@ -448,7 +448,7 @@ function avatarSvg(t, talking) {
 function avatarCard(t, talking, A, open, blink) {
   const p = poseAt(t);
   const sinceStart = (() => { let st = 0; S.forEach(s => s.pose.forEach(([d]) => { if (s.t + d <= t) st = s.t + d; })); return t - st; })();
-  const cut = A.cuts && A.cuts[p.name] && sinceStart < 1.8 ? A.cuts[p.name] : null;
+  const cut = A.cuts && A.cuts[p.name] && sinceStart < 2.6 ? A.cuts[p.name] : null;   // reaction shot (cheering) at the success moments
   // clean mouth swaps on 12 fps steps (no cross-fading, which shows two mouths at once)
   const tq = Math.floor(t * 12) / 12;
   const sp = speech(tq, talking);
@@ -458,7 +458,7 @@ function avatarCard(t, talking, A, open, blink) {
   const zoom = 1.015 + Math.sin(t * .35) * .015;            // slow, continuous push in and out
   const pop = cut ? lerp(.94, 1, backOut(sinceStart / .3)) : 1;
   const img = cut
-    ? `<image href="${cut}" x="${x - 150}" y="${y + h - (w + 300) * .745}" width="${w + 300}" height="${(w + 300) * .745}" preserveAspectRatio="xMidYMid meet" transform="translate(200 ${y + h / 2}) scale(${pop}) translate(-200 ${-(y + h / 2)})"/>`
+    ? `<image href="${cut}" x="${x - 95}" y="${y + h - (w + 190) * .745}" width="${w + 190}" height="${(w + 190) * .745}" preserveAspectRatio="xMidYMid meet" transform="translate(200 ${y + h / 2}) scale(${pop}) translate(-200 ${-(y + h / 2)})"/>`
     : `<g transform="translate(200 ${y}) scale(${zoom}) translate(-200 ${-y})"><image href="${face}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMin slice"/></g>`;
   const bob = Math.sin(t * 2.2) * 3;
   return `<defs><clipPath id="card"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/></clipPath>
