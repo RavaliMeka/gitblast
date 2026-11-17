@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Git &amp; GitHub Explainer</title>
+<style>
+  :root {
+    --bg: #f7f6f2; --grid: #ecebe5; --ink: #151515; --muted: #6b6b6b;
+    --blue: #2f6fe4; --green: #22a45d; --red: #e5484d; --orange: #f2a33a;
+    --card: #ffffff; --term: #1d1f23;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #111; height: 100%; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; font-family: Inter, "Inter Display", system-ui, sans-serif; }
+  #stage {
+    position: relative; width: 1080px; height: 1920px; flex: none; overflow: hidden;
+    background-color: var(--bg);
+    background-image: linear-gradient(var(--grid) 2px, transparent 2px), linear-gradient(90deg, var(--grid) 2px, transparent 2px);
+    background-size: 90px 90px; transform-origin: center center;
+  }
+  .abs { position: absolute; }
+  #steps { left: 0; right: 0; top: 150px; display: flex; justify-content: center; gap: 14px; }
+  .step { min-width: 46px; height: 46px; border-radius: 23px; background: #e3e2dc; color: #777; font-weight: 700; font-size: 24px; display: flex; align-items: center; justify-content: center; padding: 0 14px; }
+  .step.on { background: var(--blue); color: #fff; letter-spacing: 1px; }
+  #title { left: 40px; right: 40px; top: 220px; text-align: center; font-weight: 800; font-size: 84px; line-height: 1.12; color: var(--ink); letter-spacing: -1.5px; }
+  .hl { position: relative; display: inline-block; }
+  .hl::after { content: ""; position: absolute; left: -4px; right: -4px; bottom: 6px; height: 18px; z-index: -1; border-radius: 6px; background: var(--mark, #cfe0ff); transform-origin: left; transform: scaleX(var(--mk, 1)); }
+  .hl span { position: relative; }
+  #char { left: 30px; top: 610px; width: 470px; height: 964px; }
+  #prop { left: 470px; top: 560px; width: 580px; height: 860px; }
+  #caption { left: 0; right: 0; top: 1500px; display: flex; justify-content: center; }
+  #caption div { background: #2b2b2b; color: #fff; font-weight: 700; font-size: 54px; padding: 14px 30px 18px; border-radius: 18px; max-width: 980px; text-align: center; }
+  .card { background: var(--card); border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 8px 0 rgba(0,0,0,.08); }
+  .card.top-blue { border-top: 12px solid var(--blue); }
+  .card.top-green { border-top: 12px solid var(--green); }
+  .card.top-red { border-top: 12px solid var(--red); }
+  .big { font-weight: 800; font-size: 64px; color: var(--ink); text-align: center; }
+  .sub { font-weight: 500; font-size: 30px; color: var(--muted); text-align: center; }
+  .chip { display: inline-flex; align-items: center; gap: 10px; background: #fff; border: 3px solid var(--ink); border-radius: 16px; padding: 10px 18px; font-weight: 700; font-size: 28px; }
+  .term { background: var(--term); border-radius: 22px; padding: 26px 28px; font-family: "DejaVu Sans Mono", ui-monospace, monospace; font-size: 25px; line-height: 1.55; color: #e9e9e9; box-shadow: 0 10px 0 rgba(0,0,0,.12); }
+  .term .p { color: #7ee2a8; }
+  .term .c { color: #8b8f98; }
+  .term .ok { color: #7ee2a8; }
+  .term .cur { display: inline-block; width: 14px; height: 26px; background: #e9e9e9; vertical-align: -4px; }
+  #hint { position: fixed; bottom: 10px; left: 0; right: 0; text-align: center; color: #999; font: 13px system-ui; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="steps" class="abs"></div>
+  <div id="title" class="abs"></div>
+  <svg id="char" class="abs" viewBox="0 0 400 820"></svg>
+  <div id="prop" class="abs"></div>
+  <div id="caption" class="abs"></div>
+</div>
+<div id="hint">Click to restart · add ?t=12 to freeze a moment</div>
+<script>
+/* ---------- Look of the character: change these to match your face ---------- */
+const LOOK = {
+  skin: "#ffffff",      // face/arm fill (e.g. "#e8b48f", "#c68642", "#8d5524")
+  hair: "spiky",        // "spiky" | "short" | "wavy"
+  hairColor: "#151515",
+  beard: false,         // true draws a stubble beard
+  moustache: false,
+  glasses: false,
+  shirt: "#151515",
+  shorts: "#4a7fc1",
+};
+
+/* ---------- Script: scenes, captions (Tenglish), poses ---------- */
+const S = [
+  { t: 0,  title: 'Git vs <hl c="blue">GitHub</hl>?', pose: [[0,"present"]], mood: "curious",
+    cap: [[0,"Git, GitHub..."],[1.8,"rendu okkate aa?"],[3.3,"60 seconds lo clear cheddam."]], prop: "vs" },
+  { t: 5,  title: 'Git = <hl c="green">save points</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"Game lo save point laaga,"],[2,"Git mee code prathi version ni"],[4,"save chesi pedutundi."]], prop: "saves" },
+  { t: 11, title: 'Mistake? Go <hl c="red">back</hl>', pose: [[0,"shrug"],[2.6,"thumb"]], mood: "curious",
+    cap: [[0,"Edaina break aithe tension ledu,"],[2.6,"paata version ki velipovachu."]], prop: "back" },
+  { t: 16, title: 'Git lives on your <hl c="green">laptop</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Git mee laptop lone untundi,"],[2.5,"internet kooda avasaram ledu."]], prop: "laptop" },
+  { t: 21, title: 'GitHub = <hl c="blue">cloud home</hl>', pose: [[0,"idea"],[3.6,"present"]], mood: "happy",
+    cap: [[0,"GitHub ante online lo"],[1.8,"mee code ki illu."],[3.6,"Backup, share, team work."]], prop: "cloud" },
+  { t: 27, title: 'Git <span style="color:var(--red)">≠</span> <hl c="red">GitHub</hl>', pose: [[0,"cross"]], mood: "serious",
+    cap: [[0,"Git camera laantidi,"],[2.4,"GitHub Instagram laantidi."]], prop: "compare" },
+  { t: 32, step: 1, title: 'Start: <hl c="blue">git init</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"Step 1: folder create chesi,"],[2.5,"git init kottandi."]], prop: "init" },
+  { t: 37, step: 2, title: 'Save: <hl c="green">add + commit</hl>', pose: [[0,"point"],[2.8,"thumb"]], mood: "happy",
+    cap: [[0,"git add tho files select chesi,"],[2.8,"commit tho first save point!"]], prop: "commit" },
+  { t: 43, step: 3, title: 'Create repo on <hl c="blue">GitHub</hl>', pose: [[0,"present"]], mood: "curious",
+    cap: [[0,"GitHub lo New repository click chesi,"],[2.8,"same name ivvandi."]], prop: "newrepo" },
+  { t: 48, step: 4, title: 'Upload: <hl c="red">git push</hl>', pose: [[0,"point"],[4,"cheer"]], mood: "happy",
+    cap: [[0,"Remote add chesi,"],[2,"git push kottandi..."],[4,"code ippudu cloud lo live!"]], prop: "push" },
+  { t: 54, title: 'The <hl c="green">4 commands</hl>', pose: [[0,"present"],[2.4,"thumb"]], mood: "happy",
+    cap: [[0,"init, add, commit, push."],[2.4,"Start cheyadaniki ivi chaalu."]], prop: "recap" },
+  { t: 59, title: 'Next: <hl c="blue">Branches</hl>', pose: [[0,"cheer"]], mood: "happy",
+    cap: [[0,"Next video: Branches."],[2,"DevOps easy ga nerchukovadaniki"],[3.6,"follow avvandi!"]], prop: "follow" },
+];
+const END = 64.5;
+S.forEach((s, i) => s.end = i + 1 < S.length ? S[i + 1].t : END);
+
+/* ---------- Helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const backOut = x => { x = clamp(x); const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, k) => a + (b - a) * k;
+// entrance style: fade + rise + pop, starting `d` seconds into the scene
+function pop(lt, d = 0, dur = 0.45) {
+  const k = (lt - d) / dur, o = clamp(k * 1.6), s = lerp(0.85, 1, backOut(k)), y = lerp(30, 0, easeOut(k));
+  return `opacity:${o};transform:translateY(${y}px) scale(${s});`;
+}
+const fade = (lt, d = 0, dur = 0.35) => `opacity:${clamp((lt - d) / dur)};`;
+const COL = { blue: ["var(--blue)", "#d4e2ff"], green: ["var(--green)", "#d3f1df"], red: ["var(--red)", "#ffd9da"] };
+
+/* ---------- Props (right side) ---------- */
+const P = {
+  vs: lt => `
+    <div class="abs card top-green" style="left:30px;top:90px;width:240px;height:200px;${pop(lt, .2)}">
+      <div class="big" style="margin-top:36px">Git</div><div class="sub">tool</div></div>
+    <div class="abs card top-blue" style="left:300px;top:90px;width:260px;height:200px;${pop(lt, .6)}">
+      <div class="big" style="margin-top:36px">GitHub</div><div class="sub">website</div></div>
+    <div class="abs" style="left:220px;top:330px;font-size:150px;font-weight:800;color:var(--red);${pop(lt, 1.6)}">?</div>`,
+
+  saves: lt => {
+    const items = [["v1", "login page"], ["v2", "fix bug"], ["v3", "dark mode"]];
+    return `<div class="abs" style="left:60px;top:120px;width:6px;height:${clamp((lt - .3) / 2.5) * 470}px;background:var(--ink);border-radius:3px"></div>` +
+      items.map(([v, m], i) => `
+      <div class="abs" style="left:30px;top:${110 + i * 170}px;display:flex;align-items:center;gap:24px;${pop(lt, .4 + i * 1.1)}">
+        <div style="width:66px;height:66px;border-radius:50%;background:var(--green);border:5px solid var(--ink);color:#fff;font-weight:800;font-size:26px;display:flex;align-items:center;justify-content:center">${v}</div>
+        <div class="card" style="padding:18px 26px;font-size:32px;font-weight:700">${m}</div>
+      </div>`).join("") +
+      `<div class="abs sub" style="left:0;right:0;top:640px;${fade(lt, 3.6)}">every commit = a save point</div>`;
+  },
+
+  back: lt => `
+    <div class="abs" style="left:30px;top:120px;display:flex;align-items:center;gap:24px;${pop(lt, .1)}">
+      <div style="width:66px;height:66px;border-radius:50%;background:var(--green);border:5px solid var(--ink);color:#fff;font-weight:800;font-size:26px;display:flex;align-items:center;justify-content:center">v2</div>
+      <div class="card" style="padding:18px 26px;font-size:32px;font-weight:700">working ✓</div></div>
+    <div class="abs" style="left:30px;top:300px;display:flex;align-items:center;gap:24px;${pop(lt, .5)}">
+      <div style="width:66px;height:66px;border-radius:50%;background:var(--red);border:5px solid var(--ink);color:#fff;font-weight:800;font-size:26px;display:flex;align-items:center;justify-content:center">v3</div>
+      <div class="card" style="padding:18px 26px;font-size:32px;font-weight:700;border-color:var(--red);color:var(--red)">app broken</div></div>
+    <svg class="abs" style="left:380px;top:110px;${fade(lt, 2.4)}" width="160" height="300" viewBox="0 0 160 300">
+      <path d="M20 270 C 150 250, 150 60, 40 40" fill="none" stroke="var(--blue)" stroke-width="10" stroke-linecap="round" stroke-dasharray="420" stroke-dashoffset="${420 - 420 * clamp((lt - 2.4) / .8)}"/>
+      <path d="M62 20 L 34 40 L 60 66" fill="none" stroke="var(--blue)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="${clamp((lt - 3.1) / .2)}"/></svg>
+    <div class="abs term" style="left:30px;top:480px;width:520px;${pop(lt, 3)}"><span class="p">$</span> git restore .<br><span class="ok">✓ back to v2</span></div>`,
+
+  laptop: lt => `
+    <svg class="abs" style="left:20px;top:80px;${pop(lt, .2)}" width="540" height="380" viewBox="0 0 540 380">
+      <rect x="70" y="20" width="400" height="260" rx="22" fill="#fff" stroke="#151515" stroke-width="7"/>
+      <rect x="95" y="45" width="350" height="210" rx="10" fill="#eef3ff"/>
+      <path d="M20 300 H520 L495 345 H45 Z" fill="#fff" stroke="#151515" stroke-width="7" stroke-linejoin="round"/>
+      <g transform="translate(160 85)"><path d="M0 18 a10 10 0 0 1 10 -10 h60 l16 16 h124 a10 10 0 0 1 10 10 v96 a10 10 0 0 1 -10 10 h-200 a10 10 0 0 1 -10 -10 Z" fill="#f2a33a" stroke="#151515" stroke-width="6"/>
+      <text x="110" y="95" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-weight="700" font-size="30" fill="#151515">my-app</text></g>
+    </svg>
+    <div class="abs" style="left:60px;top:500px;${pop(lt, 1)}"><span class="chip"><span style="font-family:DejaVu Sans Mono,monospace">.git</span> hidden folder = history</span></div>
+    <div class="abs" style="left:60px;top:600px;${pop(lt, 2.6)}"><span class="chip" style="border-color:var(--green);color:var(--green)">✓ works offline</span></div>`,
+
+  cloud: lt => `
+    <svg class="abs" style="left:10px;top:40px;${pop(lt, .2)}" width="560" height="330" viewBox="0 0 560 330">
+      <path d="M140 300 C 50 300, 30 200, 110 180 C 100 90, 230 60, 270 130 C 310 40, 470 70, 450 180 C 540 190, 530 300, 440 300 Z" fill="#fff" stroke="#151515" stroke-width="8" stroke-linejoin="round"/>
+      <text x="280" y="250" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-weight="700" font-size="30" fill="#2f6fe4">my-first-repo</text></svg>
+    ${[["Backup", "var(--green)"], ["Share", "var(--blue)"], ["Team work", "var(--orange)"]].map(([w, c], i) => `
+      <div class="abs" style="left:${30 + i * 0}px;top:${420 + i * 100}px;${pop(lt, 3.6 + i * .35)}"><span class="chip" style="border-color:${c}"><span style="width:18px;height:18px;border-radius:50%;background:${c};display:inline-block"></span>${w}</span></div>`).join("")}`,
+
+  compare: lt => `
+    <div class="abs card top-green" style="left:20px;top:60px;width:540px;height:250px;display:flex;align-items:center;gap:30px;padding:0 34px;${pop(lt, .1)}">
+      <svg width="130" height="110" viewBox="0 0 130 110"><rect x="6" y="22" width="118" height="80" rx="16" fill="#fff" stroke="#151515" stroke-width="7"/><rect x="40" y="6" width="44" height="20" rx="6" fill="#151515"/><circle cx="65" cy="62" r="24" fill="#d3f1df" stroke="#151515" stroke-width="7"/></svg>
+      <div><div style="font-weight:800;font-size:56px">Git</div><div class="sub" style="text-align:left">takes the snapshots</div></div></div>
+    <div class="abs card top-blue" style="left:20px;top:370px;width:540px;height:250px;display:flex;align-items:center;gap:30px;padding:0 34px;${pop(lt, 2.4)}">
+      <svg width="130" height="110" viewBox="0 0 130 110"><rect x="10" y="6" width="110" height="98" rx="26" fill="#fff" stroke="#151515" stroke-width="7"/><circle cx="65" cy="55" r="24" fill="#d4e2ff" stroke="#151515" stroke-width="7"/><circle cx="96" cy="26" r="6" fill="#151515"/></svg>
+      <div><div style="font-weight:800;font-size:56px">GitHub</div><div class="sub" style="text-align:left">where you post them</div></div></div>`,
+
+  init: lt => term(lt, [
+    [.2, `<span class="p">$</span> mkdir my-first-repo`],
+    [.9, `<span class="p">$</span> cd my-first-repo`],
+    [2.5, `<span class="p">$</span> git init`],
+    [3.4, `<span class="ok">Initialized empty Git repository</span>`],
+  ]) + `<div class="abs" style="left:40px;top:520px;${pop(lt, 3.6)}"><span class="chip">📁 now Git is watching this folder</span></div>`,
+
+  commit: lt => term(lt, [
+    [.2, `<span class="p">$</span> git add .`],
+    [1.2, `<span class="c"># files ready to save</span>`],
+    [2.8, `<span class="p">$</span> git commit -m "first commit"`],
+    [3.7, `<span class="ok">[main a1b2c3d] first commit</span>`],
+    [3.9, `<span class="ok"> 3 files changed</span>`],
+  ]) + `<div class="abs" style="left:40px;top:560px;display:flex;gap:16px;align-items:center;${pop(lt, 4.2)}">
+      <div style="width:70px;height:70px;border-radius:50%;background:var(--green);border:5px solid var(--ink);color:#fff;font-weight:800;font-size:28px;display:flex;align-items:center;justify-content:center">v1</div>
+      <span class="chip">save point #1</span></div>`,
+
+  newrepo: lt => {
+    const typed = "my-first-repo".slice(0, Math.floor(clamp((lt - 2.8) / 1.2) * 13));
+    const press = lt > 4.3 && lt < 4.6 ? "transform:scale(.95);" : "";
+    return `
+    <div class="abs card" style="left:20px;top:60px;width:540px;padding:34px;${pop(lt, .2)}">
+      <div style="font-weight:800;font-size:40px;margin-bottom:28px">New repository</div>
+      <div style="font-weight:700;font-size:26px;color:var(--muted);margin-bottom:10px">Repository name</div>
+      <div style="border:3px solid ${lt > 2.8 ? "var(--blue)" : "#ccc"};border-radius:12px;height:64px;padding:0 18px;display:flex;align-items:center;font-family:DejaVu Sans Mono,monospace;font-size:28px">${typed}<span style="width:3px;height:32px;background:var(--ink);margin-left:2px;opacity:${(lt * 2 | 0) % 2}"></span></div>
+      <div style="display:flex;gap:18px;margin:26px 0;font-size:26px;font-weight:600"><span>◉ Public</span><span style="color:var(--muted)">○ Private</span></div>
+      <div style="background:var(--green);color:#fff;font-weight:800;font-size:30px;border-radius:14px;height:70px;display:flex;align-items:center;justify-content:center;${press}">Create repository</div>
+    </div>
+    <div class="abs" style="left:40px;top:640px;${pop(lt, .9)}"><span class="chip">github.com → <b style="color:var(--blue)">+</b> → New repository</span></div>`;
+  },
+
+  push: lt => {
+    const k = clamp((lt - 2.6) / 1.4), x = lerp(90, 470, easeOut(k)), y = lerp(600, 520, k) - Math.sin(k * Math.PI) * 140;
+    return term(lt, [
+      [.2, `<span class="p">$</span> git remote add origin \\`],
+      [.2, `&nbsp;&nbsp;&lt;your-repo-url&gt;`],
+      [2, `<span class="p">$</span> git push -u origin main`],
+      [3.8, `<span class="ok">✓ main → origin/main</span>`],
+    ], 60) + `
+      <svg class="abs" style="left:0;top:0" width="580" height="860" viewBox="0 0 580 860">
+        <g style="${pop(lt, 1.8)}"><rect x="30" y="560" width="120" height="80" rx="10" fill="#fff" stroke="#151515" stroke-width="6"/><path d="M15 650 H165 L155 668 H25 Z" fill="#fff" stroke="#151515" stroke-width="6" stroke-linejoin="round"/></g>
+        <g style="${pop(lt, 1.8)}" transform="translate(0 110)"><path d="M420 470 C 380 470, 375 420, 410 412 C 405 370, 465 355, 482 390 C 500 350, 570 365, 560 415 C 590 420, 585 470, 550 470 Z" fill="#fff" stroke="#151515" stroke-width="6" stroke-linejoin="round"/></g>
+        <path d="M150 590 Q 300 400 420 545" fill="none" stroke="#c9c8c2" stroke-width="5" stroke-dasharray="12 12" style="${fade(lt, 2)}"/>
+        <g transform="translate(${x} ${y})" style="opacity:${lt > 2.6 && lt < 4.1 ? 1 : 0}"><rect x="-22" y="-22" width="44" height="44" rx="6" fill="var(--orange)" stroke="#151515" stroke-width="5"/><path d="M-22 -6 H22" stroke="#151515" stroke-width="4"/></g>
+        <g style="${pop(lt, 4)}"><circle cx="555" cy="475" r="32" fill="var(--green)" stroke="#151515" stroke-width="5"/><path d="M540 475 l11 11 l20 -22" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g>
+      </svg>`;
+  },
+
+  recap: lt => {
+    const cmds = [["git init", "start", "var(--blue)"], ["git add", "select", "var(--orange)"], ["git commit", "save", "var(--green)"], ["git push", "upload", "var(--red)"]];
+    return cmds.map(([c, w, col], i) => {
+      const on = lt > .3 + i * .5;
+      return `<div class="abs" style="left:40px;top:${60 + i * 150}px;width:510px;height:116px;display:flex;align-items:center;gap:22px;${pop(lt, .3 + i * .5)}">
+        <div style="width:64px;height:64px;border-radius:50%;background:${col};border:5px solid var(--ink);color:#fff;font-weight:800;font-size:30px;display:flex;align-items:center;justify-content:center">${i + 1}</div>
+        <div class="card" style="flex:1;height:100px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-color:${on ? col : "var(--ink)"}">
+          <span style="font-family:DejaVu Sans Mono,monospace;font-weight:700;font-size:32px">${c}</span><span class="sub">${w}</span></div></div>`;
+    }).join("");
+  },
+
+  follow: lt => `
+    <div class="abs card top-blue" style="left:40px;top:100px;width:500px;padding:30px;display:flex;gap:22px;align-items:center;${pop(lt, .2)}">
+      <svg width="90" height="90" viewBox="0 0 90 90"><circle cx="18" cy="70" r="11" fill="var(--blue)"/><circle cx="18" cy="20" r="11" fill="var(--blue)"/><circle cx="70" cy="34" r="11" fill="var(--green)"/><path d="M18 31 V59 M18 50 C18 40, 70 52, 70 45" fill="none" stroke="#151515" stroke-width="6" stroke-linecap="round"/></svg>
+      <div><div style="font-weight:800;font-size:38px">Up next</div><div class="sub" style="text-align:left">Branches, made easy</div></div></div>
+    <div class="abs" style="left:110px;top:380px;width:360px;height:110px;border-radius:24px;background:var(--red);color:#fff;font-weight:800;font-size:46px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 0 rgba(0,0,0,.15);${pop(lt, 2)};${lt > 3.4 && lt < 3.7 ? "filter:brightness(.9)" : ""}">+ Follow</div>
+    <div class="abs sub" style="left:0;right:0;top:520px;${fade(lt, 2.4)}">for DevOps &amp; DevSecOps in simple words</div>`,
+};
+
+function term(lt, lines, top = 60) {
+  const shown = lines.filter(([d]) => lt >= d);
+  const last = shown[shown.length - 1];
+  return `<div class="abs term" style="left:20px;top:${top}px;width:540px;min-height:300px;${pop(lt, 0, .35)}">
+    <div style="display:flex;gap:10px;margin-bottom:18px"><i style="width:16px;height:16px;border-radius:50%;background:#ff5f57"></i><i style="width:16px;height:16px;border-radius:50%;background:#febc2e"></i><i style="width:16px;height:16px;border-radius:50%;background:#28c840"></i></div>
+    ${shown.map(([d, h]) => {
+      // type each command out
+      const plain = h.replace(/<[^>]+>/g, "");
+      const isCmd = h.startsWith('<span class="p">$</span>');
+      if (!isCmd || (last && lt - d > 0.9)) return `<div>${h}</div>`;
+      const n = Math.floor(clamp((lt - d) / 0.8) * (plain.length - 2));
+      return `<div><span class="p">$</span> ${esc(plain.slice(2, 2 + n))}<span class="cur"></span></div>`;
+    }).join("")}
+  </div>`;
+}
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/* ---------- Character ---------- */
+const POSES = {
+  idle:    { L: [[112, 370], [120, 462], "fist"], R: [[288, 370], [280, 462], "fist"] },
+  present: { L: [[108, 368], [132, 458], "fist"], R: [[332, 332], [398, 296], "palm"] },
+  point:   { L: [[108, 368], [132, 458], "fist"], R: [[326, 300], [392, 256], "point"] },
+  idea:    { L: [[92, 340], [104, 238], "up"],    R: [[318, 366], [272, 436], "fist"] },
+  cross:   { L: [[118, 372], [262, 352], "fist"], R: [[282, 380], [142, 366], "fist"] },
+  thumb:   { L: [[108, 368], [132, 458], "fist"], R: [[318, 384], [338, 318], "thumb"] },
+  cheer:   { L: [[86, 222], [70, 140], "fist"],   R: [[314, 222], [330, 140], "fist"] },
+  shrug:   { L: [[92, 340], [52, 296], "palmup"], R: [[308, 340], [348, 296], "palmup"] },
+};
+const SH = { L: [140, 272], R: [260, 272] };
+
+function poseAt(t) {
+  // flatten pose timeline
+  const tl = [];
+  S.forEach(s => s.pose.forEach(([d, p]) => tl.push([s.t + d, p])));
+  let i = 0; while (i + 1 < tl.length && tl[i + 1][0] <= t) i++;
+  const cur = POSES[tl[i][1]], prev = POSES[(tl[i - 1] || tl[i])[1]];
+  const k = easeOut((t - tl[i][0]) / 0.35);
+  const mix = side => {
+    const a = prev[side], b = cur[side];
+    return [[lerp(a[0][0], b[0][0], k), lerp(a[0][1], b[0][1], k)], [lerp(a[1][0], b[1][0], k), lerp(a[1][1], b[1][1], k)], k < .5 ? a[2] : b[2]];
+  };
+  return { L: mix("L"), R: mix("R"), name: tl[i][1], k };
+}
+
+function arm(sh, el, hd, kind, side, t, poseName) {
+  // gentle gesture motion on the presenting hand
+  if (side === "R" && (poseName === "present" || poseName === "point")) { hd = [hd[0] + Math.sin(t * 3) * 4, hd[1] + Math.sin(t * 2.2) * 5]; }
+  const d = `M${sh[0]} ${sh[1]} L${el[0]} ${el[1]} L${hd[0]} ${hd[1]}`;
+  let hand = "";
+  const ang = Math.atan2(hd[1] - el[1], hd[0] - el[0]) * 180 / Math.PI;
+  const sk = LOOK.skin;
+  if (kind === "palm") hand = `<g transform="translate(${hd[0]} ${hd[1]}) rotate(${ang})"><path d="M-6 -14 C 20 -22, 44 -16, 46 -6 C 30 -4, 30 2, 44 6 C 40 14, 20 18, -6 14 Z" fill="${sk}" stroke="#151515" stroke-width="6" stroke-linejoin="round"/></g>`;
+  else if (kind === "palmup") hand = `<g transform="translate(${hd[0]} ${hd[1]}) scale(${side === "L" ? -1 : 1} 1)"><path d="M-8 -6 C 10 6, 30 4, 40 -8 L 44 -2 C 34 16, 6 18, -8 10 Z" fill="${sk}" stroke="#151515" stroke-width="6" stroke-linejoin="round"/></g>`;
+  else if (kind === "point") hand = `<g transform="translate(${hd[0]} ${hd[1]}) rotate(${ang})"><path d="M8 -4 L44 -6" stroke="#151515" stroke-width="16" stroke-linecap="round"/><path d="M8 -4 L44 -6" stroke="${sk}" stroke-width="5" stroke-linecap="round"/><circle r="17" fill="${sk}" stroke="#151515" stroke-width="6"/></g>`;
+  else if (kind === "up") hand = `<g transform="translate(${hd[0]} ${hd[1]})"><path d="M0 -8 L0 -46" stroke="#151515" stroke-width="16" stroke-linecap="round"/><path d="M0 -8 L0 -46" stroke="${sk}" stroke-width="5" stroke-linecap="round"/><circle r="17" fill="${sk}" stroke="#151515" stroke-width="6"/></g>`;
+  else if (kind === "thumb") hand = `<g transform="translate(${hd[0]} ${hd[1]})"><path d="M-4 -10 L-4 -42" stroke="#151515" stroke-width="16" stroke-linecap="round"/><path d="M-4 -10 L-4 -42" stroke="${sk}" stroke-width="5" stroke-linecap="round"/><rect x="-18" y="-16" width="36" height="34" rx="12" fill="${sk}" stroke="#151515" stroke-width="6"/></g>`;
+  else hand = `<circle cx="${hd[0]}" cy="${hd[1]}" r="17" fill="${sk}" stroke="#151515" stroke-width="6"/>`;
+  return `<path d="${d}" fill="none" stroke="#151515" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="${d}" fill="none" stroke="${sk}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>${hand}`;
+}
+
+function hairSvg() {
+  const c = LOOK.hairColor;
+  if (LOOK.hair === "short") return `<path d="M124 140 C 120 70, 280 70, 276 140 C 260 105, 150 100, 124 140 Z" fill="${c}"/>`;
+  if (LOOK.hair === "wavy") return `<path d="M120 150 C 105 70, 170 55, 200 70 C 235 50, 300 75, 280 150 C 270 120, 250 108, 230 112 C 215 98, 185 98, 170 112 C 150 105, 128 120, 120 150 Z" fill="${c}"/>`;
+  return [[170, 82, 160, 48], [186, 76, 182, 38], [202, 74, 206, 34], [218, 77, 230, 42], [232, 84, 250, 58]]
+    .map(([x1, y1, x2, y2]) => `<path d="M${x1} ${y1} Q ${(x1 + x2) / 2 - 6} ${(y1 + y2) / 2} ${x2} ${y2}" stroke="${c}" stroke-width="6" fill="none" stroke-linecap="round"/>`).join("");
+}
+
+function charSvg(t, talking, mood) {
+  const p = poseAt(t);
+  const bob = Math.sin(t * 2.4) * 4;
+  const tilt = Math.sin(t * 1.3) * 2.5 + (mood === "curious" ? -4 : 0);
+  const blink = (t % 3.4) < 0.12 || ((t + 1.3) % 7.1) < 0.1;
+  // mouth
+  const r = Math.abs(Math.sin(t * 13) * Math.sin(t * 7.3 + 1));
+  const open = talking ? r : 0;
+  let mouth;
+  if (open > 0.25) mouth = `<ellipse cx="200" cy="194" rx="${10 + open * 6}" ry="${6 + open * 12}" fill="#b8323a" stroke="#151515" stroke-width="5"/>`;
+  else if (mood === "serious") mouth = `<path d="M186 194 H214" stroke="#151515" stroke-width="6" stroke-linecap="round"/>`;
+  else mouth = `<path d="M182 188 Q 200 206 218 188" fill="none" stroke="#151515" stroke-width="6" stroke-linecap="round"/>`;
+  const browY = mood === "curious" ? -8 : mood === "serious" ? 4 : 0;
+  const brows = mood === "serious"
+    ? `<path d="M152 ${116 + browY} L184 ${122 + browY}" stroke="#151515" stroke-width="6" stroke-linecap="round"/><path d="M216 ${122 + browY} L248 ${116 + browY}" stroke="#151515" stroke-width="6" stroke-linecap="round"/>`
+    : `<path d="M154 ${120 + browY} Q 170 ${110 + browY} 186 ${118 + browY}" fill="none" stroke="#151515" stroke-width="6" stroke-linecap="round"/><path d="M214 ${118 + (mood === "curious" ? 6 : 0) + browY} Q 230 ${110 + browY} 246 ${120 + browY}" fill="none" stroke="#151515" stroke-width="6" stroke-linecap="round"/>`;
+  const look = p.name === "cross" ? 0 : 5;
+  const eye = (cx) => blink
+    ? `<path d="M${cx - 14} 148 H${cx + 14}" stroke="#151515" stroke-width="6" stroke-linecap="round"/>`
+    : `<ellipse cx="${cx}" cy="148" rx="15" ry="20" fill="#fff" stroke="#151515" stroke-width="5"/><circle cx="${cx + look}" cy="${150}" r="8" fill="#151515"/><circle cx="${cx + look + 3}" cy="146" r="2.5" fill="#fff"/>`;
+  const extras =
+    (LOOK.beard ? `<path d="M134 176 C 140 236, 260 236, 266 176 C 250 214, 150 214, 134 176 Z" fill="${LOOK.hairColor}" opacity=".85"/>` : "") +
+    (LOOK.moustache ? `<path d="M180 182 Q 200 172 220 182 Q 200 178 180 182 Z" fill="${LOOK.hairColor}" stroke="${LOOK.hairColor}" stroke-width="5"/>` : "") +
+    (LOOK.glasses ? `<g fill="none" stroke="#151515" stroke-width="5"><circle cx="171" cy="148" r="25"/><circle cx="229" cy="148" r="25"/><path d="M196 146 H204 M146 144 L124 138 M254 144 L276 138"/></g>` : "");
+  const leg = (x) => `<path d="M${x} 585 L${x} 705" stroke="#151515" stroke-width="26" stroke-linecap="round"/><path d="M${x} 585 L${x} 705" stroke="${LOOK.skin}" stroke-width="13" stroke-linecap="round"/>`;
+  const shoe = (x, dir) => `<path d="M${x - 30 * dir} 708 C ${x - 34 * dir} 690, ${x + 10 * dir} 690, ${x + 14 * dir} 700 C ${x + 40 * dir} 704, ${x + 46 * dir} 714, ${x + 44 * dir} 728 L ${x - 32 * dir} 728 Z" fill="#fff" stroke="#151515" stroke-width="6" stroke-linejoin="round"/><path d="M${x - 32 * dir} 728 L${x + 44 * dir} 728" stroke="#151515" stroke-width="8" stroke-linecap="round"/>`;
+  return `
+  <g transform="translate(0 ${bob})">
+    ${leg(165)}${leg(235)}${shoe(160, -1)}${shoe(240, 1)}
+    <path d="M118 462 L282 462 L292 585 L210 585 L200 520 L190 585 L108 585 Z" fill="${LOOK.shorts}" stroke="#151515" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M136 252 Q 200 238 264 252 L300 300 L276 322 L270 300 L278 470 L122 470 L130 300 L124 322 L100 300 Z" fill="${LOOK.shirt}" stroke="#151515" stroke-width="6" stroke-linejoin="round"/>
+    ${p.name === "cross" ? "" : arm(SH.L, ...p.L, "L", t, p.name) + arm(SH.R, ...p.R, "R", t, p.name)}
+    <path d="M200 226 L200 250" stroke="#151515" stroke-width="20"/>
+    <g transform="rotate(${tilt} 200 230)">
+      ${LOOK.hair === "spiky" ? hairSvg() : ""}
+      <circle cx="200" cy="150" r="80" fill="${LOOK.skin}" stroke="#151515" stroke-width="6"/>
+      ${LOOK.hair !== "spiky" ? hairSvg() : ""}
+      <path d="M122 150 q -14 4 -6 22 q 6 6 12 0" fill="${LOOK.skin}" stroke="#151515" stroke-width="5"/>
+      <path d="M278 150 q 14 4 6 22 q -6 6 -12 0" fill="${LOOK.skin}" stroke="#151515" stroke-width="5"/>
+      ${extras}${brows}${eye(171)}${eye(229)}${mouth}
+    </g>
+    ${p.name === "cross" ? arm(SH.L, ...p.L, "L", t, p.name) + arm(SH.R, ...p.R, "R", t, p.name) : ""}
+  </g>`;
+}
+
+/* ---------- Render one moment ---------- */
+const $ = id => document.getElementById(id);
+function render(t) {
+  let si = 0; while (si + 1 < S.length && S[si + 1].t <= t) si++;
+  const sc = S[si], lt = t - sc.t;
+
+  // steps
+  $("steps").innerHTML = sc.step ? [1, 2, 3, 4].map(n => `<div class="step ${n === sc.step ? "on" : ""}">${n === sc.step ? "STEP " + n : n}</div>`).join("") : "";
+
+  // title with highlighted word
+  const mk = easeOut((lt - .25) / .4);
+  $("title").innerHTML = sc.title.replace(/<hl c="(\w+)">(.*?)<\/hl>/g, (_, c, w) =>
+    `<span class="hl" style="color:${COL[c][0]};--mark:${COL[c][1]};--mk:${mk}"><span>${w}</span></span>`);
+  $("title").style.cssText = `opacity:${clamp(lt / .25)};transform:translateY(${lerp(24, 0, easeOut(lt / .35))}px)`;
+
+  // caption
+  let ci = -1; sc.cap.forEach(([d], i) => { if (lt >= d) ci = i; });
+  const capStart = ci >= 0 ? sc.cap[ci][0] : 0, capEnd = ci + 1 < sc.cap.length ? sc.cap[ci + 1][0] : sc.end - sc.t;
+  const cl = lt - capStart;
+  $("caption").innerHTML = ci >= 0 ? `<div style="transform:scale(${lerp(.9, 1, backOut(cl / .25))});opacity:${clamp(cl / .12)}">${sc.cap[ci][1]}</div>` : "";
+  const talking = ci >= 0 && lt < capEnd - 0.25 && cl < Math.max(1.1, sc.cap[ci][1].length * 0.075);
+
+  $("char").innerHTML = charSvg(t, talking, sc.mood);
+  $("prop").innerHTML = P[sc.prop](lt);
+}
+
+/* ---------- Playback ---------- */
+function fit() { const s = Math.min(innerWidth / 1080, innerHeight / 1920); $("stage").style.transform = `scale(${s})`; }
+addEventListener("resize", fit); fit();
+window.DURATION = END;
+window.render = render;
+const q = new URLSearchParams(location.search);
+if (q.has("render")) { $("hint").remove(); document.body.style.background = "transparent"; $("stage").style.transform = "none"; }
+else if (q.has("t")) render(parseFloat(q.get("t")));
+else {
+  let t0 = performance.now();
+  addEventListener("click", () => t0 = performance.now());
+  (function loop(now) { render(((now - t0) / 1000) % END); requestAnimationFrame(loop); })(performance.now());
+}
+</script>
+</body>
+</html>
