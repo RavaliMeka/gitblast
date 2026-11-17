@@ -16,7 +16,7 @@ The pipeline used for Episode 1, in order:
 
 Voice chain (ffmpeg `-af`):
 ```
-highpass=f=85,lowpass=f=15000,afftdn=nf=-48:nr=10,equalizer=f=220:t=q:w=1.1:g=-2.5,equalizer=f=3400:t=q:w=1.2:g=3,equalizer=f=9500:t=q:w=0.9:g=2,deesser=i=0.35,acompressor=threshold=-24dB:ratio=3:attack=8:release=120:makeup=4,rubberband=pitch=1.045:formant=preserved:pitchq=quality
+highpass=f=85,lowpass=f=15000,afftdn=nf=-48:nr=10,equalizer=f=220:t=q:w=1.1:g=-2.5,equalizer=f=3200:t=q:w=1.2:g=3.5,equalizer=f=9500:t=q:w=0.9:g=2,deesser=i=0.35,acompressor=threshold=-24dB:ratio=3:attack=8:release=120:makeup=4,rubberband=pitch=1.075:formant=preserved:pitchq=quality
 ```
 then two-pass `loudnorm=I=-14:TP=-1.5`.
 
