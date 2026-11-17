@@ -461,6 +461,16 @@ function avatarCard(t, talking, A, open, blink) {
     ? `<image href="${cut}" x="${x - 95}" y="${y + h - (w + 190) * .745}" width="${w + 190}" height="${(w + 190) * .745}" preserveAspectRatio="xMidYMid meet" transform="translate(200 ${y + h / 2}) scale(${pop}) translate(-200 ${-(y + h / 2)})"/>`
     : `<g transform="translate(200 ${y}) scale(${zoom}) translate(-200 ${-y})"><image href="${face}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMin slice"/></g>`;
   const bob = Math.sin(t * 2.2) * 3;
+  if (A.cutout) {
+    // no card: the presenter stands in the scene, bigger, with a soft shadow; bottom fades into the page
+    const X = -40, Y = 250, Wd = 470;
+    const body = cut
+      ? `<image href="${cut}" x="${X - 60}" y="${Y + Wd - (Wd + 120) * .745}" width="${Wd + 120}" height="${(Wd + 120) * .745}" transform="translate(200 ${Y + Wd}) scale(${pop}) translate(-200 ${-(Y + Wd)})"/>`
+      : `<image href="${face}" x="${X}" y="${Y}" width="${Wd}" height="${Wd}"/>`;
+    return `<defs><filter id="ps" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#5a3d1e" flood-opacity=".18"/></filter>
+        <radialGradient id="pg"><stop offset="0" stop-color="#ffffff" stop-opacity=".85"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs>
+      <g transform="translate(0 ${bob})" filter="url(#ps)">${body}</g>`;
+  }
   return `<defs><clipPath id="card"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/></clipPath>
       <filter id="cs" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-opacity=".22"/></filter></defs>
     <g transform="translate(0 ${bob}) rotate(${Math.sin(t * .9) * .8} 200 ${y + h})">
