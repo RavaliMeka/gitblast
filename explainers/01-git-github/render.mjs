@@ -17,10 +17,14 @@ const out = opt("--out") || path.join(here, "git-github-explainer.mp4");
 const voice = opt("--voice");
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
-await page.goto("file://" + path.join(here, "explainer.html") + "?render=1");
+const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: Number(opt("--scale") || 1) });
+await page.goto("file://" + path.join(here, opt("--page") || "explainer.html") + "?render=1");
 await page.evaluate(() => document.fonts.ready);
 await page.evaluate(() => window.READY);
+if (opt("--timing")) {
+  const { readFileSync } = await import("node:fs");
+  await page.evaluate(tm => { window.TIMING = tm; window.render(0); }, JSON.parse(readFileSync(opt("--timing"), "utf8")));
+}
 if (opt("--avatar")) {
   // a JSON file of avatar frames: { closed, mid, open, wide?, blink }
   const { readFileSync } = await import("node:fs");
@@ -60,7 +64,7 @@ const frames = Math.ceil((to - from) * FPS);
 const ff = spawn("ffmpeg", [
   "-y", "-v", "error", "-f", "image2pipe", "-framerate", String(FPS), "-i", "-",
   ...(voice ? ["-i", voice] : ["-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo"]),
-  "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "medium", "-crf", "20",
+  "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", opt("--preset") || "medium", "-crf", opt("--crf") || "20", "-r", String(FPS),
   "-c:a", "aac", "-b:a", "160k", "-t", String(to - from), "-movflags", "+faststart", out,
 ], { stdio: ["pipe", "inherit", "inherit"] });
 
