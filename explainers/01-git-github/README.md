@@ -19,7 +19,7 @@ node render.mjs --voice my-voice.m4a
 
 ## The presenter
 
-`presenter.png` is your picture with the background removed. It sits at the bottom as a talking head: it breathes, sways slightly, nods and shows voice rings while a caption is being spoken. Swap the file to change the presenter.
+`presenter.png` is your picture with the background removed (`presenter.js` holds the same picture so the page can animate it). It sits bottom-left with the captions in a speech bubble. While a line is spoken the jaw opens and closes with the mouth showing inside, the eyes blink every few seconds, the brows lift as each new line starts, and the head nods slightly. With `--voice`, the mouth follows the loudness of your recording instead of a made-up rhythm.
 
 ## Change the words or timing
 

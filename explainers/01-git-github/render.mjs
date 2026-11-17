@@ -20,6 +20,24 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
 await page.goto("file://" + path.join(here, "explainer.html") + "?render=1");
 await page.evaluate(() => document.fonts.ready);
+await page.evaluate(() => window.READY);
+if (voice) {
+  // loudness of the recording per video frame drives the mouth
+  const pcm = await new Promise((res, rej) => {
+    const p = spawn("ffmpeg", ["-v", "error", "-i", voice, "-ac", "1", "-ar", "16000", "-f", "s16le", "-"]);
+    const chunks = []; p.stdout.on("data", c => chunks.push(c)); p.on("close", () => res(Buffer.concat(chunks))); p.on("error", rej);
+  });
+  const samples = new Int16Array(pcm.buffer, pcm.byteOffset, pcm.length >> 1), per = 16000 / FPS, env = [];
+  for (let i = 0; i * per < samples.length; i++) {
+    let sum = 0; const a = Math.floor(i * per), b = Math.min(samples.length, Math.floor((i + 1) * per));
+    for (let j = a; j < b; j++) sum += samples[j] * samples[j];
+    env.push(Math.sqrt(sum / Math.max(1, b - a)));
+  }
+  const peak = [...env].sort((x, y) => x - y)[Math.floor(env.length * .97)] || 1;
+  const norm = env.map(v => Math.min(1, Math.max(0, (v / peak - .08) / .8)));
+  const smooth = norm.map((v, i) => (v + (norm[i - 1] ?? v) * .6) / 1.6);
+  await page.evaluate(([env, fps]) => { window.VOICE = { env, fps }; }, [smooth, FPS]);
+}
 const stage = await page.$("#stage");
 
 if (opt("--stills")) {

@@ -31,9 +31,8 @@
   #panel .bar { height: 58px; background: #ffffffd9; border-bottom: 2px solid #e6e4dc; display: flex; align-items: center; gap: 12px; padding: 0 26px; }
   #panel .bar i { width: 18px; height: 18px; border-radius: 50%; }
   #panel .bar span { margin-left: 14px; font: 600 22px "DejaVu Sans Mono", monospace; color: #8a8a8a; }
-  #glow { left: 190px; top: 1150px; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(255,90,90,.55), rgba(224,58,60,.15) 55%, transparent 70%); }
-  .wave { position: absolute; left: 540px; top: 1480px; border-radius: 50%; border: 4px solid rgba(255,120,120,.6); }
-  #me { left: 170px; top: 1215px; width: 740px; height: 740px; transform-origin: 50% 100%; filter: drop-shadow(0 20px 40px rgba(0,0,0,.5)); }
+  #glow { left: -120px; top: 1260px; width: 760px; height: 760px; border-radius: 50%; background: radial-gradient(circle, rgba(255,90,90,.35), rgba(224,58,60,.1) 55%, transparent 70%); }
+  #me { left: -40px; top: 1290px; width: 640px; height: 640px; transform-origin: 50% 100%; filter: drop-shadow(0 20px 40px rgba(0,0,0,.5)); }
   .abs { position: absolute; }
   #steps { left: 0; right: 0; top: 62px; display: flex; justify-content: center; gap: 14px; }
   .step { min-width: 46px; height: 46px; border-radius: 23px; background: rgba(255,255,255,.1); color: #9aa3b5; font-weight: 700; font-size: 24px; display: flex; align-items: center; justify-content: center; padding: 0 14px; }
@@ -43,8 +42,10 @@
   .hl::after { content: ""; position: absolute; left: -4px; right: -4px; bottom: 6px; height: 18px; z-index: -1; border-radius: 6px; background: var(--mark, #cfe0ff); transform-origin: left; transform: scaleX(var(--mk, 1)); }
   .hl span { position: relative; }
   #prop { left: 250px; top: 452px; width: 580px; height: 680px; transform-origin: 50% 0; }
-  #caption { left: 0; right: 0; top: 1160px; display: flex; justify-content: center; z-index: 5; }
-  #caption div { background: #fff; color: #111; font-weight: 800; font-size: 52px; padding: 14px 32px 18px; border-radius: 20px; box-shadow: 0 14px 30px rgba(0,0,0,.45), inset 0 -6px 0 #ffd84a; max-width: 980px; text-align: center; }
+  #caption { left: 560px; right: 40px; top: 1340px; height: 300px; display: flex; align-items: center; z-index: 5; }
+  #caption div { position: relative; background: #fff; color: #111; font-weight: 800; font-size: 50px; line-height: 1.18; padding: 26px 34px 30px; border-radius: 34px; box-shadow: 0 18px 40px rgba(0,0,0,.45); transform-origin: 0 70%; }
+  #caption div::before { content: ""; position: absolute; left: -26px; bottom: 46px; border: 18px solid transparent; border-right: 30px solid #fff; border-left: 0; }
+  #caption mark { background: linear-gradient(transparent 58%, #ffd84a 58%); color: inherit; }
   .card { background: var(--card); border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 8px 0 rgba(0,0,0,.08); }
   .card.top-blue { border-top: 12px solid var(--blue); }
   .card.top-green { border-top: 12px solid var(--green); }
@@ -68,11 +69,11 @@
   <div id="panel" class="abs"><div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>devops-made-simple</span></div></div>
   <div id="prop" class="abs"></div>
   <div id="glow" class="abs"></div>
-  <div id="waves"></div>
-  <img id="me" class="abs" src="presenter.png" alt="">
+  <canvas id="me" class="abs" width="900" height="900"></canvas>
   <div id="caption" class="abs"></div>
 </div>
 <div id="hint">Click to restart · add ?t=12 to freeze a moment</div>
+<script src="presenter.js"></script>
 <script>
 
 /* ---------- Script: scenes, captions, poses ---------- */
@@ -260,6 +261,130 @@ function term(lt, lines, top = 60) {
 }
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+/* ---------- Talking face: warps presenter.png per frame ---------- */
+// Landmarks in the 900x900 presenter image
+const FACE = {
+  mouthX: 452, seamY: 600, mouthHalf: 78,           // lip seam centre; smile corners sit ~90px out
+  jawBottom: 772, jawHalf: 190,                     // beard and chin move with the jaw
+  eyes: [{ x: 362, y: 455, hw: 54, hh: 28 }, { x: 555, y: 464, hw: 53, hh: 29 }],
+};
+const fc = document.createElement("canvas"); fc.width = fc.height = 900;
+const fctx = fc.getContext("2d", { willReadFrequently: true });
+let SRC = null, OUT = null, LID = [];
+window.READY = new Promise(res => {
+  const img = new Image();
+  img.onload = () => {
+    fctx.drawImage(img, 0, 0, 900, 900);
+    SRC = fctx.getImageData(0, 0, 900, 900);
+    OUT = fctx.createImageData(900, 900);
+    // eyelid colour: the lit skin around each eye (measured from the picture)
+    LID = [[238, 152, 108], [226, 140, 98]];
+    res();
+  };
+  img.src = window.PRESENTER;
+});
+const hash = k => { const x = Math.sin(k * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const sstep = (a, b, x) => { const k = clamp((x - a) / (b - a)); return k * k * (3 - 2 * k); };
+
+// Voice envelope (0..1) per frame, set by render.mjs from the recording when there is one
+window.VOICE = null;
+function faceAt(t, talking, capStarts) {
+  let open;
+  if (window.VOICE) {
+    const i = Math.floor(t * window.VOICE.fps);
+    open = window.VOICE.env[i] || 0;
+  } else {
+    // syllable rhythm: ~6.5 syllables a second, each with its own size, some nearly closed
+    const sy = t * 6.5, k = Math.floor(sy), f = sy - k;
+    const amp = hash(k) < .18 ? .15 : .45 + hash(k + 99) * .55;
+    open = talking ? amp * Math.pow(Math.sin(Math.PI * f), .8) : 0;
+  }
+  // blinks: every 2.6-4.6 s, 140 ms long
+  let blink = 0, bt = 0, bk = 0;
+  while (bt <= t + 5) { const next = bt + 2.6 + hash(bk) * 2; if (t >= bt && t < bt + .14) blink = Math.sin(Math.PI * (t - bt) / .14); bt = next; bk++; }
+  // brows lift as each caption starts
+  let brow = 0; capStarts.forEach(c => { if (t >= c) brow = Math.max(brow, Math.exp(-(t - c) * 3)); });
+  const nod = -open * 4 - brow * 3;
+  const tilt = Math.sin(t * .9) * .8 + (talking ? Math.sin(t * 2.3) * .5 : 0);
+  return { open, blink, brow, nod, tilt };
+}
+
+function sample(x, y, out, o) {
+  // bilinear read from SRC
+  const x0 = Math.floor(x), y0 = Math.floor(y), fx = x - x0, fy = y - y0, d = SRC.data;
+  const i00 = (y0 * 900 + x0) * 4, i10 = i00 + 4, i01 = i00 + 3600, i11 = i01 + 4;
+  for (let c = 0; c < 4; c++) out[o + c] = (d[i00 + c] * (1 - fx) + d[i10 + c] * fx) * (1 - fy) + (d[i01 + c] * (1 - fx) + d[i11 + c] * fx) * fy;
+}
+
+function drawFace(f) {
+  if (!SRC) return;
+  const D = OUT.data; D.set(SRC.data);
+  const F = FACE, gap = f.open * 33, lift = f.brow * 6;
+  // brows and forehead lift a few pixels
+  if (lift > .2) for (let y = 330; y < 440; y++) {
+    const w = sstep(330, 380, y) * (1 - sstep(400, 438, y));
+    if (w <= 0) continue;
+    for (let x = 290; x < 630; x++) {
+      const lw = w * (1 - sstep(140, 175, Math.abs(x - 460)));
+      sample(x, y + lift * lw, D, (y * 900 + x) * 4);
+    }
+  }
+  // jaw drops below the lip seam; cheeks stretch, the neck and hoodie stay put
+  if (gap > .3) for (let y = F.seamY - 30; y < F.jawBottom + 40; y++) {
+    for (let x = F.mouthX - F.jawHalf; x < F.mouthX + F.jawHalf; x++) {
+      const ax = Math.abs(x - F.mouthX);
+      const seam = F.seamY - 10 * Math.pow(ax / 90, 2);          // the smile curves up at the corners
+      const soft = ax < F.mouthHalf ? 1.5 : 1.5 + (ax - F.mouthHalf) * .35;
+      const w = sstep(seam - soft, seam + soft, y) * (1 - sstep(F.jawBottom - 10, F.jawBottom + 35, y)) * (1 - sstep(F.jawHalf * .72, F.jawHalf, ax));
+      if (w <= 0) continue;
+      const o = (y * 900 + x) * 4, dy = gap * w;
+      // inside the opened mouth
+      const mw = F.mouthHalf * (.8 + .2 * f.open);
+      if (ax < mw) {
+        const h = gap * Math.pow(1 - Math.pow(ax / mw, 2), .6);
+        const top = seam - .5, bot = seam + h;
+        if (y >= top && y <= bot && h > .8) {
+          const k = (y - top) / Math.max(h, 1);
+          let c = [58, 16, 20];                                   // dark mouth
+          if (y - top < Math.min(8, h * .3) && ax < mw * .8) c = [238, 232, 224]; // upper teeth
+          else if (k > .7) c = [150, 62, 66];                    // tongue
+          const edge = Math.min(1, Math.min(y - top, bot - y) * .9, (mw - ax) * .5);
+          sample(x, y - dy, D, o);
+          for (let ch = 0; ch < 3; ch++) D[o + ch] = D[o + ch] * (1 - edge) + c[ch] * edge;
+          D[o + 3] = 255;
+          continue;
+        }
+      }
+      sample(x, y - dy, D, o);
+    }
+  }
+  // blinks: upper lids close over each eye
+  if (f.blink > .02) F.eyes.forEach((e, ei) => {
+    const lc = LID[ei];
+    for (let y = Math.floor(e.y - e.hh * 1.2); y < e.y + e.hh * 1.2; y++) for (let x = Math.floor(e.x - e.hw * 1.1); x < e.x + e.hw * 1.1; x++) {
+      const u = (x - e.x) / (e.hw * 1.04); if (Math.abs(u) >= 1) continue;
+      const half = e.hh * 1.08 * Math.sqrt(1 - u * u), top = e.y - half, lid = top + f.blink * 2 * half * .98;
+      if (y < top || y > e.y + half) continue;
+      const o = (y * 900 + x) * 4;
+      const rim = clamp((Math.sqrt(1 - u * u) - .02) * 10);              // soft outer edge
+      if (y < lid) {
+        const k = (y - top) / Math.max(1, 2 * half);                      // 0 at top of the eye, 1 at the bottom
+        const shade = .9 + .14 * Math.sin(Math.PI * clamp((y - top) / Math.max(1, lid - top))); // rounded lid
+        const a = Math.min(1, (lid - y) * .7) * rim;
+        for (let ch = 0; ch < 3; ch++) D[o + ch] = D[o + ch] * (1 - a) + Math.min(255, lc[ch] * shade * (1.02 - k * .08)) * a;
+        // crease near the top of the lid
+        const cr = (1 - Math.min(1, Math.abs(y - (top + half * .35)) / 1.8)) * .35 * f.blink * rim;
+        if (cr > 0) for (let ch = 0; ch < 3; ch++) D[o + ch] = D[o + ch] * (1 - cr) + lc[ch] * .6 * cr;
+      }
+      const lash = (1 - Math.min(1, Math.abs(y - lid) / 3)) * rim;
+      if (lash > 0 && f.blink > .3) for (let ch = 0; ch < 3; ch++) D[o + ch] = D[o + ch] * (1 - lash) + [36, 22, 18][ch] * lash;
+    }
+  });
+  fctx.putImageData(OUT, 0, 0);
+  const ctx = $("me").getContext("2d");
+  ctx.clearRect(0, 0, 900, 900); ctx.drawImage(fc, 0, 0);
+}
+
 /* ---------- Render one moment ---------- */
 const $ = id => document.getElementById(id);
 function render(t) {
@@ -282,13 +407,11 @@ function render(t) {
   $("caption").innerHTML = ci >= 0 ? `<div style="transform:scale(${lerp(.9, 1, backOut(cl / .25))});opacity:${clamp(cl / .12)}">${sc.cap[ci][1]}</div>` : "";
   const talking = ci >= 0 && lt < capEnd - 0.25 && cl < Math.max(1.1, sc.cap[ci][1].length * 0.075);
 
-  // presenter: breathing, slight sway, a small nod and voice rings while talking
-  const r = Math.abs(Math.sin(t * 11) * Math.sin(t * 6.1 + 1));
-  const energy = talking ? r : 0;
-  const nod = talking ? -Math.abs(Math.sin(t * 5.2)) * 6 : 0;
-  $("me").style.transform = `translateY(${nod + Math.sin(t * 1.6) * 3}px) rotate(${Math.sin(t * .9) * .9 + (talking ? Math.sin(t * 3.1) * .6 : 0)}deg) scale(${1 + Math.sin(t * 1.6) * .006 + energy * .006})`;
-  $("glow").style.cssText = `opacity:${.75 + energy * .25};transform:scale(${1 + energy * .05})`;
-  $("waves").innerHTML = talking ? [0, 1, 2].map(i => { const k = ((t * .9 + i / 3) % 1); const d = 560 + k * 360; return `<div class="wave" style="width:${d}px;height:${d}px;margin:${-d / 2}px 0 0 ${-d / 2}px;opacity:${(1 - k) * .55}"></div>`; }).join("") : "";
+  // presenter: the face talks (jaw, mouth), blinks and lifts the brows; the head nods a little
+  const capStarts = sc.cap.map(([d]) => sc.t + d);
+  const face = faceAt(t, talking, capStarts);
+  drawFace(face);
+  $("me").style.transform = `translateY(${face.nod + Math.sin(t * 1.6) * 2}px) rotate(${face.tilt}deg)`;
   const pk = easeOut(lt / .35);
   $("prop").style.transform = `scale(${lerp(1.05, 1.1, pk)})`;
   $("prop").innerHTML = P[sc.prop](lt);
@@ -301,7 +424,7 @@ window.DURATION = END;
 window.render = render;
 const q = new URLSearchParams(location.search);
 if (q.has("render")) { $("hint").remove(); document.body.style.background = "transparent"; $("stage").style.transform = "none"; }
-else if (q.has("t")) render(parseFloat(q.get("t")));
+else if (q.has("t")) window.READY.then(() => render(parseFloat(q.get("t"))));
 else {
   let t0 = performance.now();
   addEventListener("click", () => t0 = performance.now());
