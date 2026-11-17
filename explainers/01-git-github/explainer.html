@@ -453,7 +453,7 @@ function avatarCard(t, talking, A, open, blink) {
   const tq = Math.floor(t * 12) / 12;
   const sp = speech(tq, talking);
   const blinking = (t % 3.6) < .12 || ((t + 1.7) % 7.3) < .1;
-  const face = sp.open > .32 ? A.mid : A.closed;            // just two mouths: closed and talking
+  const face = blinking && A.blink ? A.blink : sp.open > .32 ? A.mid : A.closed;   // closed / talking mouth, plus blinks
   const x = 4, y = 226, w = 392, h = 530, r = 40;
   const zoom = 1;
   const pop = 1;
