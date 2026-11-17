@@ -426,13 +426,16 @@ function avatarCard(t, talking, A, open, blink) {
   const p = poseAt(t);
   const sinceStart = (() => { let st = 0; S.forEach(s => s.pose.forEach(([d]) => { if (s.t + d <= t) st = s.t + d; })); return t - st; })();
   const cut = A.cuts && A.cuts[p.name] && sinceStart < 1.8 ? A.cuts[p.name] : null;
-  const face = blink ? A.blink : open > .62 ? A.open : open > .18 ? A.mid : A.closed;
+  // one base face; the mouth and eye pictures differ only around the mouth and eyes, so they fade in smoothly
+  const bl = (() => { const a = t % 3.6, b = (t + 1.7) % 7.3; const k = x => x < .18 ? Math.sin(Math.PI * x / .18) : 0; return Math.max(k(a), k(b)); })();
   const x = 4, y = 226, w = 392, h = 530, r = 40;
-  const zoom = 1 + (t % 6) / 6 * .03;                       // slow push-in
+  const zoom = 1.015 + Math.sin(t * .35) * .015;            // slow, continuous push in and out
   const pop = cut ? lerp(.94, 1, backOut(sinceStart / .3)) : 1;
+  const layer = (src, o) => o > .01 ? `<image href="${src}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMin slice" opacity="${Math.min(1, o).toFixed(3)}"/>` : "";
+  const talkO = clamp(open / .45), wideO = clamp((open - .62) / .3) * .8;
   const img = cut
     ? `<image href="${cut}" x="${x - 150}" y="${y + h - (w + 300) * .745}" width="${w + 300}" height="${(w + 300) * .745}" preserveAspectRatio="xMidYMid meet" transform="translate(200 ${y + h / 2}) scale(${pop}) translate(-200 ${-(y + h / 2)})"/>`
-    : `<image href="${face}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMin slice" transform="translate(200 ${y}) scale(${zoom}) translate(-200 ${-y})"/>`;
+    : `<g transform="translate(200 ${y}) scale(${zoom}) translate(-200 ${-y})">${layer(A.closed, 1)}${layer(A.mid, talkO)}${layer(A.open, wideO)}${layer(A.blink, bl)}</g>`;
   const bob = Math.sin(t * 2.2) * 3;
   return `<defs><clipPath id="card"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/></clipPath>
       <filter id="cs" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-opacity=".22"/></filter></defs>
