@@ -132,12 +132,25 @@ const cross = (x, y, k) => k <= 0 ? "" : `<g transform="translate(${x} ${y}) sca
 const laptop = (x, y, s = 1, screen = "") => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-90" y="-120" width="180" height="120" rx="12" fill="${NV}"/><rect x="-80" y="-110" width="160" height="100" rx="6" fill="#e9f3ff"/>${screen}<path d="M-115 0 H115 L100 18 H-100 Z" fill="#b9c7d8"/></g>`;
 const server = (x, y, s = 1, light = GR) => `<g transform="translate(${x} ${y}) scale(${s})">${[0, 1, 2].map(i => `<rect x="-70" y="${-150 + i * 50}" width="140" height="42" rx="8" fill="${NV}"/><circle cx="-48" cy="${-129 + i * 50}" r="6" fill="${light}"/><rect x="-30" y="${-133 + i * 50}" width="80" height="8" rx="4" fill="#3a5578"/>`).join("")}</g>`;
 const cloud = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-70 0 C -110 0, -110 -55, -70 -58 C -65 -100, -5 -110, 10 -75 C 30 -105, 90 -95, 85 -50 C 120 -48, 120 0, 85 0 Z" fill="#fff" stroke="#bcd3ee" stroke-width="5"/></g>`;
-function whale(x, y, s = 1) {
-  return `<g transform="translate(${x} ${y}) scale(${s})">
-    <path d="M-150 10 C -150 70, -60 100, 20 100 C 110 100, 160 50, 165 0 C 190 -5, 205 -25, 200 -45 C 185 -30, 170 -28, 160 -30 L 150 0 Z" fill="${DB}"/>
-    <circle cx="-95" cy="40" r="9" fill="#fff"/><circle cx="-95" cy="40" r="4" fill="${NV}"/>
-    ${[0, 1, 2].map(i => `<rect x="${-120 + i * 62}" y="-48" width="54" height="44" rx="5" fill="${[OR, GR, RD][i]}"/>`).join("")}
-    ${[0, 1].map(i => `<rect x="${-89 + i * 62}" y="-100" width="54" height="44" rx="5" fill="${[GR, OR][i]}"/>`).join("")}</g>`;
+function cargoShip(x, y, s = 1, t = 0) {
+  const bob = Math.sin(t * 2.2) * 4, tilt = Math.sin(t * 1.6) * 1.2;
+  const C = [["#ff7a2f", "#1fa971", "#1d63ed", "#ffc531", "#e5484d"], ["#1d63ed", "#ff7a2f", "#e5484d", "#1fa971"]];
+  const stack = C.map((row, r) => row.map((c, i) => {
+    const w = 62, h = 40, x0 = -170 + i * (w + 4) + r * 34, y0 = -52 - r * (h + 4);
+    return `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" rx="4" fill="${c}"/>` +
+      [1, 2, 3, 4, 5].map(k => `<rect x="${x0 + k * 10}" y="${y0 + 5}" width="3" height="${h - 10}" rx="1.5" fill="#000" opacity=".12"/>`).join("") +
+      `<rect x="${x0}" y="${y0}" width="${w}" height="5" rx="2" fill="#fff" opacity=".3"/>`;
+  }).join("")).join("");
+  return `<g transform="translate(${x} ${y + bob}) scale(${s}) rotate(${tilt})">
+    <rect x="150" y="-130" width="56" height="122" rx="6" fill="#f4f7fb" stroke="#c9d6e4" stroke-width="3"/>
+    <rect x="160" y="-118" width="36" height="12" rx="3" fill="#0b2545"/><rect x="160" y="-96" width="36" height="12" rx="3" fill="#0b2545"/>
+    <rect x="170" y="-160" width="16" height="32" rx="3" fill="#e5484d"/>
+    ${stack}
+    <path d="M-210 -8 H 240 L 205 70 H -180 Z" fill="#0b2545"/>
+    <path d="M-196 40 H 223 L 205 70 H -180 Z" fill="#e5484d"/>
+    <rect x="-150" y="6" width="300" height="6" rx="3" fill="#fff" opacity=".18"/>
+  </g>
+  <g transform="translate(${x} ${y + 70 * s})">${[0, 1].map(i => `<path d="M${-280 + i * 30} ${10 + i * 22} q 35 -18 70 0 t 70 0 t 70 0 t 70 0 t 70 0 t 70 0 t 70 0 t 70 0" transform="translate(${(t * 40 * (i ? -1 : 1)) % 70} 0)" stroke="${i ? "#9ccbee" : "#5aa9e6"}" stroke-width="6" fill="none" stroke-linecap="round"/>`).join("")}</g>`;
 }
 
 const P = {
@@ -159,8 +172,8 @@ const P = {
       T(300, 520, "different setup = broken app", RD, 32, 900, "middle", "Inter", (lt - 2.8) / .3));
   },
 
-  enter: lt => svg(`<g transform="translate(300 300)"><g style="${pop(lt, .1, .5)}">${whale(0, 0, 1.4)}</g></g>` +
-    T(300, 520, "docker", DB, 64, 900, "middle", "Inter", (lt - .5) / .3)),
+  enter: lt => { const k = easeOut(clamp(lt / .9)); return svg(`<g transform="translate(${lerp(-260, 0, k)} 0)">${cargoShip(300, 320, 1.15, lt)}</g>` +
+    T(300, 520, "Docker", DB, 70, 900, "middle", "Inter", (lt - .6) / .3) + T(300, 565, "ships your app anywhere", MU, 28, 700, "middle", "Inter", (lt - .9) / .3)); },
 
   ship: lt => svg(box(200, 60, 200, 110, OR, "your app", (lt - .1)) +
     [["🚢", "ship"], ["🚆", "train"], ["🚚", "truck"]].map(([e, w], i) => {
@@ -227,7 +240,7 @@ const P = {
     const word = "DOCKER".slice(0, Math.floor(clamp((lt - 2.2) / .9) * 6));
     return svg(`<g transform="translate(300 160)"><g style="${pop(lt, .2)}"><rect x="-250" y="-90" width="500" height="170" rx="30" fill="#fff" stroke="#d6e4f2" stroke-width="3"/><path d="M-170 78 L-200 130 L-120 78" fill="#fff" stroke="#d6e4f2" stroke-width="3"/>
         <circle cx="-180" cy="-10" r="40" fill="#ffd27a"/>${T(-120, -25, "you", MU, 24, 700)}${T(-120, 30, word + (lt > 2 && lt < 3.3 ? "|" : ""), NV, 56, 900, "start", mono)}</g></g>` +
-      (lt > 3.2 ? `<g transform="translate(470 270)"><g style="${pop(lt, 3.2)}"><text x="0" y="0" text-anchor="middle" font-size="64">❤️</text></g></g>` : "") +
+      (lt > 3.2 ? `<g transform="translate(470 270)"><g style="${pop(lt, 3.2)}"><path d="M0 22 C -50 -10, -40 -55, 0 -30 C 40 -55, 50 -10, 0 22 Z" fill="#e5484d"/></g></g>` : "") +
       `<g transform="translate(300 420)"><g style="${pop(lt, 4)}"><rect x="-180" y="-52" width="360" height="104" rx="52" fill="${DB}"/>${T(0, 16, "+ Follow", "#fff", 44, 900, "middle")}</g></g>` +
       T(300, 540, "Part 2: your first Dockerfile 🐳", MU, 30, 800, "middle", "Inter", (lt - 4.4) / .3));
   },
