@@ -81,8 +81,8 @@ const S = [
     cap: [[0,"Add the remote,"],[2,"run git push..."],[4,"and your code is live!"]], prop: "push" },
   { t: 54, title: 'The <hl c="green">4 commands</hl>', pose: [[0,"present"],[2.4,"thumb"]], mood: "happy",
     cap: [[0,"init, add, commit, push."],[2.4,"That's all you need to start."]], prop: "recap" },
-  { t: 59, title: 'Next: <hl c="blue">Branches</hl>', pose: [[0,"cheer"]], mood: "happy",
-    cap: [[0,"Next video: Branches."],[2,"Follow to learn DevOps"],[3.6,"the easy way!"]], prop: "follow" },
+  { t: 59, title: 'Next: <hl c="blue">Branches</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Next up: Branches."],[1.8,"If this helped,"],[3,"follow along for more."]], prop: "follow" },
 ];
 const END = 64.5;
 S.forEach((s, i) => s.end = i + 1 < S.length ? S[i + 1].t : END);
@@ -222,7 +222,7 @@ const P = {
       <svg width="90" height="90" viewBox="0 0 90 90"><circle cx="18" cy="70" r="11" fill="var(--blue)"/><circle cx="18" cy="20" r="11" fill="var(--blue)"/><circle cx="70" cy="34" r="11" fill="var(--green)"/><path d="M18 31 V59 M18 50 C18 40, 70 52, 70 45" fill="none" stroke="#151515" stroke-width="6" stroke-linecap="round"/></svg>
       <div><div style="font-weight:800;font-size:38px">Up next</div><div class="sub" style="text-align:left">Branches, made easy</div></div></div>
     <div class="abs" style="left:110px;top:380px;width:360px;height:110px;border-radius:24px;background:var(--red);color:#fff;font-weight:800;font-size:46px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 0 rgba(0,0,0,.15);${pop(lt, 2)};${lt > 3.4 && lt < 3.7 ? "filter:brightness(.9)" : ""}">+ Follow</div>
-    <div class="abs sub" style="left:0;right:0;top:520px;${fade(lt, 2.4)}">for DevOps &amp; DevSecOps in simple words</div>`,
+    <div class="abs sub" style="left:0;right:0;top:520px;${fade(lt, 2.4)}">DevOps, one simple idea at a time</div>`,
 };
 
 function term(lt, lines, top = 60) {

@@ -30,9 +30,9 @@ Record each line when its time starts. The captions in the video follow these ti
 | 0:52 | and your code is live! |
 | 0:54 | init, add, commit, push. |
 | 0:56.4 | That's all you need to start. |
-| 0:59 | Next video: Branches. |
-| 1:01 | Follow to learn DevOps |
-| 1:02.6 | the easy way! |
+| 0:59 | Next up: Branches. |
+| 1:00.8 | If this helped, |
+| 1:02 | follow along for more. |
 
 ## Commands shown on screen
 
