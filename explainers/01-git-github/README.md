@@ -19,7 +19,7 @@ node render.mjs --voice my-voice.m4a
 
 ## The presenter
 
-An original cartoon look-alike (messy dark hair, round glasses, beard, red hoodie), drawn in SVG inside `explainer.html`. Change the colours in the `LOOK` block. While a line is spoken the mouth moves through open, round and wide shapes, the jaw and beard drop with it, the eyes blink and the arms gesture at the visuals. With `--voice`, the mouth follows the loudness of your recording.
+A simple original cartoon guy (messy black hair, big brown eyes, blue sweater), drawn in SVG inside `explainer.html`. Change the colours in the `LOOK` block. While a line is spoken the mouth moves through open, round and wide shapes, the eyes blink and the arms gesture at the visuals. With `--voice`, the mouth follows the loudness of your recording.
 
 ## Change the words or timing
 

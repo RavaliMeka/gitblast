@@ -245,16 +245,16 @@ const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&
 /* ---------- Character: a friendly tech host behind a desk (flat illustration, soft shading) ---------- */
 // Arm poses: [elbow, hand, hand shape] for the left and right arm, in the character's 400x820 space
 const POSES = {
-  idle:    { L: [[104, 492], [128, 596], "rest"],   R: [[296, 492], [272, 596], "rest"] },
-  present: { L: [[104, 492], [128, 596], "rest"],   R: [[334, 436], [394, 386], "palm"] },
-  point:   { L: [[104, 492], [128, 596], "rest"],   R: [[326, 410], [392, 346], "point"] },
-  idea:    { L: [[90, 440], [104, 340], "up"],      R: [[296, 492], [272, 596], "rest"] },
-  cross:   { L: [[126, 476], [254, 468], "rest"],   R: [[274, 488], [146, 480], "rest"] },
-  thumb:   { L: [[104, 492], [128, 596], "rest"],   R: [[322, 470], [344, 402], "thumb"] },
-  cheer:   { L: [[94, 300], [82, 216], "fist"],     R: [[306, 300], [318, 216], "fist"] },
-  shrug:   { L: [[92, 444], [58, 404], "palmup"],   R: [[308, 444], [342, 404], "palmup"] },
+  idle:    { L: [[98, 600], [124, 716], "rest"],   R: [[302, 600], [276, 716], "rest"] },
+  present: { L: [[98, 600], [124, 716], "rest"],   R: [[346, 520], [396, 466], "palm"] },
+  point:   { L: [[98, 600], [124, 716], "rest"],   R: [[340, 492], [396, 424], "point"] },
+  idea:    { L: [[78, 520], [94, 410], "up"],      R: [[302, 600], [276, 716], "rest"] },
+  cross:   { L: [[118, 586], [270, 572], "rest"],  R: [[282, 596], [130, 588], "rest"] },
+  thumb:   { L: [[98, 600], [124, 716], "rest"],   R: [[336, 566], [356, 484], "thumb"] },
+  cheer:   { L: [[80, 384], [70, 292], "fist"],    R: [[320, 384], [330, 292], "fist"] },
+  shrug:   { L: [[80, 540], [44, 500], "palmup"],  R: [[320, 540], [356, 500], "palmup"] },
 };
-const SH = { L: [132, 374], R: [268, 374] };
+const SH = { L: [126, 452], R: [274, 452] };
 
 function poseAt(t) {
   const tl = [];
@@ -270,10 +270,10 @@ function poseAt(t) {
 }
 
 const LOOK = {
-  skin: "#f2b893", skinShade: "#de9a74", blush: "#f28b7d",
-  hair: "#2b1d18", hairHi: "#55392c",
-  hoodie: "#e8474b", hoodieShade: "#c7373c", hoodieLight: "#f2676a",
-  desk: "#ffffff", deskEdge: "#e7dcc8", deskShade: "#f3ecdf",
+  skin: "#f7c9aa", skinShade: "#e9a988", blush: "#f39a8a",
+  hair: "#24232b", hairHi: "#3d3c47",
+  hoodie: "#6f97c4", hoodieShade: "#5a80ab", hoodieLight: "#86aad3",   // the sweater
+  iris: "#a8641f",
 };
 
 function hand(kind, x, y, ang, side) {
@@ -292,9 +292,9 @@ function arm(sh, el, hd, kind, side, t, poseName) {
   if (side === "R" && (poseName === "present" || poseName === "point")) hd = [hd[0] + Math.sin(t * 3) * 4, hd[1] + Math.sin(t * 2.2) * 5];
   const d = `M${sh[0]} ${sh[1]} Q ${el[0]} ${el[1]} ${(el[0] + hd[0]) / 2} ${(el[1] + hd[1]) / 2} T ${hd[0]} ${hd[1]}`;
   const ang = Math.atan2(hd[1] - el[1], hd[0] - el[0]) * 180 / Math.PI;
-  return `<path d="${d}" fill="none" stroke="${LOOK.hoodieShade}" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="${d}" fill="none" stroke="${LOOK.hoodie}" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="${hd[0]}" cy="${hd[1]}" r="15" fill="${LOOK.hoodieShade}"/>
+  return `<path d="${d}" fill="none" stroke="${LOOK.hoodieShade}" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${d}" fill="none" stroke="${LOOK.hoodie}" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${hd[0]}" cy="${hd[1]}" r="19" fill="${LOOK.hoodieShade}"/>
     ${hand(kind, hd[0], hd[1], ang, side)}`;
 }
 
@@ -316,84 +316,88 @@ function speech(t, talking) {
   return { open, wide };
 }
 
+// messy hair: tufts around the top of the head
+function hairTufts(cx, cy, r1, r2, a0, a1, n, seed) {
+  let d = "";
+  for (let i = 0; i <= n; i++) {
+    const a = (a0 + (a1 - a0) * i / n) * Math.PI / 180;
+    const am = (a0 + (a1 - a0) * (i + .5) / n) * Math.PI / 180;
+    const rr = r2 + (hash(seed + i) - .5) * 16;
+    const x = cx + Math.cos(a) * r1, y = cy + Math.sin(a) * r1;
+    const tx = cx + Math.cos(am) * rr, ty = cy + Math.sin(am) * rr;
+    d += (i === 0 ? `M${x} ${y}` : ` Q ${(x + tx) / 2 + 6} ${(y + ty) / 2 - 4} ${x} ${y}`) + (i < n ? ` Q ${tx - 4} ${ty + 6} ${tx} ${ty}` : "");
+  }
+  return d;
+}
+
 function charSvg(t, talking, mood) {
-  const L = LOOK, INK = "#2a1d1a";
+  const L = LOOK, INK = "#2b2022";
   const p = poseAt(t);
   const { open, wide } = speech(t, talking);
   const bob = Math.sin(t * 2.2) * 3;
-  const tilt = Math.sin(t * 1.2) * 2 + (mood === "curious" ? -4 : 0) + (talking ? Math.sin(t * 2.1) * 1.2 : 0);
-  const bt = t % 3.6, blink = bt < .13 || ((t + 1.7) % 7.3) < .11;
-  const jaw = open * 6;
+  const tilt = Math.sin(t * 1.2) * 2 + (mood === "curious" ? -5 : 0) + (talking ? Math.sin(t * 2.1) * 1.4 : 0);
+  const blink = (t % 3.6) < .13 || ((t + 1.7) % 7.3) < .11;
+  const look = p.name === "cross" ? 0 : 3;
 
-  // ---- face pieces (head centre ~ 200,190)
+  // head centre (200, 250)
   const eye = cx => blink
-    ? `<path d="M${cx - 10} 194 Q ${cx} 200 ${cx + 10} 194" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`
-    : `<ellipse cx="${cx}" cy="192" rx="9" ry="12" fill="${INK}"/><circle cx="${cx + 3}" cy="187" r="3.4" fill="#fff"/><circle cx="${cx - 3}" cy="197" r="1.6" fill="#fff" opacity=".8"/>`;
-  const by = mood === "curious" ? -6 : mood === "serious" ? 3 : 0;
-  const lift = talking ? open * 2.5 : 0;
-  const brows = mood === "serious"
-    ? `<path d="M164 ${166 + by} Q 176 ${162 + by} 190 ${168 + by}" fill="none" stroke="${L.hair}" stroke-width="6" stroke-linecap="round"/><path d="M210 ${168 + by} Q 224 ${162 + by} 236 ${166 + by}" fill="none" stroke="${L.hair}" stroke-width="6" stroke-linecap="round"/>`
-    : `<path d="M164 ${168 + by - lift} Q 177 ${159 + by - lift} 190 ${165 + by - lift}" fill="none" stroke="${L.hair}" stroke-width="6" stroke-linecap="round"/><path d="M210 ${165 + by - lift + (mood === "curious" ? 5 : 0)} Q 223 ${159 + by - lift} 236 ${168 + by - lift}" fill="none" stroke="${L.hair}" stroke-width="6" stroke-linecap="round"/>`;
-  const glasses = `<g fill="rgba(255,255,255,.12)" stroke="#2c2c2c" stroke-width="3.5"><circle cx="177" cy="193" r="22"/><circle cx="223" cy="193" r="22"/></g><path d="M199 190 Q 200 186 201 190 M155 189 L141 184 M245 189 L259 184" fill="none" stroke="#2c2c2c" stroke-width="3.5" stroke-linecap="round"/>`;
+    ? `<path d="M${cx - 18} 262 Q ${cx} 272 ${cx + 18} 262" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`
+    : `<ellipse cx="${cx}" cy="262" rx="22" ry="24" fill="#fff"/>
+       <circle cx="${cx + look}" cy="265" r="15" fill="${L.iris}"/><circle cx="${cx + look}" cy="265" r="8" fill="${INK}"/>
+       <circle cx="${cx + look + 5}" cy="259" r="4.5" fill="#fff"/><circle cx="${cx + look - 4}" cy="271" r="2" fill="#fff" opacity=".8"/>
+       <path d="M${cx - 23} 258 Q ${cx} 232 ${cx + 23} 258" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`;
+  const by = (mood === "curious" ? -6 : mood === "serious" ? 4 : 0) - (talking ? open * 4 : 0);
+  const tiltIn = mood === "serious" ? 5 : 0;
+  const brows = `<path d="M${142} ${226 + by} Q 160 ${216 + by} ${180} ${222 + by + tiltIn}" fill="none" stroke="${L.hair}" stroke-width="8" stroke-linecap="round"/>
+    <path d="M${220} ${222 + by + tiltIn + (mood === "curious" ? 6 : 0)} Q 240 ${216 + by} ${258} ${226 + by}" fill="none" stroke="${L.hair}" stroke-width="8" stroke-linecap="round"/>`;
 
-  // mouth: closed smile, or open shapes from round "oo" to wide "ee"
-  const w = 13 + wide * 8 - open * 3, h = open * 17, my = 240;
+  // mouth
+  const w = 14 + wide * 9 - open * 3, h = open * 20, my = 322;
   let mouth;
   if (h < 2) {
-    const curve = mood === "serious" ? 2 : 7;
-    mouth = `<path d="M${200 - w} ${my - 1} Q 200 ${my + curve} ${200 + w} ${my - 1}" fill="none" stroke="#7a2e2c" stroke-width="4" stroke-linecap="round"/>`;
+    const curve = mood === "serious" ? 3 : 9;
+    mouth = `<path d="M${200 - w} ${my - 2} Q 200 ${my + curve} ${200 + w} ${my - 2}" fill="none" stroke="#c0504c" stroke-width="5" stroke-linecap="round"/>`;
   } else {
-    const shape = `M${200 - w} ${my - 2} Q 200 ${my - 5} ${200 + w} ${my - 2} C ${200 + w * .95} ${my + h * .8}, ${200 + w * .45} ${my + h + 2}, 200 ${my + h + 2} C ${200 - w * .45} ${my + h + 2}, ${200 - w * .95} ${my + h * .8}, ${200 - w} ${my - 2} Z`;
-    mouth = `<defs><clipPath id="mc"><path d="${shape}"/></clipPath></defs><path d="${shape}" fill="#6e2329"/>
+    const shape = `M${200 - w} ${my - 3} Q 200 ${my - 1} ${200 + w} ${my - 3} C ${200 + w * .95} ${my + h * .8}, ${200 + w * .45} ${my + h + 3}, 200 ${my + h + 3} C ${200 - w * .45} ${my + h + 3}, ${200 - w * .95} ${my + h * .8}, ${200 - w} ${my - 3} Z`;
+    mouth = `<defs><clipPath id="mc"><path d="${shape}"/></clipPath></defs><path d="${shape}" fill="#7a2a33"/>
       <g clip-path="url(#mc)"><rect x="${200 - w}" y="${my - 6}" width="${2 * w}" height="${Math.min(7, 3 + h * .3)}" fill="#fff"/>
-      <ellipse cx="200" cy="${my + h + 2}" rx="${w * .7}" ry="${Math.max(3, h * .4)}" fill="#e2747c"/></g>
-      <path d="${shape}" fill="none" stroke="#7a2e2c" stroke-width="2.5" stroke-linejoin="round"/>`;
+      <ellipse cx="200" cy="${my + h + 3}" rx="${w * .7}" ry="${Math.max(3, h * .4)}" fill="#e2707a"/></g>`;
   }
 
-  // ---- body
+  const hairBack = `<path d="${hairTufts(200, 240, 110, 140, 160, 380, 13, 3)} L 200 300 Z" fill="${L.hair}"/>`;
+  const fringe = `<path d="M96 246 C 92 170, 150 128, 214 132 C 268 136, 306 176, 304 236
+      C 296 214, 288 204, 280 198 L 284 226 C 272 208, 260 196, 246 190 L 248 220 C 236 202, 222 192, 206 188
+      L 210 214 C 196 198, 180 190, 164 190 L 160 218 C 150 202, 138 196, 126 198 L 124 230 C 116 214, 106 214, 96 246 Z" fill="${L.hair}"/>
+    <path d="M150 156 Q 190 140 230 150 M232 158 Q 262 168 280 190" fill="none" stroke="${L.hairHi}" stroke-width="5" stroke-linecap="round"/>`;
+
   const arms = arm(SH.L, ...p.L, "L", t, p.name) + arm(SH.R, ...p.R, "R", t, p.name);
-  const torso = `
-    <path d="M104 660 C 100 470, 118 392, 158 366 C 176 356, 224 356, 242 366 C 282 392, 300 470, 296 660 Z" fill="${L.hoodie}"/>
-    <path d="M250 372 C 284 400, 296 480, 296 660 L 262 660 C 266 520, 262 430, 250 372 Z" fill="${L.hoodieShade}" opacity=".55"/>
-    <path d="M150 372 C 158 520, 154 600, 150 660 L 120 660 C 116 520, 124 420, 150 372 Z" fill="${L.hoodieLight}" opacity=".35"/>
-    <path d="M150 372 C 168 340, 232 340, 250 372 C 236 392, 164 392, 150 372 Z" fill="${L.hoodieShade}"/>
-    <path d="M182 368 L200 396 L218 368 Z" fill="#fbf7f2"/>
-    <path d="M186 392 C 184 420, 186 440, 182 460 M214 392 C 216 420, 214 440, 218 460" fill="none" stroke="#fbf7f2" stroke-width="5" stroke-linecap="round"/>
-    <circle cx="182" cy="463" r="5" fill="#fbf7f2"/><circle cx="218" cy="463" r="5" fill="#fbf7f2"/>`;
-  const desk = `
-    <rect x="20" y="604" width="360" height="190" rx="18" fill="#d6a874"/>
-    <rect x="20" y="604" width="360" height="40" rx="14" fill="#e6bd8a"/>
-    <rect x="44" y="660" width="312" height="6" rx="3" fill="#c79563"/>
-    <path d="M136 600 L150 520 C 151 514, 155 510, 161 510 H239 C 245 510, 249 514, 250 520 L264 600 Z" fill="#3a3f4b"/>
-    <path d="M150 520 C 151 514, 155 510, 161 510 H239 C 245 510, 249 514, 250 520" fill="none" stroke="#565c6b" stroke-width="3"/>
-    <text x="200" y="566" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-weight="700" font-size="26" fill="#ffd84a">&lt;/&gt;</text>
-    <ellipse cx="200" cy="606" rx="80" ry="5" fill="rgba(0,0,0,.12)"/>`;
+  const sweater = `
+    <path d="M82 820 C 76 610, 94 476, 150 442 C 172 430, 228 430, 250 442 C 306 476, 324 610, 318 820 Z" fill="${L.hoodie}"/>
+    <path d="M262 452 C 300 486, 318 600, 318 820 L 282 820 C 286 640, 282 520, 262 452 Z" fill="${L.hoodieShade}" opacity=".6"/>
+    <path d="M136 456 C 124 560, 120 680, 122 820 L 96 820 C 94 650, 104 520, 136 456 Z" fill="${L.hoodieLight}" opacity=".45"/>
+    <path d="M160 438 C 176 424, 224 424, 240 438 C 232 454, 168 454, 160 438 Z" fill="${L.hoodieLight}"/>
+    <path d="M168 440 C 182 432, 218 432, 232 440" fill="none" stroke="${L.hoodieShade}" stroke-width="3"/>`;
 
   return `
   <g transform="translate(0 ${bob})">
-    ${torso}
-    <path d="M182 318 L182 360 Q 200 372 218 360 L218 318 Z" fill="${L.skinShade}"/>
-    ${p.name === "cross" ? "" : ""}
-    <g transform="rotate(${tilt} 200 360) translate(200 386) scale(1.14) translate(-200 -330)">
-      <path d="M128 196 C 116 132, 150 92, 200 90 C 250 92, 284 132, 272 196 L 272 236 L 128 236 Z" fill="${L.hair}"/>
-      <ellipse cx="139" cy="204" rx="12" ry="17" fill="${L.skin}"/><ellipse cx="141" cy="205" rx="6" ry="9" fill="${L.skinShade}" opacity=".6"/>
-      <ellipse cx="261" cy="204" rx="12" ry="17" fill="${L.skin}"/><ellipse cx="259" cy="205" rx="6" ry="9" fill="${L.skinShade}" opacity=".6"/>
-      <path d="M140 186 C 138 130, 262 130, 260 186 C 262 ${246 + jaw * .5}, 234 ${282 + jaw}, 200 ${284 + jaw} C 166 ${282 + jaw}, 138 ${246 + jaw * .5}, 140 186 Z" fill="${L.skin}"/>
-      <path d="M244 160 C 262 180, 262 236, 236 ${270 + jaw} C 250 236, 252 196, 244 160 Z" fill="${L.skinShade}" opacity=".35"/>
-      <g transform="translate(0 ${jaw})"><path d="M142 212 C 146 258, 172 288, 200 290 C 228 288, 254 258, 258 212 C 252 240, 238 256, 222 262 C 214 252, 186 252, 178 262 C 162 256, 148 240, 142 212 Z" fill="${L.hair}" opacity=".9"/>
-        <path d="M194 262 L200 274 L206 262 Z" fill="${L.hair}" opacity=".9"/></g>
-      <ellipse cx="160" cy="222" rx="13" ry="7" fill="${L.blush}" opacity=".35"/><ellipse cx="240" cy="222" rx="13" ry="7" fill="${L.blush}" opacity=".35"/>
-      <path d="M197 204 Q 192 218 200 221 Q 207 221 209 216" fill="none" stroke="${L.skinShade}" stroke-width="4" stroke-linecap="round"/>
+    ${sweater}
+    <path d="M182 360 L182 440 Q 200 450 218 440 L218 360 Z" fill="${L.skinShade}"/>
+    ${p.name === "cross" ? "" : arms}
+    <g transform="rotate(${tilt} 200 430) translate(200 300) scale(1.08) translate(-200 -268)">
+      ${hairBack}
+      <ellipse cx="104" cy="272" rx="18" ry="24" fill="${L.skin}"/><ellipse cx="107" cy="273" rx="9" ry="13" fill="${L.skinShade}" opacity=".6"/>
+      <ellipse cx="296" cy="272" rx="18" ry="24" fill="${L.skin}"/><ellipse cx="293" cy="273" rx="9" ry="13" fill="${L.skinShade}" opacity=".6"/>
+      <path d="M104 240 C 104 170, 296 170, 296 240 C 298 316, 256 368, 200 370 C 144 368, 102 316, 104 240 Z" fill="${L.skin}"/>
+      <path d="M270 210 C 296 250, 290 320, 246 356 C 272 318, 280 262, 270 210 Z" fill="${L.skinShade}" opacity=".3"/>
+      <ellipse cx="136" cy="300" rx="20" ry="11" fill="${L.blush}" opacity=".4"/><ellipse cx="264" cy="300" rx="20" ry="11" fill="${L.blush}" opacity=".4"/>
+      <g fill="#d98a6e" opacity=".55"><circle cx="128" cy="292" r="2"/><circle cx="140" cy="298" r="2"/><circle cx="132" cy="306" r="2"/><circle cx="262" cy="292" r="2"/><circle cx="272" cy="300" r="2"/><circle cx="258" cy="306" r="2"/></g>
+      <ellipse cx="200" cy="296" rx="12" ry="9" fill="#f0a08c"/><ellipse cx="196" cy="293" rx="4" ry="3" fill="#fff" opacity=".45"/>
       ${mouth}
-      <path d="M176 234 C 184 224, 196 224, 200 228 C 204 224, 216 224, 224 234 C 214 230, 206 230, 200 232 C 194 230, 186 230, 176 234 Z" fill="${L.hair}"/>
-      ${eye(177)}${eye(223)}${glasses}
-      <path d="M134 176 C 128 124, 170 92, 214 96 C 252 98, 278 124, 268 172 C 260 150, 246 138, 230 134 C 236 146, 232 156, 226 160 C 222 144, 208 134, 190 134 C 176 136, 164 146, 156 160 C 154 150, 150 146, 146 146 C 140 154, 136 164, 134 176 Z" fill="${L.hair}"/>
-      <path d="M170 102 C 196 72, 250 76, 266 108 C 244 94, 214 94, 196 110 Z" fill="${L.hair}"/>
-      <path d="M182 110 Q 210 92 240 104 M160 124 Q 176 112 196 112" fill="none" stroke="${L.hairHi}" stroke-width="4" stroke-linecap="round"/>
+      ${eye(158)}${eye(242)}
+      ${fringe}
       ${brows}
     </g>
-    ${desk}
-    ${arms}
+    ${p.name === "cross" ? arms : ""}
   </g>`;
 }
 
