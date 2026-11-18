@@ -34,6 +34,8 @@ rep("#char { left: 590px; top: 1000px; width: 490px; height: 1004px; z-index: 6;
 rep("#prop { left: 60px; top: 580px;", "#prop { left: 60px; top: 540px;")
 rep("scale(${lerp(1.3, 1.38, sk)", "scale(${lerp(1.24, 1.3, sk)")
 
+rep("width:540px;min-height:300px;", "width:540px;min-height:150px;")   # terminals only as tall as their lines
+
 # captions work before a voice exists: a stand-in timing made from the scene captions
 rep('  if (!window.TIMING) return "";\n  const C = window.TIMING.caps;', "  const C = tm().caps;")
 rep("if (window.TIMING) window.TIMING.caps.forEach(c => {", "tm().caps.forEach(c => {")

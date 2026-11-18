@@ -52,8 +52,8 @@ const P = {
   create: lt => {
     const k = clamp((lt - 3.2) / .9);
     return term(lt, [[.2, `<span class="p">$</span> git switch -c feature`], [3, `<span class="ok">Switched to a new branch 'feature'</span>`]], 0) +
-      svg(line(40, 420, 560, 420, BLUE) + [0, 1, 2].map(i => station(90 + i * 150, 420, BLUE, 1, "", true)).join("") + tag(40, 340, "main", BLUE) +
-        curve("M240 420 C 300 420, 300 540, 380 540 L 560 540", 380, GREEN, k) + tag(400, 590, "feature", GREEN, (lt - 4) / .3), 640);
+      svg(`<g transform="translate(0 -150)">` + line(40, 420, 560, 420, BLUE) + [0, 1, 2].map(i => station(90 + i * 150, 420, BLUE, 1, "", true)).join("") + tag(40, 340, "main", BLUE) +
+        curve("M240 420 C 300 420, 300 540, 380 540 L 560 540", 380, GREEN, k) + tag(400, 590, "feature", GREEN, (lt - 4) / .3) + "</g>", 640);
   },
 
   commits: lt => svg(line(40, 230, 560, 230, BLUE) + [0, 1, 2].map(i => station(90 + i * 150, 230, BLUE)).join("") + tag(40, 150, "main", BLUE) +
@@ -74,11 +74,11 @@ const P = {
   merge: lt => {
     const k = clamp((lt - 6) / 1), joined = lt > 7;
     return term(lt, [[1.8, `<span class="p">$</span> git switch main`], [5, `<span class="p">$</span> git merge feature`], [6.8, `<span class="ok">✓ feature merged into main</span>`]], 0) +
-      svg(line(40, 400, 560, 400, BLUE) + [0, 1].map(i => station(90 + i * 120, 400, BLUE)).join("") + tag(40, 320, "main", BLUE) +
+      svg(`<g transform="translate(0 -150)">` + line(40, 400, 560, 400, BLUE) + [0, 1].map(i => station(90 + i * 120, 400, BLUE)).join("") + tag(40, 320, "main", BLUE) +
         curve("M210 400 C 260 400, 260 520, 320 520 L 380 520", 240, GREEN) + station(330, 520, GREEN) +
         curve("M380 520 C 440 520, 440 400, 500 400", 180, GREEN, k) +
         station(500, 400, joined ? GREEN : BLUE, joined ? 1 + Math.sin((lt - 7) * 8) * .15 * Math.exp(-(lt - 7) * 2) : (lt > 6 ? .9 : 0)) +
-        tag(330, 600, "merged!", GREEN, (lt - 7.1) / .3), 660);
+        tag(330, 600, "merged!", GREEN, (lt - 7.1) / .3) + "</g>", 660);
   },
 
   pr: lt => `<div class="abs" style="left:30px;top:70px;width:540px;${pop(lt, .3)}">
