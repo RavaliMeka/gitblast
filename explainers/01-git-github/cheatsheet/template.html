@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Git Cheat Sheet</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 210mm; height: 297mm; }
+  body { font-family: Inter, system-ui, sans-serif; color: #151515; background-color: #fbf3e4;
+    background-image: radial-gradient(#ead9bd 1.2px, transparent 1.4px); background-size: 7mm 7mm; padding: 11mm 11mm 9mm; display: flex; flex-direction: column; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  header { display: flex; align-items: center; gap: 6mm; margin-bottom: 6mm; }
+  header img { width: 30mm; height: 30mm; object-fit: cover; object-position: 50% 12%; border-radius: 50%; background: #fff; border: 1mm solid #151515; }
+  h1 { font-size: 15mm; font-weight: 900; letter-spacing: -.6mm; line-height: 1; }
+  h1 span { color: #2f6fe4; }
+  .sub { display: inline-block; margin-top: 2.5mm; background: #ffd84a; border: .7mm solid #151515; border-radius: 99mm; padding: 1.2mm 4.5mm 1.6mm; font-weight: 800; font-size: 4.2mm; box-shadow: 1mm 1mm 0 #151515; }
+  .grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; align-content: start; }
+  .card { background: #fff; border: .7mm solid #151515; border-radius: 4mm; padding: 4mm 4.5mm 3.5mm; box-shadow: 0 1.4mm 0 rgba(0,0,0,.08); break-inside: avoid; }
+  .card h2 { font-size: 5.2mm; font-weight: 900; margin-bottom: 2.6mm; display: flex; align-items: center; gap: 2.2mm; }
+  .card h2 i { width: 7.4mm; height: 7.4mm; border-radius: 50%; color: #fff; font-style: normal; font-size: 4mm; display: inline-flex; align-items: center; justify-content: center; border: .6mm solid #151515; }
+  .row { margin-bottom: 2.3mm; }
+  .row:last-child { margin-bottom: 0; }
+  code { display: block; font-family: "DejaVu Sans Mono", ui-monospace, monospace; font-size: 3.35mm; font-weight: 700; background: #1d1f23; color: #7ee2a8; border-radius: 1.6mm; padding: 1.3mm 2.4mm 1.5mm; white-space: nowrap; overflow: hidden; }
+  .row p { font-size: 3.3mm; color: #555; margin: .8mm 0 0 .8mm; font-weight: 500; }
+  .warn { color: #c62828 !important; font-weight: 700 !important; }
+  .flow { margin-top: 5mm; background: #151515; color: #fff; border-radius: 4mm; padding: 3.6mm 5mm; display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 4.2mm; }
+  .flow b { background: #ffd84a; color: #151515; border-radius: 99mm; padding: .9mm 3.4mm 1.2mm; font-family: "DejaVu Sans Mono", monospace; font-size: 3.7mm; }
+  footer { margin-top: 4mm; display: flex; justify-content: space-between; font-size: 3.5mm; font-weight: 700; color: #6b6b6b; }
+</style></head>
+<body>
+  <header>
+    <img src="{{FACE}}" alt="">
+    <div><h1>Git <span>Cheat Sheet</span></h1><div class="sub">the commands you'll use every day</div></div>
+  </header>
+  <div class="grid">
+    <div class="card"><h2><i style="background:#6b6b6b">1</i>Set up (once)</h2>
+      <div class="row"><code>git config --global user.name "Your Name"</code><p>Tell Git who you are</p></div>
+      <div class="row"><code>git config --global user.email "you@mail.com"</code><p>Use your GitHub email</p></div></div>
+    <div class="card"><h2><i style="background:#2f6fe4">2</i>Start a project</h2>
+      <div class="row"><code>git init</code><p>Turn this folder into a Git repo</p></div>
+      <div class="row"><code>git clone &lt;url&gt;</code><p>Download an existing repo</p></div></div>
+    <div class="card"><h2><i style="background:#22a45d">3</i>Save your work</h2>
+      <div class="row"><code>git status</code><p>See what changed</p></div>
+      <div class="row"><code>git add .</code><p>Choose all changes to save (or <b>git add &lt;file&gt;</b>)</p></div>
+      <div class="row"><code>git commit -m "what you did"</code><p>Make a save point</p></div></div>
+    <div class="card"><h2><i style="background:#e5484d">4</i>Sync with GitHub</h2>
+      <div class="row"><code>git remote add origin &lt;url&gt;</code><p>Connect your repo to GitHub (once)</p></div>
+      <div class="row"><code>git push -u origin main</code><p>First upload; after that just <b>git push</b></p></div>
+      <div class="row"><code>git pull</code><p>Get the latest changes</p></div></div>
+    <div class="card"><h2><i style="background:#f2a33a">5</i>Branches</h2>
+      <div class="row"><code>git switch -c feature</code><p>Create a branch and move to it</p></div>
+      <div class="row"><code>git switch main</code><p>Go back to main</p></div>
+      <div class="row"><code>git merge feature</code><p>Bring the branch's work into main</p></div>
+      <div class="row"><code>git branch -d feature</code><p>Delete a merged branch</p></div></div>
+    <div class="card"><h2><i style="background:#7c5cff">6</i>Undo mistakes</h2>
+      <div class="row"><code>git restore &lt;file&gt;</code><p>Throw away changes you haven't committed</p></div>
+      <div class="row"><code>git reset HEAD~1</code><p>Undo the last commit, keep the changes. <span class="warn">Only if not pushed!</span></p></div>
+      <div class="row"><code>git revert &lt;commit&gt;</code><p>Safely undo a commit that's already pushed</p></div></div>
+    <div class="card" style="grid-column: 1 / -1"><h2><i style="background:#151515">7</i>Look around</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm">
+        <div class="row"><code>git log --oneline</code><p>History, one line per commit</p></div>
+        <div class="row"><code>git diff</code><p>Exactly what changed</p></div>
+        <div class="row"><code>git branch</code><p>List your branches</p></div></div></div>
+  </div>
+  <div class="flow"><span>Daily flow:</span><b>git pull</b><span>→ edit →</span><b>git add .</b><span>→</span><b>git commit</b><span>→</span><b>git push</b></div>
+  <footer><span>DevOps in 60 seconds · Git basics series</span><span>Follow for Docker, Kubernetes, CI/CD and Terraform</span></footer>
+</body></html>
