@@ -55,10 +55,17 @@
   #kin .w { display: inline-block; margin-right: .24em; position: relative; }
   #kin .now, #kin .said { color: #151515; }
   #kin .box { position: absolute; inset: 4px -14px 0 -14px; border-radius: 14px; background: #ff5a1f; rotate: -1.5deg; }
-  #kin .box i { display: none; }
+  #kin .tk { position: absolute; right: -52px; top: -40px; transform-origin: 0 100%; rotate: 20deg; }
   #kin .w:has(.box) { color: #fff; font-family: "DejaVu Sans Mono", monospace; font-size: .82em; letter-spacing: -2px; margin: 0 .36em 0 .14em; }
   #prop { left: 60px; top: 580px; z-index: 3; transform-origin: 0 0; filter: drop-shadow(0 26px 30px rgba(60,50,20,.16)); }
   #char { left: 590px; top: 1000px; width: 490px; height: 1004px; z-index: 6; overflow: visible; }
+  #bgfx { inset: 0; z-index: 1; font: 700 64px "DejaVu Sans Mono", monospace; color: #151515; }
+  #bgfx span { position: absolute; opacity: .06; }
+  #wipe { inset: 0; z-index: 7; pointer-events: none; overflow: hidden; }
+  #wipe div { position: absolute; top: -10%; bottom: -10%; width: 46%; }
+  #fx { inset: 0; z-index: 7; pointer-events: none; }
+  #eq { left: 320px; bottom: 74px; height: 56px; display: flex; align-items: flex-end; gap: 7px; z-index: 9; }
+  #eq i { width: 10px; border-radius: 5px; background: #ff5a1f; }
   #handle { left: 60px; bottom: 70px; font: 700 28px "DejaVu Sans Mono", monospace; color: #151515; background: #fff; border: 3px solid #151515; border-radius: 12px; padding: 10px 18px; rotate: -2deg; box-shadow: 5px 5px 0 #151515; z-index: 9; }
   #hint { position: fixed; bottom: 10px; left: 0; right: 0; text-align: center; color: #999; font: 13px system-ui; }
 </style>
@@ -70,6 +77,10 @@
   <div id="meta" class="abs"></div>
   <div id="tl" class="abs"></div>
   <div id="kin" class="abs"></div>
+  <div id="bgfx" class="abs"></div>
+  <div id="wipe" class="abs"></div>
+  <div id="fx" class="abs"></div>
+  <div id="eq" class="abs"></div>
   <div id="handle" class="abs">@dnimbus.ai</div>
   <div id="title" class="abs"></div>
   <svg id="char" class="abs" viewBox="0 0 400 820"></svg>
@@ -117,8 +128,10 @@ const backOut = x => { x = clamp(x); const c = 1.6; return 1 + (c + 1) * Math.po
 const lerp = (a, b, k) => a + (b - a) * k;
 // entrance style: fade + rise + pop, starting `d` seconds into the scene
 function pop(lt, d = 0, dur = 0.45) {
-  const k = (lt - d) / dur, o = clamp(k * 1.6), s = lerp(0.85, 1, backOut(k)), y = lerp(30, 0, easeOut(k));
-  return `opacity:${o};transform:translateY(${y}px) scale(${s});`;
+  // v2: each element flies in from a side (picked from its delay) with a bounce and a small spin
+  const k = (lt - d) / dur, o = clamp(k * 1.6), b = backOut(k), h = Math.abs(Math.sin(d * 91.7 + 3.1) * 43758.5) % 1;
+  const dir = h < .34 ? -1 : h < .68 ? 1 : 0;
+  return `opacity:${o};transform:translate(${lerp(dir * 150, 0, b)}px, ${lerp(dir ? 20 : 60, 0, b)}px) rotate(${lerp(dir ? dir * 9 : -5, 0, b)}deg) scale(${lerp(.72, 1, b)});`;
 }
 const fade = (lt, d = 0, dur = 0.35) => `opacity:${clamp((lt - d) / dur)};`;
 const COL = { blue: ["var(--blue)", "#d4e2ff"], green: ["var(--green)", "#d3f1df"], red: ["var(--red)", "#ffd9da"] };
@@ -551,7 +564,7 @@ function kinetic(t) {
     const cls = i === cur ? "now" : i < cur ? "said" : "";
     if (!shown) return "";
     const style = `opacity:${k};transform:translateY(${(1 - easeOut(k)) * 14}px)`;
-    return `<span class="w ${cls}" style="${style}">${box ? `<span class="box"><i style="left:-8px;top:-8px"></i><i style="right:-8px;top:-8px"></i><i style="left:-8px;bottom:-8px"></i><i style="right:-8px;bottom:-8px"></i></span>` : ""}<span style="position:relative">${tk}</span></span>`;
+    return `<span class="w ${cls}" style="${style}">${box ? `<span class="box" style="transform:scale(${1 + .4 * (1 - easeOut((t - st) / .22))})"></span><svg class="tk" width="60" height="60" viewBox="0 0 60 60" style="opacity:${clamp(1 - (t - st) / .5)};transform:scale(${.5 + clamp((t - st) / .3) * .8})"><path d="M8 40 L20 30 M26 46 L28 28 M44 44 L36 30" stroke="#ff5a1f" stroke-width="6" stroke-linecap="round"/></svg>` : ""}<span style="position:relative">${tk}</span></span>`;
   }).join("");
 }
 
@@ -583,7 +596,30 @@ function render(t) {
   $("prop").innerHTML = P[sc.prop](olt);
   // camera: slow push-in through each scene with a gentle drift, quick settle on scene change
   const sk = clamp(lt / Math.max(1, sc.end - sc.t)), enter = easeOut(lt / .45);
-  $("prop").style.transform = `translate(${Math.sin(t * .5 + si) * 12 + lerp(-120, 0, backOut(lt / .5))}px, ${Math.cos(t * .4) * 9}px) rotate(${lerp(si % 2 ? 5 : -5, Math.sin(t * .6 + si) * .8, enter)}deg) scale(${lerp(1.3, 1.38, sk) * lerp(.9, 1, enter)})`;
+  // ---- v2 extra motion ----
+  // seconds since the most recent key word started (drives the zoom-punch)
+  let kp = 9;
+  if (window.TIMING) window.TIMING.caps.forEach(c => { const tk = c.text.split(" "); c.words.forEach((w, i) => { if (t >= w && t - w < kp && KEY.has(tk[i].toLowerCase().replace(/[^a-z0-9]/g, ""))) kp = t - w; }); });
+  const punch = kp < .3 ? Math.sin(Math.PI * kp / .3) : 0;
+  $("kin").style.transform = `scale(${1 + punch * .035})`; $("kin").style.transformOrigin = "0 50%";
+  // whip transition: two slanted bars sweep across at each scene change
+  { const k = si > 0 ? lt / .42 : 9, e = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    $("wipe").innerHTML = k < 1 ? `<div style="left:${lerp(-60, 115, e(k))}%;background:#ff5a1f;transform:skewX(-14deg)"></div><div style="left:${lerp(-95, 125, e(clamp(k * 1.15)))}%;background:#151515;transform:skewX(-14deg);width:16%"></div>` : ""; }
+  // drifting code symbols in the background
+  $("bgfx").innerHTML = ["{ }", "$", "git", "</>", "+", "#", ">_", "✓", "main", "//"].map((g, i) => { const hx = (Math.sin(i * 12.9) * 43758.5 % 1 + 1) % 1, hy = (Math.sin(i * 78.2) * 12543.1 % 1 + 1) % 1;
+    return `<span style="left:${hx * 960 + Math.sin(t * .3 + i) * 30}px;top:${((hy * 1900 - t * (14 + i * 3)) % 1960 + 1960) % 1960 - 60}px;transform:rotate(${Math.sin(t * .2 + i * 2) * 14}deg);font-size:${46 + (i % 3) * 22}px">${g}</span>`; }).join("");
+  // voice equalizer next to the handle
+  { const env = window.VOICE ? (window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : 0;
+    $("eq").innerHTML = [0, 1, 2, 3, 4, 5, 6].map(i => `<i style="height:${8 + env * (26 + 22 * Math.abs(Math.sin(t * 9 + i * 1.7)))}px"></i>`).join(""); }
+  // confetti when he cheers
+  { let cs = -1; S.forEach(s2 => s2.pose.forEach(([d, n]) => { if (n === "cheer" && s2.t + d <= t) cs = s2.t + d; })); const ct = t - cs;
+    $("fx").innerHTML = cs >= 0 && ct < 2.4 ? `<svg width="1080" height="1920">${Array.from({ length: 46 }, (_, i) => { const a = -Math.PI / 2 + (((Math.sin(i * 7.3) * 9999) % 1) - .0) * 1.6, v = 700 + (i % 7) * 130;
+      const x = 560 + Math.cos(a) * v * ct * (i % 2 ? 1 : -1) * .8, y = 1250 + Math.sin(a) * v * ct + 900 * ct * ct;
+      return `<rect x="${x}" y="${y}" width="${14 + i % 3 * 6}" height="${10 + i % 2 * 12}" rx="3" fill="${["#ff5a1f", "#151515", "#22a45d", "#2f6fe4", "#ffd84a"][i % 5]}" opacity="${clamp(2.4 - ct)}" transform="rotate(${i * 40 + ct * 400} ${x} ${y})"/>`; }).join("")}</svg>` : ""; }
+  // presenter gives a small bounce on each scene change
+  $("char").style.transform = `scale(${1 + (lt < .35 ? Math.sin(Math.PI * lt / .35) * .035 : 0) + punch * .012})`; $("char").style.transformOrigin = "50% 100%";
+  $("prop").style.transform = `translate(${Math.sin(t * .5 + si) * 12 + lerp(-120, 0, backOut(lt / .5))}px, ${Math.cos(t * .4) * 9}px) rotate(${lerp(si % 2 ? 5 : -5, Math.sin(t * .6 + si) * .8, enter)}deg) scale(${lerp(1.3, 1.38, sk) * lerp(.9, 1, enter) * (1 + punch * .04)})`;
+  $("prop").style.filter = `blur(${(1 - enter) * 10}px) drop-shadow(0 26px 30px rgba(60,50,20,.16))`;
   $("prop").style.opacity = clamp(lt / .3);
   $("kin").innerHTML = kinetic(t);
   // top meta row + commit-timeline progress: one dot per scene, HEAD rides along
