@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes Scaling and Rolling Updates Explainer</title>
+<style>
+  :root {
+    --bg: #fbf3e4; --grid: #ead9bd; --ink: #151515; --muted: #6b6b6b;
+    --blue: #2f6fe4; --green: #22a45d; --red: #e5484d; --orange: #f2a33a;
+    --card: #ffffff; --term: #1d1f23;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #111; height: 100%; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; font-family: Inter, "Inter Display", system-ui, sans-serif; }
+  #stage {
+    position: relative; width: 1080px; height: 1920px; flex: none; overflow: hidden;
+    background-color: #ece8ff;
+    background-image: linear-gradient(rgba(27,27,58,.05) 3px, transparent 3px), linear-gradient(90deg, rgba(27,27,58,.05) 3px, transparent 3px), linear-gradient(180deg, #f3eaff, #e2ecff 55%, #ffe9f2);
+    background-size: 54px 54px, 54px 54px, 100% 100%; transform-origin: center center;
+  }
+  .abs { position: absolute; }
+  #steps { left: 0; right: 0; top: 84px; display: flex; justify-content: center; gap: 14px; }
+  .step { min-width: 46px; height: 46px; border-radius: 0; background: #fff; border: 4px solid #1b1b3a; color: #1b1b3a; font-weight: 700; font-size: 24px; display: flex; align-items: center; justify-content: center; padding: 0 14px; }
+  .step.on { background: #1b1b3a; color: #ffcb47; letter-spacing: 1px; }
+  #title { left: 30px; right: 30px; top: 170px; font-size: 58px; text-align: center; font-weight: 800; font-size: 84px; line-height: 1.12; color: #1b1b3a; letter-spacing: -1px; font-family: 'DejaVu Sans Mono', monospace; }
+  .hl { position: relative; display: inline-block; }
+  .hl::after { content: ""; position: absolute; left: -14px; right: -14px; bottom: -4px; top: 0; z-index: -1; border-radius: 0; rotate: 0deg; border: 5px solid #1b1b3a; box-shadow: 8px 8px 0 #1b1b3a; background: var(--mark, #ff5d8f); transform-origin: left; transform: scaleX(var(--mk, 1)); }
+  .hl span { position: relative; }
+  #title .hl { margin: 0 .35em; }
+  #char { left: 660px; top: 910px; width: 470px; height: 964px; overflow: visible; z-index: 2; }
+  #prop { left: 70px; top: 330px; width: 620px; height: 860px; transform: scale(1.5); transform-origin: 0 0; }
+  #caption { left: 40px; right: 40px; top: 1720px; z-index: 5; display: flex; justify-content: center; }
+  #caption div { background: #fff; color: #1b1b3a; font-family: 'DejaVu Sans Mono', monospace; font-weight: 700; font-size: 32px; line-height: 1.3; text-align: center; max-width: 980px; padding: 18px 30px 20px; border-radius: 0; border: 6px solid #1b1b3a; box-shadow: 10px 10px 0 #1b1b3a; max-width: 980px; text-align: center; }
+  .card { background: var(--card); border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 8px 0 rgba(0,0,0,.08); }
+  .card.top-blue { border-top: 12px solid var(--blue); }
+  .card.top-green { border-top: 12px solid var(--green); }
+  .card.top-red { border-top: 12px solid var(--red); }
+  .big { font-weight: 800; font-size: 64px; color: var(--ink); text-align: center; }
+  .sub { font-weight: 500; font-size: 30px; color: var(--muted); text-align: center; }
+  .chip { display: inline-flex; align-items: center; gap: 10px; background: #fff; border: 3px solid var(--ink); border-radius: 16px; padding: 10px 18px; font-weight: 700; font-size: 28px; }
+  .term { background: var(--term); border-radius: 22px; padding: 26px 28px; font-family: "DejaVu Sans Mono", ui-monospace, monospace; font-size: 25px; line-height: 1.55; color: #e9e9e9; box-shadow: 0 10px 0 rgba(0,0,0,.12); }
+  .term .p { color: #7ee2a8; }
+  .term .c { color: #8b8f98; }
+  .term .ok { color: #7ee2a8; }
+  .term .cur { display: inline-block; width: 14px; height: 26px; background: #e9e9e9; vertical-align: -4px; }
+  #hint { position: fixed; bottom: 10px; left: 0; right: 0; text-align: center; color: #999; font: 13px system-ui; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="steps" class="abs"></div>
+  <div id="title" class="abs"></div>
+  <svg id="char" class="abs" viewBox="0 0 400 820"></svg>
+  <div id="prop" class="abs"></div>
+  <div id="caption" class="abs"></div>
+</div>
+<div id="hint">Click to restart · add ?t=12 to freeze a moment</div>
+<script>
+
+/* ---------- Script: scenes, captions, poses ---------- */
+const S = [
+  { t: 0,  title: 'You went <hl c="pink">viral!</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Your app goes viral. Traffic is ten times bigger."],[3,"Will it crash?"]], prop: "viral" },
+  { t: 5,  step: 1, title: 'Scale <hl c="blue">by hand</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"Not with Kubernetes."],[1,"Scale by hand: kubectl scale, replicas ten."],[5,"Ten pods, in seconds."]], prop: "manual" },
+  { t: 13, step: 2, title: 'Or <hl c="green">autoscale</hl>', pose: [[0,"idea"]], mood: "happy",
+    cap: [[0,"Even better: let it scale itself."],[2,"The autoscaler watches the CPU."],[5,"Busy? It adds pods. Quiet? It removes them."]], prop: "auto" },
+  { t: 22, step: 3, title: '<hl c="blue">Rolling</hl> update', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"Now, shipping a new version."],[2,"Kubernetes does a rolling update:"],[4,"it swaps old pods for new ones, a few at a time."],[8,"Users never see downtime."]], prop: "rolling" },
+  { t: 32, title: 'Broke it? <hl c="pink">Undo.</hl>', pose: [[0,"shrug"],[2.4,"cheer"]], mood: "happy",
+    cap: [[0,"Something broke?"],[2,"kubectl rollout undo... back to the last version."]], prop: "undo" },
+  { t: 38, title: 'K8s basics: <hl c="green">done!</hl>', pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0,"And that's Kubernetes basics:"],[2,"cluster, pods, deployments, services, ingress, scaling."]], prop: "recap" },
+  { t: 46, title: 'Next: <hl c="pink">CI/CD?</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Next topic: CI/CD... shipping code automatically."],[4,"Comment CICD if you want it, and follow."]], prop: "next" },
+];
+let END = 55;
+S.forEach((s, i) => s.end = i + 1 < S.length ? S[i + 1].t : END);
+
+/* ---------- Helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const backOut = x => { x = clamp(x); const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, k) => a + (b - a) * k;
+// entrance style: fade + rise + pop, starting `d` seconds into the scene
+function pop(lt, d = 0, dur = 0.45) {
+  const k = (lt - d) / dur, o = clamp(k * 1.6), s = lerp(0.85, 1, backOut(k)), y = lerp(30, 0, easeOut(k));
+  return `opacity:${o};transform:translateY(${y}px) scale(${s});`;
+}
+const fade = (lt, d = 0, dur = 0.35) => `opacity:${clamp((lt - d) / dur)};`;
+const COL = { pink: ["#fff", "#ff5d8f"], blue: ["#fff", "#4d7cff"], green: ["#fff", "#2ec27e"], yellow: ["#1b1b3a", "#ffcb47"] };
+
+/* ---------- Props: arcade theme (pastel pixel game) ---------- */
+const PK = "#ff5d8f", BL = "#4d7cff", GRN = "#2ec27e", YL = "#ffcb47", PIX = "#1b1b3a", LIL = "#8f86c9";
+const mono = "DejaVu Sans Mono, monospace";
+const svg = (inner, h = 660) => `<svg class="abs" style="left:0;top:0" width="620" height="${h}" viewBox="0 0 620 ${h}" shape-rendering="crispEdges">${inner}</svg>`;
+const T = (x, y, s, col = PIX, size = 28, weight = 700, anchor = "middle", op = 1) =>
+  `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="${mono}" font-weight="${weight}" font-size="${size}" fill="${col}" opacity="${clamp(op)}">${s}</text>`;
+const grow = (k, inner, x, y) => k <= 0 ? "" : `<g transform="translate(${x} ${y}) scale(${backOut(clamp(k / .35))})">${inner}</g>`;
+// pixel window with hard shadow
+const win = (x, y, w, h, col = "#fff") => `<rect x="${x + 8}" y="${y + 8}" width="${w}" height="${h}" fill="${PIX}"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${col}" stroke="${PIX}" stroke-width="5"/>`;
+// a pod as a pixel sprite; v = version colour
+function sprite(x, y, col = BL, k = 1, t = 0, label = "") {
+  const hop = Math.abs(Math.sin(t * 5 + x)) * -6;
+  return grow(k, `<g transform="translate(0 ${hop})"><rect x="-24" y="-24" width="48" height="48" fill="${col}" stroke="${PIX}" stroke-width="5"/><rect x="-14" y="-10" width="8" height="10" fill="${PIX}"/><rect x="6" y="-10" width="8" height="10" fill="${PIX}"/><rect x="-10" y="8" width="20" height="5" fill="${PIX}"/>
+    <rect x="-18" y="24" width="10" height="10" fill="${PIX}"/><rect x="8" y="24" width="10" height="10" fill="${PIX}"/></g>${label ? `<text y="62" text-anchor="middle" font-family="${mono}" font-weight="700" font-size="18" fill="${PIX}">${label}</text>` : ""}`, x, y);
+}
+const user = (x, y, o = 1) => `<g transform="translate(${x} ${y})" opacity="${o}"><rect x="-7" y="-20" width="14" height="14" fill="${PIX}"/><rect x="-10" y="-6" width="20" height="18" fill="${LIL}"/></g>`;
+function cmd(lt, d, text, y, ok = "") {
+  const k = clamp((lt - d) / .8);
+  return lt < d ? "" : win(20, y, 580, ok ? 110 : 70, PIX) + T(44, y + 46, "> " + text.slice(0, Math.ceil(text.length * k)), YL, 24, 700, "start") + (ok ? T(44, y + 88, ok, "#8dffb8", 22, 700, "start", (lt - d - 1) / .2) : "");
+}
+function bar(x, y, w, val, col, label) {
+  return `<rect x="${x}" y="${y}" width="${w}" height="34" fill="#fff" stroke="${PIX}" stroke-width="5"/><rect x="${x + 5}" y="${y + 5}" width="${(w - 10) * clamp(val)}" height="24" fill="${col}"/>` + T(x - 14, y + 26, label, PIX, 22, 700, "end");
+}
+const grid = (n, y0, col, lt, d0 = 0, step = .12, t = 0) => Array.from({ length: n }, (_, i) => sprite(95 + (i % 5) * 108, y0 + Math.floor(i / 5) * 110, typeof col === "function" ? col(i) : col, lt - d0 - i * step, t)).join("");
+
+const P = {
+  viral: lt => { const n = Math.floor(clamp(lt / 2.6) * 40), danger = lt > 3;
+    return svg(win(20, 30, 580, 300) + Array.from({ length: n }, (_, i) => user(60 + (i % 10) * 56, 90 + Math.floor(i / 10) * 62)).join("") +
+      T(310, 390, "users: x10", PK, 34, 700, "middle", (lt - .6) / .3) +
+      sprite(310, 490, danger ? PK : BL, 1, danger ? lt * 3 : 0, "1 pod") +
+      (danger ? T(310, 620, "CRASH?!", PK, 44, 700, "middle", .5 + .5 * Math.sin(lt * 14)) : "")); },
+
+  manual: lt => svg(cmd(lt, 1, "kubectl scale --replicas=10", 20, "deployment scaled") +
+    (lt < 3 ? sprite(95, 250, BL, 1, lt) : grid(10, 250, BL, lt, 3, .14, lt)) +
+    T(310, 520, lt > 5 ? "10 pods · ready" : "", GRN, 36, 700, "middle", (lt - 5) / .3), 600),
+
+  auto: lt => { const cpu = lt < 2 ? .3 : lt < 6.5 ? .3 + .6 * clamp((lt - 2) / 2.5) : .9 - .65 * clamp((lt - 6.8) / 1.4);
+    const n = lt < 5 ? 2 : lt < 7.3 ? 2 + Math.floor(clamp((lt - 5) / 1.6) * 6) : 8 - Math.floor(clamp((lt - 7.3) / 1.3) * 5);
+    return svg(win(20, 20, 580, 150) + T(50, 66, "AUTOSCALER", PIX, 26, 700, "start") + bar(170, 100, 390, cpu, cpu > .7 ? PK : GRN, "CPU") +
+      T(560, 66, Math.round(cpu * 100) + "%", cpu > .7 ? PK : GRN, 26, 700, "end") +
+      Array.from({ length: 10 }, (_, i) => i < n ? sprite(95 + (i % 5) * 108, 280 + Math.floor(i / 5) * 110, BL, 1, lt) : "").join("") +
+      T(310, 540, lt > 7.3 ? "quiet: removing pods" : lt > 5 ? "busy: adding pods!" : "watching…", lt > 7.3 ? LIL : lt > 5 ? PK : LIL, 28, 700), 600); },
+
+  rolling: lt => { const done = Math.floor(clamp((lt - 4) / 3.6) * 5.01);
+    return svg(`<rect x="170" y="34" width="34" height="34" fill="${BL}" stroke="${PIX}" stroke-width="4"/>` + T(246, 60, "v1", PIX, 26, 700) + T(310, 60, "→", PIX, 30, 700) +
+      `<rect x="360" y="34" width="34" height="34" fill="${GRN}" stroke="${PIX}" stroke-width="4"/>` + T(436, 60, "v2", PIX, 26, 700) +
+      Array.from({ length: 5 }, (_, i) => { const sw = lt - 4 - i * .72, flip = i < done; return sprite(95 + i * 108, 220, flip ? GRN : BL, 1, sw > 0 && sw < .5 ? lt * 4 : 0, flip ? "v2" : "v1"); }).join("") +
+      bar(170, 360, 390, clamp((lt - 4) / 3.6), GRN, "ROLL") +
+      win(60, 450, 500, 110) + T(310, 500, "uptime", LIL, 22, 700) + T(310, 540, "100%  no downtime", GRN, 28, 700, "middle", (lt - 8) / .3), 600); },
+
+  undo: lt => { const back = lt > 3.2;
+    return svg((lt < 2 ? win(120, 30, 380, 110, "#ffe3ea") + T(310, 98, "v2 has a bug!", PK, 30, 700) : cmd(lt, 2, "kubectl rollout undo", 30, "rolled back to v1")) +
+      Array.from({ length: 5 }, (_, i) => sprite(95 + i * 108, 300, back ? BL : PK, 1, back ? lt : 0, back ? "v1" : "v2")).join("") +
+      T(310, 480, back ? "safe again ✓" : "", GRN, 38, 700, "middle", (lt - 3.2) / .3), 560); },
+
+  recap: lt => svg(["cluster", "pods", "deployments", "services", "ingress", "scaling"].map((w, i) => { const d = 2 + i * .7, x = 20 + (i % 2) * 300, y = 40 + Math.floor(i / 2) * 150;
+    return lt < d ? "" : `<g transform="translate(${x + 140} ${y + 55})"><g style="${pop(lt, d)}">${win(-140, -55, 280, 110)}<rect x="-118" y="-22" width="44" height="44" fill="${GRN}" stroke="${PIX}" stroke-width="4"/><path d="M-108 0 l9 9 l17 -19" stroke="#fff" stroke-width="6" fill="none"/>${T(-56, 10, w, PIX, 26, 700, "start")}</g></g>`; }).join("") +
+    T(310, 540, lt > 6.4 ? "LEVEL COMPLETE" : "", PK, 40, 700, "middle", .6 + .4 * Math.sin(lt * 10)), 600),
+
+  next: lt => svg(`<g transform="translate(310 160)"><g style="${pop(lt, .2)}">${win(-280, -110, 560, 220)}${T(-240, -40, "NEXT LEVEL", LIL, 26, 700, "start")}${T(-240, 30, "CI/CD", PIX, 70, 700, "start")}
+      <g transform="translate(150 0)">${[0, 1, 2].map(i => `<rect x="${-70 + i * 50}" y="-18" width="36" height="36" fill="${[BL, YL, GRN][i]}" stroke="${PIX}" stroke-width="4"/>`).join("")}<path d="M-34 0 h14 M16 0 h14" stroke="${PIX}" stroke-width="5"/></g></g></g>` +
+    `<g transform="translate(310 370)"><g style="${pop(lt, 4)}">${win(-240, -46, 480, 92, YL)}${T(0, 12, "comment CICD", PIX, 38, 700)}</g></g>` +
+    `<g transform="translate(310 510)"><g style="${pop(lt, 4.6)}">${win(-180, -46, 360, 92, PK)}${T(0, 14, "+ FOLLOW", "#fff", 40, 700)}</g></g>`, 600),
+};
+
+function term(lt, lines, top = 60) {
+  const shown = lines.filter(([d]) => lt >= d);
+  const last = shown[shown.length - 1];
+  return `<div class="abs term" style="left:20px;top:${top}px;width:540px;min-height:300px;${pop(lt, 0, .35)}">
+    <div style="display:flex;gap:10px;margin-bottom:18px"><i style="width:16px;height:16px;border-radius:50%;background:#ff5f57"></i><i style="width:16px;height:16px;border-radius:50%;background:#febc2e"></i><i style="width:16px;height:16px;border-radius:50%;background:#28c840"></i></div>
+    ${shown.map(([d, h]) => {
+      // type each command out
+      const plain = h.replace(/<[^>]+>/g, "");
+      const isCmd = h.startsWith('<span class="p">$</span>');
+      if (!isCmd || (last && lt - d > 0.9)) return `<div>${h}</div>`;
+      const n = Math.floor(clamp((lt - d) / 0.8) * (plain.length - 2));
+      return `<div><span class="p">$</span> ${esc(plain.slice(2, 2 + n))}<span class="cur"></span></div>`;
+    }).join("")}
+  </div>`;
+}
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/* ---------- Character: a friendly tech host behind a desk (flat illustration, soft shading) ---------- */
+// Arm poses: [elbow, hand, hand shape] for the left and right arm, in the character's 400x820 space
+const POSES = {
+  idle:    { L: [[98, 600], [124, 716], "rest"],   R: [[302, 600], [276, 716], "rest"] },
+  present: { L: [[98, 600], [124, 716], "rest"],   R: [[346, 520], [396, 466], "palm"] },
+  point:   { L: [[98, 600], [124, 716], "rest"],   R: [[340, 492], [396, 424], "point"] },
+  idea:    { L: [[78, 520], [94, 410], "up"],      R: [[302, 600], [276, 716], "rest"] },
+  cross:   { L: [[118, 586], [270, 572], "rest"],  R: [[282, 596], [130, 588], "rest"] },
+  thumb:   { L: [[98, 600], [124, 716], "rest"],   R: [[336, 566], [356, 484], "thumb"] },
+  cheer:   { L: [[80, 384], [70, 292], "fist"],    R: [[320, 384], [330, 292], "fist"] },
+  shrug:   { L: [[80, 540], [44, 500], "palmup"],  R: [[320, 540], [356, 500], "palmup"] },
+};
+const SH = { L: [126, 452], R: [274, 452] };
+
+function poseAt(t) {
+  const tl = [];
+  S.forEach(s => s.pose.forEach(([d, p]) => tl.push([s.t + d, p])));
+  let i = 0; while (i + 1 < tl.length && tl[i + 1][0] <= t) i++;
+  const cur = POSES[tl[i][1]], prev = POSES[(tl[i - 1] || tl[i])[1]];
+  const k = easeOut((t - tl[i][0]) / 0.35);
+  const mix = side => {
+    const a = prev[side], b = cur[side];
+    return [[lerp(a[0][0], b[0][0], k), lerp(a[0][1], b[0][1], k)], [lerp(a[1][0], b[1][0], k), lerp(a[1][1], b[1][1], k)], k < .5 ? a[2] : b[2]];
+  };
+  return { L: mix("L"), R: mix("R"), name: tl[i][1], k };
+}
+
+const LOOK = {
+  skin: "#f7c9aa", skinShade: "#e9a988", blush: "#f39a8a",
+  hair: "#24232b", hairHi: "#3d3c47",
+  hoodie: "#6f97c4", hoodieShade: "#5a80ab", hoodieLight: "#86aad3",   // the sweater
+  iris: "#a8641f",
+};
+
+function hand(kind, x, y, ang, side) {
+  const L = LOOK, sk = L.skin, sh = L.skinShade;
+  const finger = (dx1, dy1, dx2, dy2) => `<path d="M${dx1} ${dy1} L${dx2} ${dy2}" stroke="${sh}" stroke-width="13" stroke-linecap="round"/><path d="M${dx1} ${dy1} L${dx2} ${dy2}" stroke="${sk}" stroke-width="9" stroke-linecap="round"/>`;
+  const palm = `<circle r="16" fill="${sk}"/><path d="M-10 6 A 14 14 0 0 0 12 4" fill="none" stroke="${sh}" stroke-width="3" stroke-linecap="round"/>`;
+  if (kind === "palm") return `<g transform="translate(${x} ${y}) rotate(${ang})"><path d="M-8 -14 C 16 -22, 40 -16, 42 -6 C 28 -4, 28 2, 40 6 C 36 14, 16 18, -8 14 Z" fill="${sk}"/><path d="M8 8 C 20 10, 30 8, 38 4" fill="none" stroke="${sh}" stroke-width="3" stroke-linecap="round"/></g>`;
+  if (kind === "palmup") return `<g transform="translate(${x} ${y}) scale(${side === "L" ? -1 : 1} 1)"><path d="M-10 -6 C 8 6, 28 4, 40 -8 L 44 -2 C 34 16, 6 18, -10 10 Z" fill="${sk}"/></g>`;
+  if (kind === "point") return `<g transform="translate(${x} ${y}) rotate(${ang})">${finger(6, -4, 40, -6)}${palm}</g>`;
+  if (kind === "up") return `<g transform="translate(${x} ${y})">${finger(0, -8, 0, -42)}${palm}</g>`;
+  if (kind === "thumb") return `<g transform="translate(${x} ${y})">${finger(-4, -10, -4, -38)}<rect x="-17" y="-15" width="34" height="32" rx="13" fill="${sk}"/><path d="M-10 4 H10 M-10 10 H8" stroke="${sh}" stroke-width="2.5" stroke-linecap="round"/></g>`;
+  return `<g transform="translate(${x} ${y})">${palm}</g>`;
+}
+
+function arm(sh, el, hd, kind, side, t, poseName) {
+  if (side === "R" && (poseName === "present" || poseName === "point")) hd = [hd[0] + Math.sin(t * 3) * 4, hd[1] + Math.sin(t * 2.2) * 5];
+  const d = `M${sh[0]} ${sh[1]} Q ${el[0]} ${el[1]} ${(el[0] + hd[0]) / 2} ${(el[1] + hd[1]) / 2} T ${hd[0]} ${hd[1]}`;
+  const ang = Math.atan2(hd[1] - el[1], hd[0] - el[0]) * 180 / Math.PI;
+  return `<path d="${d}" fill="none" stroke="${LOOK.hoodieShade}" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${d}" fill="none" stroke="${LOOK.hoodie}" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${hd[0]}" cy="${hd[1]}" r="19" fill="${LOOK.hoodieShade}"/>
+    ${hand(kind, hd[0], hd[1], ang, side)}`;
+}
+
+/* ---------- Mouth driver: voice loudness when there is a recording, a speech rhythm otherwise ---------- */
+window.VOICE = null;           // set by render.mjs --voice: { env: [0..1 per frame], fps }
+window.READY = Promise.resolve();
+const hash = k => { const x = Math.sin(k * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const sstep = (a, b, x) => { const k = clamp((x - a) / (b - a)); return k * k * (3 - 2 * k); };
+// Lip timeline built from the caption words: syllables of varied length, gaps between words, pauses at commas
+let LIPS = null;
+function buildLips() {
+  LIPS = [];
+  S.forEach((sc, si) => sc.cap.forEach(([d, text], ci) => {
+    const start = sc.t + d + .08, next = ci + 1 < sc.cap.length ? sc.t + sc.cap[ci + 1][0] : sc.end;
+    const words = text.replace(/[^A-Za-z0-9#'., ]/g, " ").split(/\s+/).filter(Boolean);
+    const sylls = [];
+    words.forEach((w, wi) => {
+      const v = w.toLowerCase().match(/[aeiouy]+/g) || ["a"];
+      v.forEach((g, gi) => sylls.push({ vowel: g[0], len: .7 + hash(si * 97 + ci * 13 + wi * 7 + gi) * .7, gapAfter: gi === v.length - 1 ? (/[,.]$/.test(w) ? 2.2 : .45) : 0 }));
+    });
+    const units = sylls.reduce((a, x) => a + x.len + x.gapAfter, 0);
+    const speak = Math.min(next - start - .25, units * .135);          // ~7 syllables a second, never past the next line
+    const k = speak / units; let tt = start;
+    sylls.forEach((x, i) => {
+      const dur = x.len * k, shape = /[ou]/.test(x.vowel) ? .1 : /[eiy]/.test(x.vowel) ? .85 : .55;
+      LIPS.push({ a: tt, b: tt + dur, amp: .55 + hash(i * 31 + si) * .45, shape });
+      tt += dur + x.gapAfter * k;
+    });
+  }));
+}
+function speech(t, talking) {
+  if (window.VOICE) {
+    const open = window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0;
+    return { open, wide: .55 };
+  }
+  if (!LIPS) buildLips();
+  // find the syllable at t (binary search)
+  let lo = 0, hi = LIPS.length - 1, hit = null;
+  while (lo <= hi) { const m = (lo + hi) >> 1; if (LIPS[m].b < t) lo = m + 1; else if (LIPS[m].a > t) hi = m - 1; else { hit = LIPS[m]; break; } }
+  if (!hit) { const prev = LIPS[Math.max(0, hi)]; return { open: 0, wide: prev ? prev.shape : .55 }; }
+  const f = (t - hit.a) / (hit.b - hit.a);
+  return { open: hit.amp * Math.pow(Math.sin(Math.PI * f), .7), wide: hit.shape };
+}
+
+// messy hair: tufts around the top of the head
+function hairTufts(cx, cy, r1, r2, a0, a1, n, seed) {
+  let d = "";
+  for (let i = 0; i <= n; i++) {
+    const a = (a0 + (a1 - a0) * i / n) * Math.PI / 180;
+    const am = (a0 + (a1 - a0) * (i + .5) / n) * Math.PI / 180;
+    const rr = r2 + (hash(seed + i) - .5) * 16;
+    const x = cx + Math.cos(a) * r1, y = cy + Math.sin(a) * r1;
+    const tx = cx + Math.cos(am) * rr, ty = cy + Math.sin(am) * rr;
+    d += (i === 0 ? `M${x} ${y}` : ` Q ${(x + tx) / 2 + 6} ${(y + ty) / 2 - 4} ${x} ${y}`) + (i < n ? ` Q ${tx - 4} ${ty + 6} ${tx} ${ty}` : "");
+  }
+  return d;
+}
+
+function charSvg(t, talking, mood) {
+  const L = LOOK, INK = "#2b2022";
+  const p = poseAt(t);
+  const { open, wide } = speech(t, talking);
+  const bob = Math.sin(t * 2.2) * 3;
+  const tilt = Math.sin(t * 1.2) * 2 + (mood === "curious" ? -5 : 0) + (talking ? Math.sin(t * 2.1) * 1.4 : 0);
+  const blink = (t % 3.6) < .13 || ((t + 1.7) % 7.3) < .11;
+  const look = p.name === "cross" ? 0 : 3;
+
+  // head centre (200, 250)
+  const eye = cx => blink
+    ? `<path d="M${cx - 18} 262 Q ${cx} 272 ${cx + 18} 262" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`
+    : `<ellipse cx="${cx}" cy="262" rx="22" ry="24" fill="#fff"/>
+       <circle cx="${cx + look}" cy="265" r="15" fill="${L.iris}"/><circle cx="${cx + look}" cy="265" r="8" fill="${INK}"/>
+       <circle cx="${cx + look + 5}" cy="259" r="4.5" fill="#fff"/><circle cx="${cx + look - 4}" cy="271" r="2" fill="#fff" opacity=".8"/>
+       <path d="M${cx - 23} 258 Q ${cx} 232 ${cx + 23} 258" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`;
+  const by = (mood === "curious" ? -6 : mood === "serious" ? 4 : 0) - (talking ? open * 4 : 0);
+  const tiltIn = mood === "serious" ? 5 : 0;
+  const brows = `<path d="M${142} ${226 + by} Q 160 ${216 + by} ${180} ${222 + by + tiltIn}" fill="none" stroke="${L.hair}" stroke-width="8" stroke-linecap="round"/>
+    <path d="M${220} ${222 + by + tiltIn + (mood === "curious" ? 6 : 0)} Q 240 ${216 + by} ${258} ${226 + by}" fill="none" stroke="${L.hair}" stroke-width="8" stroke-linecap="round"/>`;
+
+  // mouth
+  const w = 14 + wide * 9 - open * 3, h = open * 20, my = 322;
+  let mouth;
+  if (h < 2) {
+    const curve = mood === "serious" ? 3 : 9;
+    mouth = `<path d="M${200 - w} ${my - 2} Q 200 ${my + curve} ${200 + w} ${my - 2}" fill="none" stroke="#c0504c" stroke-width="5" stroke-linecap="round"/>`;
+  } else {
+    const shape = `M${200 - w} ${my - 3} Q 200 ${my - 1} ${200 + w} ${my - 3} C ${200 + w * .95} ${my + h * .8}, ${200 + w * .45} ${my + h + 3}, 200 ${my + h + 3} C ${200 - w * .45} ${my + h + 3}, ${200 - w * .95} ${my + h * .8}, ${200 - w} ${my - 3} Z`;
+    mouth = `<defs><clipPath id="mc"><path d="${shape}"/></clipPath></defs><path d="${shape}" fill="#7a2a33"/>
+      <g clip-path="url(#mc)"><rect x="${200 - w}" y="${my - 6}" width="${2 * w}" height="${Math.min(7, 3 + h * .3)}" fill="#fff"/>
+      <ellipse cx="200" cy="${my + h + 3}" rx="${w * .7}" ry="${Math.max(3, h * .4)}" fill="#e2707a"/></g>`;
+  }
+
+  const hairBack = `<path d="${hairTufts(200, 240, 110, 140, 160, 380, 13, 3)} L 200 300 Z" fill="${L.hair}"/>`;
+  const fringe = `<path d="M96 246 C 92 170, 150 128, 214 132 C 268 136, 306 176, 304 236
+      C 296 214, 288 204, 280 198 L 284 226 C 272 208, 260 196, 246 190 L 248 220 C 236 202, 222 192, 206 188
+      L 210 214 C 196 198, 180 190, 164 190 L 160 218 C 150 202, 138 196, 126 198 L 124 230 C 116 214, 106 214, 96 246 Z" fill="${L.hair}"/>
+    <path d="M150 156 Q 190 140 230 150 M232 158 Q 262 168 280 190" fill="none" stroke="${L.hairHi}" stroke-width="5" stroke-linecap="round"/>`;
+
+  const arms = arm(SH.L, ...p.L, "L", t, p.name) + arm(SH.R, ...p.R, "R", t, p.name);
+  const sweater = `
+    <path d="M82 820 C 76 610, 94 476, 150 442 C 172 430, 228 430, 250 442 C 306 476, 324 610, 318 820 Z" fill="${L.hoodie}"/>
+    <path d="M262 452 C 300 486, 318 600, 318 820 L 282 820 C 286 640, 282 520, 262 452 Z" fill="${L.hoodieShade}" opacity=".6"/>
+    <path d="M136 456 C 124 560, 120 680, 122 820 L 96 820 C 94 650, 104 520, 136 456 Z" fill="${L.hoodieLight}" opacity=".45"/>
+    <path d="M160 438 C 176 424, 224 424, 240 438 C 232 454, 168 454, 160 438 Z" fill="${L.hoodieLight}"/>
+    <path d="M168 440 C 182 432, 218 432, 232 440" fill="none" stroke="${L.hoodieShade}" stroke-width="3"/>`;
+
+  return `
+  <g transform="translate(0 ${bob})">
+    ${sweater}
+    <path d="M182 360 L182 440 Q 200 450 218 440 L218 360 Z" fill="${L.skinShade}"/>
+    ${p.name === "cross" ? "" : arms}
+    <g transform="rotate(${tilt} 200 430) translate(200 300) scale(1.08) translate(-200 -268)">
+      ${hairBack}
+      <ellipse cx="104" cy="272" rx="18" ry="24" fill="${L.skin}"/><ellipse cx="107" cy="273" rx="9" ry="13" fill="${L.skinShade}" opacity=".6"/>
+      <ellipse cx="296" cy="272" rx="18" ry="24" fill="${L.skin}"/><ellipse cx="293" cy="273" rx="9" ry="13" fill="${L.skinShade}" opacity=".6"/>
+      <path d="M104 240 C 104 170, 296 170, 296 240 C 298 316, 256 368, 200 370 C 144 368, 102 316, 104 240 Z" fill="${L.skin}"/>
+      <path d="M270 210 C 296 250, 290 320, 246 356 C 272 318, 280 262, 270 210 Z" fill="${L.skinShade}" opacity=".3"/>
+      <ellipse cx="136" cy="300" rx="20" ry="11" fill="${L.blush}" opacity=".4"/><ellipse cx="264" cy="300" rx="20" ry="11" fill="${L.blush}" opacity=".4"/>
+      <g fill="#d98a6e" opacity=".55"><circle cx="128" cy="292" r="2"/><circle cx="140" cy="298" r="2"/><circle cx="132" cy="306" r="2"/><circle cx="262" cy="292" r="2"/><circle cx="272" cy="300" r="2"/><circle cx="258" cy="306" r="2"/></g>
+      <ellipse cx="200" cy="296" rx="12" ry="9" fill="#f0a08c"/><ellipse cx="196" cy="293" rx="4" ry="3" fill="#fff" opacity=".45"/>
+      ${mouth}
+      ${eye(158)}${eye(242)}
+      ${fringe}
+      ${brows}
+    </g>
+    ${p.name === "cross" ? arms : ""}
+  </g>`;
+}
+
+
+/* ---------- Avatar presenter: a ready-made character whose mouth and eyes swap per frame ---------- */
+// window.AVATAR = { closed, mid, open, wide?, blink } (SVG data URIs), set by render.mjs --avatar
+window.AVATAR = null;
+function avatarSvg(t, talking) {
+  const A = window.AVATAR, { open } = speech(t, talking);
+  const blink = (t % 3.6) < .13 || ((t + 1.7) % 7.3) < .11;
+  if (A.card) return avatarCard(t, talking, A, open, blink);
+  let src = blink && A.blink ? A.blink : open > .8 && A.wide ? A.wide : open > .5 ? A.open : open > .2 ? A.mid : A.closed;
+  let pop = 1;
+  if (A.poses) {                         // pose pictures (3D): change with the scene, bounce a little while talking
+    const p = poseAt(t); src = A.poses[p.name] || A.poses.present;
+    pop = lerp(.9, 1, backOut(p.k)) * (1 + open * .02);
+  }
+  const bob = Math.sin(t * 2.2) * 4 - open * 4;
+  const tilt = Math.sin(t * 1.2) * 2 + (talking ? Math.sin(t * 2.1) * 1.5 : 0);
+  return `<g transform="translate(0 ${bob}) rotate(${tilt} 200 760) translate(200 740) scale(${pop}) translate(-200 -740)"><image href="${src}" x="-20" y="300" width="440" height="440"/></g>`;
+}
+
+
+// Presenter card: talking face frames, with short cuts to pose pictures when the scene's gesture starts
+function avatarCard(t, talking, A, open, blink) {
+  const p = poseAt(t);
+  const sinceStart = (() => { let st = 0; S.forEach(s => s.pose.forEach(([d]) => { if (s.t + d <= t) st = s.t + d; })); return t - st; })();
+  const cut = A.cuts && A.cuts[p.name] && sinceStart < 2.6 ? A.cuts[p.name] : null;   // reaction shot (cheering) at the success moments
+  // clean mouth swaps on 12 fps steps (no cross-fading, which shows two mouths at once)
+  const tq = Math.floor(t * 12) / 12;
+  const sp = speech(tq, talking);
+  const blinking = (t % 3.6) < .12 || ((t + 1.7) % 7.3) < .1;
+  const face = blinking ? A.blink : sp.open > .32 ? (A.ee && sp.wide > .75 && sp.open > .55 ? A.ee : A.mid) : A.closed;
+  const x = 4, y = 226, w = 392, h = 530, r = 40;
+  const zoom = 1.015 + Math.sin(t * .35) * .015;            // slow, continuous push in and out
+  const pop = cut ? lerp(.94, 1, backOut(sinceStart / .3)) : 1;
+  const img = cut
+    ? `<image href="${cut}" x="${x - 95}" y="${y + h - (w + 190) * .745}" width="${w + 190}" height="${(w + 190) * .745}" preserveAspectRatio="xMidYMid meet" transform="translate(200 ${y + h / 2}) scale(${pop}) translate(-200 ${-(y + h / 2)})"/>`
+    : `<g transform="translate(200 ${y}) scale(${zoom}) translate(-200 ${-y})"><image href="${face}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMin slice"/></g>`;
+  const bob = Math.sin(t * 2.2) * 3;
+  if (A.cutout) {
+    // no card: the presenter stands in the scene, bigger, with a soft shadow; bottom fades into the page
+    const X = -40, Y = 250, Wd = 470;
+    const body = cut
+      ? `<image href="${cut}" x="${X - 60}" y="${Y + Wd - (Wd + 120) * .745}" width="${Wd + 120}" height="${(Wd + 120) * .745}" transform="translate(200 ${Y + Wd}) scale(${pop}) translate(-200 ${-(Y + Wd)})"/>`
+      : `<image href="${face}" x="${X}" y="${Y}" width="${Wd}" height="${Wd}"/>`;
+    return `<defs><filter id="ps" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#5a3d1e" flood-opacity=".18"/></filter>
+        <radialGradient id="pg"><stop offset="0" stop-color="#ffffff" stop-opacity=".85"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs>
+      <g transform="translate(0 ${bob})" filter="url(#ps)">${body}</g>`;
+  }
+  return `<defs><clipPath id="card"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/></clipPath>
+      <filter id="cs" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-opacity=".22"/></filter></defs>
+    <g transform="translate(0 ${bob}) rotate(${Math.sin(t * .9) * .8} 200 ${y + h})">
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${A.bg}" filter="url(#cs)"/>
+      <g clip-path="url(#card)">${img}</g>
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="#fff" stroke-width="10"/>
+    </g>`;
+}
+
+/* ---------- Pro: retime everything to the recorded voice ---------- */
+window.TIMING = null;   // { caps: [{text,start,end,words:[t...]}...], end }  set by render.mjs --timing
+let TIMED = false;
+function applyTiming() {
+  if (TIMED || !window.TIMING) return; TIMED = true;
+  const C = window.TIMING.caps; let k = 0;
+  S.forEach((sc, si) => {
+    const oldCaps = sc.cap.map(c => c[0]);
+    const mine = C.slice(k, k + sc.cap.length); sc.capIdx = mine.map((_, j) => k + j); k += sc.cap.length;
+    sc.oldLen = (si + 1 < S.length ? S[si + 1].t : END) - sc.t;
+    sc.newT = si === 0 ? 0 : Math.max(0, mine[0].start - .3);
+    sc.oldCaps = oldCaps; sc.newCaps = mine.map(c => c.start - sc.newT);
+  });
+  END = window.TIMING.end + 1.6;
+  S.forEach((sc, si) => { sc.t = sc.newT; });
+  S.forEach((sc, si) => { sc.end = si + 1 < S.length ? S[si + 1].t : END; sc.newLen = sc.end - sc.t; });
+  // poses: move each gesture to the same moment of speech
+  S.forEach(sc => { sc.pose = sc.pose.map(([d, p]) => [warpNew(sc, d), p]); sc.cap = sc.cap.map((c, j) => [sc.newCaps[j], c[1]]); });
+  window.DURATION = END;
+}
+// piecewise-linear maps between the old (designed) scene clock and the new (voice) scene clock
+function anchors(sc) { return [[0, 0], ...sc.oldCaps.map((o, j) => [o, sc.newCaps[j]]).filter(([o, n]) => o > 0), [sc.oldLen, sc.newLen ?? sc.oldLen]]; }
+function mapPW(A, x, from, to) {
+  for (let i = 0; i + 1 < A.length; i++) { const a = A[i], b = A[i + 1]; if (x <= b[from] || i + 2 === A.length) { const k = (x - a[from]) / Math.max(1e-6, b[from] - a[from]); return a[to] + (b[to] - a[to]) * k; } }
+  return x;
+}
+const warpNew = (sc, oldLt) => mapPW(anchors(sc), oldLt, 0, 1);
+const warpOld = (sc, newLt) => sc.oldCaps ? mapPW(anchors(sc), newLt, 1, 0) : newLt;
+
+
+/* ---------- Render one moment ---------- */
+const $ = id => document.getElementById(id);
+function render(t) {
+  applyTiming();
+  let si = 0; while (si + 1 < S.length && S[si + 1].t <= t) si++;
+  const sc = S[si], lt = t - sc.t;
+
+  // steps
+  $("steps").innerHTML = sc.step ? [1, 2, 3].map(n => `<div class="step ${n === sc.step ? "on" : ""}">${n === sc.step ? "STEP " + n : n}</div>`).join("") : "";
+
+  // title with highlighted word
+  const mk = easeOut((lt - .25) / .4);
+  $("title").innerHTML = sc.title.replace(/<hl c="(\w+)">(.*?)<\/hl>/g, (_, c, w) =>
+    `<span class="hl" style="color:${COL[c][0]};--mark:${COL[c][1]};--mk:${mk}"><span>${w}</span></span>`);
+  $("title").style.cssText = `opacity:${clamp(lt / .25)};transform:translateY(${lerp(24, 0, easeOut(lt / .35))}px)`;
+
+  // caption
+  let ci = -1; sc.cap.forEach(([d], i) => { if (lt >= d) ci = i; });
+  const capStart = ci >= 0 ? sc.cap[ci][0] : 0, capEnd = ci + 1 < sc.cap.length ? sc.cap[ci + 1][0] : sc.end - sc.t;
+  const cl = lt - capStart;
+  $("caption").innerHTML = ci >= 0 ? `<div style="transform:scale(${lerp(.9, 1, backOut(cl / .25))});opacity:${clamp(cl / .12)}">${sc.cap[ci][1]}</div>` : "";
+  const talking = ci >= 0 && lt < capEnd - 0.25 && cl < Math.max(1.1, sc.cap[ci][1].length * 0.075);
+
+  $("char").innerHTML = window.AVATAR ? avatarSvg(t, talking) : charSvg(t, talking, sc.mood);
+  $("prop").innerHTML = P[sc.prop](warpOld(sc, lt));
+}
+
+/* ---------- Playback ---------- */
+function fit() { const s = Math.min(innerWidth / 1080, innerHeight / 1920); $("stage").style.transform = `scale(${s})`; }
+addEventListener("resize", fit); fit();
+window.DURATION = END;
+window.render = render;
+const q = new URLSearchParams(location.search);
+if (q.has("render")) { $("hint").remove(); document.body.style.background = "transparent"; $("stage").style.transform = "none"; }
+else if (q.has("t")) render(parseFloat(q.get("t")));
+else {
+  let t0 = performance.now();
+  addEventListener("click", () => t0 = performance.now());
+  (function loop(now) { render(((now - t0) / 1000) % END); requestAnimationFrame(loop); })(performance.now());
+}
+</script>
+</body>
+</html>

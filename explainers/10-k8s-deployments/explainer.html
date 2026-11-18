@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes Pods and Deployments Explainer</title>
+<style>
+  :root {
+    --bg: #fbf3e4; --grid: #ead9bd; --ink: #151515; --muted: #6b6b6b;
+    --blue: #2f6fe4; --green: #22a45d; --red: #e5484d; --orange: #f2a33a;
+    --card: #ffffff; --term: #1d1f23;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #111; height: 100%; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; font-family: Inter, "Inter Display", system-ui, sans-serif; }
+  #stage {
+    position: relative; width: 1080px; height: 1920px; flex: none; overflow: hidden;
+    background-color: #e3f1e6;
+    background-image: linear-gradient(rgba(255,255,255,.75) 6px, transparent 6px), linear-gradient(90deg, rgba(255,255,255,.75) 6px, transparent 6px), radial-gradient(800px 600px at 80% 0%, rgba(255,241,190,.7), transparent 70%), linear-gradient(180deg, #d8ecdd, #eef7ee 60%, #dcecd9);
+    background-size: 270px 320px, 270px 320px, 100% 100%, 100% 100%; transform-origin: center center;
+  }
+  .abs { position: absolute; }
+  #steps { left: 0; right: 0; top: 80px; display: flex; justify-content: center; gap: 14px; }
+  .step { min-width: 46px; height: 46px; border-radius: 23px; background: rgba(255,255,255,.85); color: #6f8676; font-weight: 700; font-size: 24px; display: flex; align-items: center; justify-content: center; padding: 0 14px; }
+  .step.on { background: #3a9d5d; color: #fff; letter-spacing: 1px; }
+  #title { left: 40px; right: 40px; top: 160px; font-size: 66px; text-align: center; font-weight: 800; font-size: 84px; line-height: 1.12; color: #23402f; letter-spacing: -1px; }
+  .hl { position: relative; display: inline-block; }
+  .hl::after { content: ""; position: absolute; left: -18px; right: -18px; bottom: -4px; top: 2px; z-index: -1; border-radius: 4px 30px 4px 30px; rotate: -1deg; background: var(--mark, #3a9d5d); transform-origin: left; transform: scaleX(var(--mk, 1)); }
+  .hl span { position: relative; }
+  #title .hl { margin: 0 .3em; }
+  #char { left: 640px; top: 930px; width: 470px; height: 964px; overflow: visible; z-index: 2; }
+  #prop { left: 106px; top: 300px; width: 620px; height: 860px; transform: scale(1.4); transform-origin: 0 0; }
+  #caption { left: 40px; right: 40px; top: 1750px; z-index: 5; display: flex; justify-content: center; }
+  #caption div { background: repeating-linear-gradient(90deg, #b08968 0 180px, #a67c5b 180px 184px); color: #fff; font-weight: 800; font-size: 38px; line-height: 1.25; text-align: center; max-width: 980px; padding: 18px 36px 22px; border-radius: 12px; border: none; box-shadow: 0 8px 0 #7f5539, 0 18px 30px rgba(35,64,47,.2); max-width: 980px; text-align: center; }
+  .card { background: var(--card); border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 8px 0 rgba(0,0,0,.08); }
+  .card.top-blue { border-top: 12px solid var(--blue); }
+  .card.top-green { border-top: 12px solid var(--green); }
+  .card.top-red { border-top: 12px solid var(--red); }
+  .big { font-weight: 800; font-size: 64px; color: var(--ink); text-align: center; }
+  .sub { font-weight: 500; font-size: 30px; color: var(--muted); text-align: center; }
+  .chip { display: inline-flex; align-items: center; gap: 10px; background: #fff; border: 3px solid var(--ink); border-radius: 16px; padding: 10px 18px; font-weight: 700; font-size: 28px; }
+  .term { background: var(--term); border-radius: 22px; padding: 26px 28px; font-family: "DejaVu Sans Mono", ui-monospace, monospace; font-size: 25px; line-height: 1.55; color: #e9e9e9; box-shadow: 0 10px 0 rgba(0,0,0,.12); }
+  .term .p { color: #7ee2a8; }
+  .term .c { color: #8b8f98; }
+  .term .ok { color: #7ee2a8; }
+  .term .cur { display: inline-block; width: 14px; height: 26px; background: #e9e9e9; vertical-align: -4px; }
+  #hint { position: fixed; bottom: 10px; left: 0; right: 0; text-align: center; color: #999; font: 13px system-ui; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="steps" class="abs"></div>
+  <div id="title" class="abs"></div>
+  <svg id="char" class="abs" viewBox="0 0 400 820"></svg>
+  <div id="prop" class="abs"></div>
+  <div id="caption" class="abs"></div>
+</div>
+<div id="hint">Click to restart · add ?t=12 to freeze a moment</div>
+<script>
+
+/* ---------- Script: scenes, captions, poses ---------- */
+const S = [
+  { t: 0,  title: 'App crashed at <hl c="red">3 a.m.</hl>', pose: [[0,"shrug"]], mood: "curious",
+    cap: [[0,"What happens when your app crashes at 3 a.m.?"],[3,"With Kubernetes... nothing. You sleep."]], prop: "night" },
+  { t: 6,  title: 'What\'s a <hl c="green">pod</hl>?', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"Here's why."],[1,"A pod is the smallest thing Kubernetes runs."],[4,"Usually one container inside."]], prop: "pod" },
+  { t: 12, title: 'Pods are <hl c="green">plants</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Think of pods as plants in a greenhouse."]], prop: "plants" },
+  { t: 15, step: 1, title: 'Deployment = <hl c="terra">gardener</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"A Deployment is the gardener."],[2,"You tell it: always keep three plants."]], prop: "gardener" },
+  { t: 20, title: 'One dies? <hl c="green">Replanted.</hl>', pose: [[0,"shrug"],[2,"present"]], mood: "happy",
+    cap: [[0,"One plant dies?"],[2,"The gardener notices... and plants a new one."],[5,"That's self-healing."]], prop: "heal" },
+  { t: 28, step: 2, title: 'The <hl c="terra">Deployment</hl> file', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"Here's the file: kind Deployment, replicas three, and your image."]], prop: "yaml" },
+  { t: 34, step: 3, title: 'Apply + <hl c="green">check</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"Apply it: kubectl apply -f deploy.yaml"],[4,"Check with kubectl get pods."]], prop: "kubectl" },
+  { t: 41, title: 'Delete one. <hl c="green">It\'s back!</hl>', pose: [[0,"point"],[2.6,"cheer"]], mood: "happy",
+    cap: [[0,"Delete a pod on purpose..."],[2.4,"and watch a new one appear."]], prop: "test" },
+  { t: 46, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0,"Pod: runs your container."],[2.2,"Deployment: keeps them alive."]], prop: "recap" },
+  { t: 51, title: 'Next: <hl c="terra">Services</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Next: how users reach your pods."],[2.6,"Follow for part three."]], prop: "next" },
+];
+let END = 56.5;
+S.forEach((s, i) => s.end = i + 1 < S.length ? S[i + 1].t : END);
+
+/* ---------- Helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const backOut = x => { x = clamp(x); const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, k) => a + (b - a) * k;
+// entrance style: fade + rise + pop, starting `d` seconds into the scene
+function pop(lt, d = 0, dur = 0.45) {
+  const k = (lt - d) / dur, o = clamp(k * 1.6), s = lerp(0.85, 1, backOut(k)), y = lerp(30, 0, easeOut(k));
+  return `opacity:${o};transform:translateY(${y}px) scale(${s});`;
+}
+const fade = (lt, d = 0, dur = 0.35) => `opacity:${clamp((lt - d) / dur)};`;
+const COL = { green: ["#fff", "#3a9d5d"], terra: ["#fff", "#c8693f"], red: ["#fff", "#d1495b"], blue: ["#fff", "#3a86ff"] };
+
+/* ---------- Props: greenhouse theme ---------- */
+const LEAF = "#3a9d5d", DARKG = "#1f5f3a", TERRA = "#c8693f", SOIL = "#6b4a36", WILT = "#b5a27a", INK2 = "#23402f", MUT2 = "#6f8676";
+const mono = "DejaVu Sans Mono, monospace";
+const svg = (inner, h = 640) => `<svg class="abs" style="left:0;top:0" width="620" height="${h}" viewBox="0 0 620 ${h}">${inner}</svg>`;
+const T = (x, y, s, col = INK2, size = 28, weight = 800, anchor = "middle", font = "Inter", op = 1) =>
+  `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="${font}" font-weight="${weight}" font-size="${size}" fill="${col}" opacity="${clamp(op)}">${s}</text>`;
+const grow = (k, inner, x, y) => k <= 0 ? "" : `<g transform="translate(${x} ${y}) scale(${backOut(clamp(k / .45))})">${inner}</g>`;
+const panel = (x, y, w, h, stroke = "#cfe3d4") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="20" fill="#fff" stroke="${stroke}" stroke-width="4"/>`;
+// a potted plant = a pod. g: growth 0..1, dead: wilted
+function plant(x, y, g = 1, dead = false, t = 0, label = "") {
+  const c = dead ? WILT : LEAF, c2 = dead ? "#9c8a63" : DARKG, sway = dead ? 18 : Math.sin(t * 2 + x) * 3, h = 90 * clamp(g);
+  return `<g transform="translate(${x} ${y})">
+    <g transform="rotate(${sway} 0 0)"><path d="M0 0 V${-h}" stroke="${c2}" stroke-width="7" stroke-linecap="round"/>
+      ${g > .4 ? `<path d="M0 ${-h * .45} C -34 ${-h * .5}, -44 ${-h * .85}, -40 ${-h * .95} C -18 ${-h * .95}, -2 ${-h * .7}, 0 ${-h * .45} Z" fill="${c}"/>` : ""}
+      ${g > .7 ? `<path d="M0 ${-h * .7} C 34 ${-h * .75}, 46 ${-h * 1.1}, 42 ${-h * 1.2} C 18 ${-h * 1.2}, 2 ${-h * .95}, 0 ${-h * .7} Z" fill="${c}"/><circle cy="${-h - 6}" r="${dead ? 0 : 9}" fill="#ffd166"/>` : ""}</g>
+    <path d="M-44 0 H44 L34 62 H-34 Z" fill="${TERRA}"/><rect x="-50" y="-10" width="100" height="18" rx="6" fill="#d97b50"/><rect x="-36" y="-6" width="72" height="8" rx="4" fill="${SOIL}"/>
+    ${label ? `<text y="92" text-anchor="middle" font-family="${mono}" font-weight="700" font-size="20" fill="${MUT2}">${label}</text>` : ""}</g>`;
+}
+function gardener(x, y, t = 0) { const b = Math.sin(t * 3) * 3;
+  return `<g transform="translate(${x} ${y + b})"><circle cy="-70" r="26" fill="#f2c9a5"/><path d="M-34 -84 Q0 -116 34 -84 L40 -78 H-40 Z" fill="#e9c46a"/><rect x="-48" y="-82" width="96" height="8" rx="4" fill="#d4a94a"/>
+    <path d="M-30 -40 H30 L36 40 H-36 Z" fill="${DARKG}"/><rect x="-20" y="-36" width="40" height="50" rx="6" fill="#74c69d"/>
+    <path d="M36 -20 L74 -6" stroke="#f2c9a5" stroke-width="12" stroke-linecap="round"/><path d="M70 -22 h30 l10 14 l-12 18 h-28 z" fill="#8ecae6"/><path d="M108 -10 l22 -12" stroke="#8ecae6" stroke-width="7" stroke-linecap="round"/></g>`; }
+const shelf = (y, k = 1) => `<rect x="30" y="${y}" width="${560 * clamp(k)}" height="16" rx="6" fill="#b08968"/>`;
+const PX = [130, 310, 490];
+function kterm(lt, rows, top = 20) {
+  return `<rect x="10" y="${top}" width="600" height="${50 + rows.length * 44}" rx="18" fill="${INK2}"/>` +
+    rows.map(([d, txt, col], i) => T(36, top + 60 + i * 44, txt, col || "#e8f5ec", 22, 700, "start", mono, (lt - d) / .25)).join("");
+}
+
+const P = {
+  night: lt => { const calm = lt > 3;
+    return svg(`<rect x="60" y="40" width="500" height="330" rx="26" fill="${calm ? "#eaf6ee" : "#243b53"}"/>` +
+      (calm ? T(310, 180, "😴", INK2, 110, 400) + T(310, 300, "all good. sleeping.", LEAF, 30, 800, "middle", mono)
+        : `<circle cx="470" cy="110" r="34" fill="#ffe8a3"/>${T(200, 130, "03:00", "#ffe8a3", 60, 900, "middle", mono)}${T(310, 260, "💥 app crashed", "#ff8fa3", 36, 800, "middle", mono, (lt - .6) / .3)}`) +
+      T(310, 460, calm ? "Kubernetes fixed it for you" : "who's waking up?", calm ? LEAF : MUT2, 28, 800, "middle", "Inter", calm ? (lt - 3.3) / .3 : (lt - 1.4) / .3)); },
+
+  pod: lt => svg(grow(lt - 1, `<rect x="-170" y="-150" width="340" height="300" rx="40" fill="#e9f7ee" stroke="${LEAF}" stroke-width="6" stroke-dasharray="16 10"/><text x="-140" y="-108" font-family="${mono}" font-weight="700" font-size="24" fill="${LEAF}">pod</text>`, 310, 250) +
+    grow(lt - 4, `<rect x="-90" y="-70" width="180" height="150" rx="14" fill="#3a86ff"/>${[0, 1, 2, 3, 4, 5, 6].map(i => `<rect x="${-74 + i * 24}" y="-56" width="7" height="122" rx="3" fill="#000" opacity=".12"/>`).join("")}<text y="16" text-anchor="middle" font-family="Inter" font-weight="800" font-size="24" fill="#fff">container</text>`, 310, 260) +
+    T(310, 480, "smallest unit in Kubernetes", MUT2, 26, 700, "middle", mono, (lt - 1.6) / .3)),
+
+  plants: lt => svg(shelf(352, lt / .5) + PX.map((x, i) => `<g opacity="${clamp((lt - .4 - i * .3) / .3)}">${plant(x, 290, clamp((lt - .5 - i * .3) / 1), false, lt, "pod " + (i + 1))}</g>`).join("") +
+    T(310, 500, "pods = plants", LEAF, 36, 900, "middle", "Inter", (lt - 1.8) / .3)),
+
+  gardener: lt => svg(shelf(300) + PX.map((x, i) => plant(x, 230, 1, false, lt)).join("") + grow(lt - .2, gardener(0, 0, lt), 150, 520) +
+    (lt > 2 ? `<g transform="translate(410 470)"><g style="${pop(lt, 2)}"><rect x="-170" y="-60" width="340" height="120" rx="24" fill="#fff" stroke="${LEAF}" stroke-width="4"/><path d="M-170 0 l-30 14 l30 14" fill="#fff" stroke="${LEAF}" stroke-width="4"/>${T(0, -8, "always keep", MUT2, 24, 700, "middle", mono)}${T(0, 36, "3 plants", LEAF, 40, 900)}</g></g>` : "")),
+
+  heal: lt => { const dead = lt > .4 && lt < 3.4, regrow = clamp((lt - 3.4) / 1.4);
+    return svg(shelf(300) + plant(PX[0], 230, 1, false, lt) + plant(PX[2], 230, 1, false, lt) +
+      (lt < 3.4 ? plant(PX[1], 230, 1, dead, lt) : plant(PX[1], 230, .15 + regrow * .85, false, lt)) +
+      (dead ? T(PX[1], 80, "✗", "#d1495b", 50, 900, "middle", "Inter", (lt - .5) / .3) : "") +
+      grow(lt - 2, gardener(0, 0, lt), lerp(60, 110, easeOut(clamp((lt - 2) / 1))), 520) +
+      T(430, 470, lt > 5 ? "self-healing ✓" : lt > 2 ? "noticed! replanting…" : "", lt > 5 ? LEAF : MUT2, lt > 5 ? 40 : 26, 900, "middle", lt > 5 ? "Inter" : mono) +
+      T(430, 520, lt > 5 ? "wanted 3 · running 3" : "", MUT2, 24, 700, "middle", mono, (lt - 5.2) / .3)); },
+
+  yaml: lt => { const L = [["kind: Deployment", 0.3, 1], ["metadata:", .7, 0], ["  name: my-app", .7, 0], ["spec:", 1.1, 0], ["  replicas: 3", 2.4, 1], ["  template:", 3.4, 0], ["    containers:", 3.4, 0], ["    - image: my-app:1.0", 4.2, 1]];
+    return svg(panel(10, 10, 600, 470) + `<rect x="10" y="10" width="600" height="58" rx="20" fill="${INK2}"/><rect x="10" y="48" width="600" height="20" fill="${INK2}"/>` + T(36, 50, "deploy.yaml", "#fff", 24, 800, "start", mono) +
+      L.map(([l, d, hi], i) => (hi && lt > d ? `<rect x="26" y="${84 + i * 48}" width="${l.length * 15.6 + 40}" height="42" rx="8" fill="#ffd166" opacity=".4"/>` : "") + T(40, 114 + i * 48, l.replace(/ /g, " "), hi ? DARKG : INK2, 26, hi ? 800 : 600, "start", mono, (lt - d) / .25)).join("") +
+      T(310, 540, "tell the gardener what you want", MUT2, 26, 700, "middle", mono, (lt - 4.8) / .3)); },
+
+  kubectl: lt => svg(kterm(lt, [[.2, "$ kubectl apply -f deploy.yaml"], [1.6, "deployment.apps/my-app created", "#95d5b2"], [4, "$ kubectl get pods"], [4.8, "my-app-7d9f-abc   Running", "#95d5b2"], [5.1, "my-app-7d9f-def   Running", "#95d5b2"], [5.4, "my-app-7d9f-ghi   Running", "#95d5b2"]]) +
+    PX.map((x, i) => `<g opacity="${clamp((lt - 2 - i * .3) / .3)}">${plant(x, 520, clamp((lt - 2 - i * .3) / 1), false, lt)}</g>`).join(""), 660),
+
+  test: lt => { const gone = lt > 1.2, back = clamp((lt - 2.4) / 1.2);
+    return svg(kterm(lt, [[.2, "$ kubectl delete pod my-app-7d9f-def"], [1.2, 'pod "my-app-7d9f-def" deleted', "#ffb4a2"], [2.6, "my-app-7d9f-xyz   Running  (new!)", "#95d5b2"]]) + shelf(520) +
+      plant(PX[0], 450, 1, false, lt) + plant(PX[2], 450, 1, false, lt) + (gone ? (lt > 2.4 ? plant(PX[1], 450, .15 + back * .85, false, lt) : "") : plant(PX[1], 450, 1, false, lt)) +
+      T(310, 610, lt > 3.4 ? "back to 3 ✓" : "", LEAF, 34, 900), 660); },
+
+  recap: lt => svg(`<g transform="translate(310 150)"><g style="${pop(lt, .1)}">${panel(-280, -90, 560, 180, LEAF)}<g transform="translate(-200 40) scale(.8)">${plant(0, 0, 1)}</g>${T(-110, -6, "Pod", INK2, 40, 900, "start")}${T(-110, 36, "runs your container", MUT2, 24, 700, "start", mono)}</g></g>` +
+    `<g transform="translate(310 380)"><g style="${pop(lt, 2.2)}">${panel(-280, -90, 560, 180, TERRA)}<g transform="translate(-215 50) scale(.75)">${gardener(0, 0)}</g>${T(-110, -6, "Deployment", INK2, 40, 900, "start")}${T(-110, 36, "keeps them alive", MUT2, 24, 700, "start", mono)}</g></g>`),
+
+  next: lt => svg(`<g transform="translate(310 180)"><g style="${pop(lt, .2)}">${panel(-280, -100, 560, 200)}${T(-240, -30, "Part 3", MUT2, 28, 800, "start", mono)}${T(-240, 40, "Services & Ingress", INK2, 44, 900, "start")}</g></g>` +
+    `<g transform="translate(310 420)"><g style="${pop(lt, 2.6)}"><rect x="-180" y="-52" width="360" height="104" rx="52" fill="${LEAF}"/>${T(0, 16, "+ Follow", "#fff", 44, 900)}</g></g>`),
+};
+
+function term(lt, lines, top = 60) {
+  const shown = lines.filter(([d]) => lt >= d);
+  const last = shown[shown.length - 1];
+  return `<div class="abs term" style="left:20px;top:${top}px;width:540px;min-height:300px;${pop(lt, 0, .35)}">
+    <div style="display:flex;gap:10px;margin-bottom:18px"><i style="width:16px;height:16px;border-radius:50%;background:#ff5f57"></i><i style="width:16px;height:16px;border-radius:50%;background:#febc2e"></i><i style="width:16px;height:16px;border-radius:50%;background:#28c840"></i></div>
+    ${shown.map(([d, h]) => {
+      // type each command out
+      const plain = h.replace(/<[^>]+>/g, "");
+      const isCmd = h.startsWith('<span class="p">$</span>');
+      if (!isCmd || (last && lt - d > 0.9)) return `<div>${h}</div>`;
+      const n = Math.floor(clamp((lt - d) / 0.8) * (plain.length - 2));
+      return `<div><span class="p">$</span> ${esc(plain.slice(2, 2 + n))}<span class="cur"></span></div>`;
+    }).join("")}
+  </div>`;
+}
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/* ---------- Character: a friendly tech host behind a desk (flat illustration, soft shading) ---------- */
+// Arm poses: [elbow, hand, hand shape] for the left and right arm, in the character's 400x820 space
+const POSES = {
+  idle:    { L: [[98, 600], [124, 716], "rest"],   R: [[302, 600], [276, 716], "rest"] },
+  present: { L: [[98, 600], [124, 716], "rest"],   R: [[346, 520], [396, 466], "palm"] },
+  point:   { L: [[98, 600], [124, 716], "rest"],   R: [[340, 492], [396, 424], "point"] },
+  idea:    { L: [[78, 520], [94, 410], "up"],      R: [[302, 600], [276, 716], "rest"] },
+  cross:   { L: [[118, 586], [270, 572], "rest"],  R: [[282, 596], [130, 588], "rest"] },
+  thumb:   { L: [[98, 600], [124, 716], "rest"],   R: [[336, 566], [356, 484], "thumb"] },
+  cheer:   { L: [[80, 384], [70, 292], "fist"],    R: [[320, 384], [330, 292], "fist"] },
+  shrug:   { L: [[80, 540], [44, 500], "palmup"],  R: [[320, 540], [356, 500], "palmup"] },
+};
+const SH = { L: [126, 452], R: [274, 452] };
+
+function poseAt(t) {
+  const tl = [];
+  S.forEach(s => s.pose.forEach(([d, p]) => tl.push([s.t + d, p])));
+  let i = 0; while (i + 1 < tl.length && tl[i + 1][0] <= t) i++;
+  const cur = POSES[tl[i][1]], prev = POSES[(tl[i - 1] || tl[i])[1]];
+  const k = easeOut((t - tl[i][0]) / 0.35);
+  const mix = side => {
+    const a = prev[side], b = cur[side];
+    return [[lerp(a[0][0], b[0][0], k), lerp(a[0][1], b[0][1], k)], [lerp(a[1][0], b[1][0], k), lerp(a[1][1], b[1][1], k)], k < .5 ? a[2] : b[2]];
+  };
+  return { L: mix("L"), R: mix("R"), name: tl[i][1], k };
+}
+
+const LOOK = {
+  skin: "#f7c9aa", skinShade: "#e9a988", blush: "#f39a8a",
+  hair: "#24232b", hairHi: "#3d3c47",
+  hoodie: "#6f97c4", hoodieShade: "#5a80ab", hoodieLight: "#86aad3",   // the sweater
+  iris: "#a8641f",
+};
+
+function hand(kind, x, y, ang, side) {
+  const L = LOOK, sk = L.skin, sh = L.skinShade;
+  const finger = (dx1, dy1, dx2, dy2) => `<path d="M${dx1} ${dy1} L${dx2} ${dy2}" stroke="${sh}" stroke-width="13" stroke-linecap="round"/><path d="M${dx1} ${dy1} L${dx2} ${dy2}" stroke="${sk}" stroke-width="9" stroke-linecap="round"/>`;
+  const palm = `<circle r="16" fill="${sk}"/><path d="M-10 6 A 14 14 0 0 0 12 4" fill="none" stroke="${sh}" stroke-width="3" stroke-linecap="round"/>`;
+  if (kind === "palm") return `<g transform="translate(${x} ${y}) rotate(${ang})"><path d="M-8 -14 C 16 -22, 40 -16, 42 -6 C 28 -4, 28 2, 40 6 C 36 14, 16 18, -8 14 Z" fill="${sk}"/><path d="M8 8 C 20 10, 30 8, 38 4" fill="none" stroke="${sh}" stroke-width="3" stroke-linecap="round"/></g>`;
+  if (kind === "palmup") return `<g transform="translate(${x} ${y}) scale(${side === "L" ? -1 : 1} 1)"><path d="M-10 -6 C 8 6, 28 4, 40 -8 L 44 -2 C 34 16, 6 18, -10 10 Z" fill="${sk}"/></g>`;
+  if (kind === "point") return `<g transform="translate(${x} ${y}) rotate(${ang})">${finger(6, -4, 40, -6)}${palm}</g>`;
+  if (kind === "up") return `<g transform="translate(${x} ${y})">${finger(0, -8, 0, -42)}${palm}</g>`;
+  if (kind === "thumb") return `<g transform="translate(${x} ${y})">${finger(-4, -10, -4, -38)}<rect x="-17" y="-15" width="34" height="32" rx="13" fill="${sk}"/><path d="M-10 4 H10 M-10 10 H8" stroke="${sh}" stroke-width="2.5" stroke-linecap="round"/></g>`;
+  return `<g transform="translate(${x} ${y})">${palm}</g>`;
+}
+
+function arm(sh, el, hd, kind, side, t, poseName) {
+  if (side === "R" && (poseName === "present" || poseName === "point")) hd = [hd[0] + Math.sin(t * 3) * 4, hd[1] + Math.sin(t * 2.2) * 5];
+  const d = `M${sh[0]} ${sh[1]} Q ${el[0]} ${el[1]} ${(el[0] + hd[0]) / 2} ${(el[1] + hd[1]) / 2} T ${hd[0]} ${hd[1]}`;
+  const ang = Math.atan2(hd[1] - el[1], hd[0] - el[0]) * 180 / Math.PI;
+  return `<path d="${d}" fill="none" stroke="${LOOK.hoodieShade}" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${d}" fill="none" stroke="${LOOK.hoodie}" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${hd[0]}" cy="${hd[1]}" r="19" fill="${LOOK.hoodieShade}"/>
+    ${hand(kind, hd[0], hd[1], ang, side)}`;
+}
+
+/* ---------- Mouth driver: voice loudness when there is a recording, a speech rhythm otherwise ---------- */
+window.VOICE = null;           // set by render.mjs --voice: { env: [0..1 per frame], fps }
+window.READY = Promise.resolve();
+const hash = k => { const x = Math.sin(k * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const sstep = (a, b, x) => { const k = clamp((x - a) / (b - a)); return k * k * (3 - 2 * k); };
+// Lip timeline built from the caption words: syllables of varied length, gaps between words, pauses at commas
+let LIPS = null;
+function buildLips() {
+  LIPS = [];
+  S.forEach((sc, si) => sc.cap.forEach(([d, text], ci) => {
+    const start = sc.t + d + .08, next = ci + 1 < sc.cap.length ? sc.t + sc.cap[ci + 1][0] : sc.end;
+    const words = text.replace(/[^A-Za-z0-9#'., ]/g, " ").split(/\s+/).filter(Boolean);
+    const sylls = [];
+    words.forEach((w, wi) => {
+      const v = w.toLowerCase().match(/[aeiouy]+/g) || ["a"];
+      v.forEach((g, gi) => sylls.push({ vowel: g[0], len: .7 + hash(si * 97 + ci * 13 + wi * 7 + gi) * .7, gapAfter: gi === v.length - 1 ? (/[,.]$/.test(w) ? 2.2 : .45) : 0 }));
+    });
+    const units = sylls.reduce((a, x) => a + x.len + x.gapAfter, 0);
+    const speak = Math.min(next - start - .25, units * .135);          // ~7 syllables a second, never past the next line
+    const k = speak / units; let tt = start;
+    sylls.forEach((x, i) => {
+      const dur = x.len * k, shape = /[ou]/.test(x.vowel) ? .1 : /[eiy]/.test(x.vowel) ? .85 : .55;
+      LIPS.push({ a: tt, b: tt + dur, amp: .55 + hash(i * 31 + si) * .45, shape });
+      tt += dur + x.gapAfter * k;
+    });
+  }));
+}
+function speech(t, talking) {
+  if (window.VOICE) {
+    const open = window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0;
+    return { open, wide: .55 };
+  }
+  if (!LIPS) buildLips();
+  // find the syllable at t (binary search)
+  let lo = 0, hi = LIPS.length - 1, hit = null;
+  while (lo <= hi) { const m = (lo + hi) >> 1; if (LIPS[m].b < t) lo = m + 1; else if (LIPS[m].a > t) hi = m - 1; else { hit = LIPS[m]; break; } }
+  if (!hit) { const prev = LIPS[Math.max(0, hi)]; return { open: 0, wide: prev ? prev.shape : .55 }; }
+  const f = (t - hit.a) / (hit.b - hit.a);
+  return { open: hit.amp * Math.pow(Math.sin(Math.PI * f), .7), wide: hit.shape };
+}
+
+// messy hair: tufts around the top of the head
+function hairTufts(cx, cy, r1, r2, a0, a1, n, seed) {
+  let d = "";
+  for (let i = 0; i <= n; i++) {
+    const a = (a0 + (a1 - a0) * i / n) * Math.PI / 180;
+    const am = (a0 + (a1 - a0) * (i + .5) / n) * Math.PI / 180;
+    const rr = r2 + (hash(seed + i) - .5) * 16;
+    const x = cx + Math.cos(a) * r1, y = cy + Math.sin(a) * r1;
+    const tx = cx + Math.cos(am) * rr, ty = cy + Math.sin(am) * rr;
+    d += (i === 0 ? `M${x} ${y}` : ` Q ${(x + tx) / 2 + 6} ${(y + ty) / 2 - 4} ${x} ${y}`) + (i < n ? ` Q ${tx - 4} ${ty + 6} ${tx} ${ty}` : "");
+  }
+  return d;
+}
+
+function charSvg(t, talking, mood) {
+  const L = LOOK, INK = "#2b2022";
+  const p = poseAt(t);
+  const { open, wide } = speech(t, talking);
+  const bob = Math.sin(t * 2.2) * 3;
+  const tilt = Math.sin(t * 1.2) * 2 + (mood === "curious" ? -5 : 0) + (talking ? Math.sin(t * 2.1) * 1.4 : 0);
+  const blink = (t % 3.6) < .13 || ((t + 1.7) % 7.3) < .11;
+  const look = p.name === "cross" ? 0 : 3;
+
+  // head centre (200, 250)
+  const eye = cx => blink
+    ? `<path d="M${cx - 18} 262 Q ${cx} 272 ${cx + 18} 262" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`
+    : `<ellipse cx="${cx}" cy="262" rx="22" ry="24" fill="#fff"/>
+       <circle cx="${cx + look}" cy="265" r="15" fill="${L.iris}"/><circle cx="${cx + look}" cy="265" r="8" fill="${INK}"/>
+       <circle cx="${cx + look + 5}" cy="259" r="4.5" fill="#fff"/><circle cx="${cx + look - 4}" cy="271" r="2" fill="#fff" opacity=".8"/>
+       <path d="M${cx - 23} 258 Q ${cx} 232 ${cx + 23} 258" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`;
+  const by = (mood === "curious" ? -6 : mood === "serious" ? 4 : 0) - (talking ? open * 4 : 0);
+  const tiltIn = mood === "serious" ? 5 : 0;
+  const brows = `<path d="M${142} ${226 + by} Q 160 ${216 + by} ${180} ${222 + by + tiltIn}" fill="none" stroke="${L.hair}" stroke-width="8" stroke-linecap="round"/>
+    <path d="M${220} ${222 + by + tiltIn + (mood === "curious" ? 6 : 0)} Q 240 ${216 + by} ${258} ${226 + by}" fill="none" stroke="${L.hair}" stroke-width="8" stroke-linecap="round"/>`;
+
+  // mouth
+  const w = 14 + wide * 9 - open * 3, h = open * 20, my = 322;
+  let mouth;
+  if (h < 2) {
+    const curve = mood === "serious" ? 3 : 9;
+    mouth = `<path d="M${200 - w} ${my - 2} Q 200 ${my + curve} ${200 + w} ${my - 2}" fill="none" stroke="#c0504c" stroke-width="5" stroke-linecap="round"/>`;
+  } else {
+    const shape = `M${200 - w} ${my - 3} Q 200 ${my - 1} ${200 + w} ${my - 3} C ${200 + w * .95} ${my + h * .8}, ${200 + w * .45} ${my + h + 3}, 200 ${my + h + 3} C ${200 - w * .45} ${my + h + 3}, ${200 - w * .95} ${my + h * .8}, ${200 - w} ${my - 3} Z`;
+    mouth = `<defs><clipPath id="mc"><path d="${shape}"/></clipPath></defs><path d="${shape}" fill="#7a2a33"/>
+      <g clip-path="url(#mc)"><rect x="${200 - w}" y="${my - 6}" width="${2 * w}" height="${Math.min(7, 3 + h * .3)}" fill="#fff"/>
+      <ellipse cx="200" cy="${my + h + 3}" rx="${w * .7}" ry="${Math.max(3, h * .4)}" fill="#e2707a"/></g>`;
+  }
+
+  const hairBack = `<path d="${hairTufts(200, 240, 110, 140, 160, 380, 13, 3)} L 200 300 Z" fill="${L.hair}"/>`;
+  const fringe = `<path d="M96 246 C 92 170, 150 128, 214 132 C 268 136, 306 176, 304 236
+      C 296 214, 288 204, 280 198 L 284 226 C 272 208, 260 196, 246 190 L 248 220 C 236 202, 222 192, 206 188
+      L 210 214 C 196 198, 180 190, 164 190 L 160 218 C 150 202, 138 196, 126 198 L 124 230 C 116 214, 106 214, 96 246 Z" fill="${L.hair}"/>
+    <path d="M150 156 Q 190 140 230 150 M232 158 Q 262 168 280 190" fill="none" stroke="${L.hairHi}" stroke-width="5" stroke-linecap="round"/>`;
+
+  const arms = arm(SH.L, ...p.L, "L", t, p.name) + arm(SH.R, ...p.R, "R", t, p.name);
+  const sweater = `
+    <path d="M82 820 C 76 610, 94 476, 150 442 C 172 430, 228 430, 250 442 C 306 476, 324 610, 318 820 Z" fill="${L.hoodie}"/>
+    <path d="M262 452 C 300 486, 318 600, 318 820 L 282 820 C 286 640, 282 520, 262 452 Z" fill="${L.hoodieShade}" opacity=".6"/>
+    <path d="M136 456 C 124 560, 120 680, 122 820 L 96 820 C 94 650, 104 520, 136 456 Z" fill="${L.hoodieLight}" opacity=".45"/>
+    <path d="M160 438 C 176 424, 224 424, 240 438 C 232 454, 168 454, 160 438 Z" fill="${L.hoodieLight}"/>
+    <path d="M168 440 C 182 432, 218 432, 232 440" fill="none" stroke="${L.hoodieShade}" stroke-width="3"/>`;
+
+  return `
+  <g transform="translate(0 ${bob})">
+    ${sweater}
+    <path d="M182 360 L182 440 Q 200 450 218 440 L218 360 Z" fill="${L.skinShade}"/>
+    ${p.name === "cross" ? "" : arms}
+    <g transform="rotate(${tilt} 200 430) translate(200 300) scale(1.08) translate(-200 -268)">
+      ${hairBack}
+      <ellipse cx="104" cy="272" rx="18" ry="24" fill="${L.skin}"/><ellipse cx="107" cy="273" rx="9" ry="13" fill="${L.skinShade}" opacity=".6"/>
+      <ellipse cx="296" cy="272" rx="18" ry="24" fill="${L.skin}"/><ellipse cx="293" cy="273" rx="9" ry="13" fill="${L.skinShade}" opacity=".6"/>
+      <path d="M104 240 C 104 170, 296 170, 296 240 C 298 316, 256 368, 200 370 C 144 368, 102 316, 104 240 Z" fill="${L.skin}"/>
+      <path d="M270 210 C 296 250, 290 320, 246 356 C 272 318, 280 262, 270 210 Z" fill="${L.skinShade}" opacity=".3"/>
+      <ellipse cx="136" cy="300" rx="20" ry="11" fill="${L.blush}" opacity=".4"/><ellipse cx="264" cy="300" rx="20" ry="11" fill="${L.blush}" opacity=".4"/>
+      <g fill="#d98a6e" opacity=".55"><circle cx="128" cy="292" r="2"/><circle cx="140" cy="298" r="2"/><circle cx="132" cy="306" r="2"/><circle cx="262" cy="292" r="2"/><circle cx="272" cy="300" r="2"/><circle cx="258" cy="306" r="2"/></g>
+      <ellipse cx="200" cy="296" rx="12" ry="9" fill="#f0a08c"/><ellipse cx="196" cy="293" rx="4" ry="3" fill="#fff" opacity=".45"/>
+      ${mouth}
+      ${eye(158)}${eye(242)}
+      ${fringe}
+      ${brows}
+    </g>
+    ${p.name === "cross" ? arms : ""}
+  </g>`;
+}
+
+
+/* ---------- Avatar presenter: a ready-made character whose mouth and eyes swap per frame ---------- */
+// window.AVATAR = { closed, mid, open, wide?, blink } (SVG data URIs), set by render.mjs --avatar
+window.AVATAR = null;
+function avatarSvg(t, talking) {
+  const A = window.AVATAR, { open } = speech(t, talking);
+  const blink = (t % 3.6) < .13 || ((t + 1.7) % 7.3) < .11;
+  if (A.card) return avatarCard(t, talking, A, open, blink);
+  let src = blink && A.blink ? A.blink : open > .8 && A.wide ? A.wide : open > .5 ? A.open : open > .2 ? A.mid : A.closed;
+  let pop = 1;
+  if (A.poses) {                         // pose pictures (3D): change with the scene, bounce a little while talking
+    const p = poseAt(t); src = A.poses[p.name] || A.poses.present;
+    pop = lerp(.9, 1, backOut(p.k)) * (1 + open * .02);
+  }
+  const bob = Math.sin(t * 2.2) * 4 - open * 4;
+  const tilt = Math.sin(t * 1.2) * 2 + (talking ? Math.sin(t * 2.1) * 1.5 : 0);
+  return `<g transform="translate(0 ${bob}) rotate(${tilt} 200 760) translate(200 740) scale(${pop}) translate(-200 -740)"><image href="${src}" x="-20" y="300" width="440" height="440"/></g>`;
+}
+
+
+// Presenter card: talking face frames, with short cuts to pose pictures when the scene's gesture starts
+function avatarCard(t, talking, A, open, blink) {
+  const p = poseAt(t);
+  const sinceStart = (() => { let st = 0; S.forEach(s => s.pose.forEach(([d]) => { if (s.t + d <= t) st = s.t + d; })); return t - st; })();
+  const cut = A.cuts && A.cuts[p.name] && sinceStart < 2.6 ? A.cuts[p.name] : null;   // reaction shot (cheering) at the success moments
+  // clean mouth swaps on 12 fps steps (no cross-fading, which shows two mouths at once)
+  const tq = Math.floor(t * 12) / 12;
+  const sp = speech(tq, talking);
+  const blinking = (t % 3.6) < .12 || ((t + 1.7) % 7.3) < .1;
+  const face = blinking ? A.blink : sp.open > .32 ? (A.ee && sp.wide > .75 && sp.open > .55 ? A.ee : A.mid) : A.closed;
+  const x = 4, y = 226, w = 392, h = 530, r = 40;
+  const zoom = 1.015 + Math.sin(t * .35) * .015;            // slow, continuous push in and out
+  const pop = cut ? lerp(.94, 1, backOut(sinceStart / .3)) : 1;
+  const img = cut
+    ? `<image href="${cut}" x="${x - 95}" y="${y + h - (w + 190) * .745}" width="${w + 190}" height="${(w + 190) * .745}" preserveAspectRatio="xMidYMid meet" transform="translate(200 ${y + h / 2}) scale(${pop}) translate(-200 ${-(y + h / 2)})"/>`
+    : `<g transform="translate(200 ${y}) scale(${zoom}) translate(-200 ${-y})"><image href="${face}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMin slice"/></g>`;
+  const bob = Math.sin(t * 2.2) * 3;
+  if (A.cutout) {
+    // no card: the presenter stands in the scene, bigger, with a soft shadow; bottom fades into the page
+    const X = -40, Y = 250, Wd = 470;
+    const body = cut
+      ? `<image href="${cut}" x="${X - 60}" y="${Y + Wd - (Wd + 120) * .745}" width="${Wd + 120}" height="${(Wd + 120) * .745}" transform="translate(200 ${Y + Wd}) scale(${pop}) translate(-200 ${-(Y + Wd)})"/>`
+      : `<image href="${face}" x="${X}" y="${Y}" width="${Wd}" height="${Wd}"/>`;
+    return `<defs><filter id="ps" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#5a3d1e" flood-opacity=".18"/></filter>
+        <radialGradient id="pg"><stop offset="0" stop-color="#ffffff" stop-opacity=".85"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs>
+      <g transform="translate(0 ${bob})" filter="url(#ps)">${body}</g>`;
+  }
+  return `<defs><clipPath id="card"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/></clipPath>
+      <filter id="cs" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-opacity=".22"/></filter></defs>
+    <g transform="translate(0 ${bob}) rotate(${Math.sin(t * .9) * .8} 200 ${y + h})">
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${A.bg}" filter="url(#cs)"/>
+      <g clip-path="url(#card)">${img}</g>
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="#fff" stroke-width="10"/>
+    </g>`;
+}
+
+/* ---------- Pro: retime everything to the recorded voice ---------- */
+window.TIMING = null;   // { caps: [{text,start,end,words:[t...]}...], end }  set by render.mjs --timing
+let TIMED = false;
+function applyTiming() {
+  if (TIMED || !window.TIMING) return; TIMED = true;
+  const C = window.TIMING.caps; let k = 0;
+  S.forEach((sc, si) => {
+    const oldCaps = sc.cap.map(c => c[0]);
+    const mine = C.slice(k, k + sc.cap.length); sc.capIdx = mine.map((_, j) => k + j); k += sc.cap.length;
+    sc.oldLen = (si + 1 < S.length ? S[si + 1].t : END) - sc.t;
+    sc.newT = si === 0 ? 0 : Math.max(0, mine[0].start - .3);
+    sc.oldCaps = oldCaps; sc.newCaps = mine.map(c => c.start - sc.newT);
+  });
+  END = window.TIMING.end + 1.6;
+  S.forEach((sc, si) => { sc.t = sc.newT; });
+  S.forEach((sc, si) => { sc.end = si + 1 < S.length ? S[si + 1].t : END; sc.newLen = sc.end - sc.t; });
+  // poses: move each gesture to the same moment of speech
+  S.forEach(sc => { sc.pose = sc.pose.map(([d, p]) => [warpNew(sc, d), p]); sc.cap = sc.cap.map((c, j) => [sc.newCaps[j], c[1]]); });
+  window.DURATION = END;
+}
+// piecewise-linear maps between the old (designed) scene clock and the new (voice) scene clock
+function anchors(sc) { return [[0, 0], ...sc.oldCaps.map((o, j) => [o, sc.newCaps[j]]).filter(([o, n]) => o > 0), [sc.oldLen, sc.newLen ?? sc.oldLen]]; }
+function mapPW(A, x, from, to) {
+  for (let i = 0; i + 1 < A.length; i++) { const a = A[i], b = A[i + 1]; if (x <= b[from] || i + 2 === A.length) { const k = (x - a[from]) / Math.max(1e-6, b[from] - a[from]); return a[to] + (b[to] - a[to]) * k; } }
+  return x;
+}
+const warpNew = (sc, oldLt) => mapPW(anchors(sc), oldLt, 0, 1);
+const warpOld = (sc, newLt) => sc.oldCaps ? mapPW(anchors(sc), newLt, 1, 0) : newLt;
+
+
+/* ---------- Render one moment ---------- */
+const $ = id => document.getElementById(id);
+function render(t) {
+  applyTiming();
+  let si = 0; while (si + 1 < S.length && S[si + 1].t <= t) si++;
+  const sc = S[si], lt = t - sc.t;
+
+  // steps
+  $("steps").innerHTML = sc.step ? [1, 2, 3].map(n => `<div class="step ${n === sc.step ? "on" : ""}">${n === sc.step ? "STEP " + n : n}</div>`).join("") : "";
+
+  // title with highlighted word
+  const mk = easeOut((lt - .25) / .4);
+  $("title").innerHTML = sc.title.replace(/<hl c="(\w+)">(.*?)<\/hl>/g, (_, c, w) =>
+    `<span class="hl" style="color:${COL[c][0]};--mark:${COL[c][1]};--mk:${mk}"><span>${w}</span></span>`);
+  $("title").style.cssText = `opacity:${clamp(lt / .25)};transform:translateY(${lerp(24, 0, easeOut(lt / .35))}px)`;
+
+  // caption
+  let ci = -1; sc.cap.forEach(([d], i) => { if (lt >= d) ci = i; });
+  const capStart = ci >= 0 ? sc.cap[ci][0] : 0, capEnd = ci + 1 < sc.cap.length ? sc.cap[ci + 1][0] : sc.end - sc.t;
+  const cl = lt - capStart;
+  $("caption").innerHTML = ci >= 0 ? `<div style="transform:scale(${lerp(.9, 1, backOut(cl / .25))});opacity:${clamp(cl / .12)}">${sc.cap[ci][1]}</div>` : "";
+  const talking = ci >= 0 && lt < capEnd - 0.25 && cl < Math.max(1.1, sc.cap[ci][1].length * 0.075);
+
+  $("char").innerHTML = window.AVATAR ? avatarSvg(t, talking) : charSvg(t, talking, sc.mood);
+  $("prop").innerHTML = P[sc.prop](warpOld(sc, lt));
+}
+
+/* ---------- Playback ---------- */
+function fit() { const s = Math.min(innerWidth / 1080, innerHeight / 1920); $("stage").style.transform = `scale(${s})`; }
+addEventListener("resize", fit); fit();
+window.DURATION = END;
+window.render = render;
+const q = new URLSearchParams(location.search);
+if (q.has("render")) { $("hint").remove(); document.body.style.background = "transparent"; $("stage").style.transform = "none"; }
+else if (q.has("t")) render(parseFloat(q.get("t")));
+else {
+  let t0 = performance.now();
+  addEventListener("click", () => t0 = performance.now());
+  (function loop(now) { render(((now - t0) / 1000) % END); requestAnimationFrame(loop); })(performance.now());
+}
+</script>
+</body>
+</html>
