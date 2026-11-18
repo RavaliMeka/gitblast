@@ -20,6 +20,8 @@
     background-size: 60px 60px, 100% 100%; transform-origin: center center;
   }
   .abs { position: absolute; }
+  #hook { left: 0; right: 0; top: 96px; display: flex; justify-content: center; z-index: 6; }
+  #hook div { background: #e5484d; color: #fff; font-weight: 900; font-size: 50px; padding: 16px 36px 20px; border-radius: 20px; border: 4px solid #151515; box-shadow: 6px 6px 0 #151515; rotate: -2deg; }
   #steps { left: 0; right: 0; top: 150px; display: flex; justify-content: center; gap: 14px; }
   .step { min-width: 46px; height: 46px; border-radius: 23px; background: #e3e2dc; color: #777; font-weight: 700; font-size: 24px; display: flex; align-items: center; justify-content: center; padding: 0 14px; }
   .step.on { background: #151515; color: #ffd84a; letter-spacing: 1px; }
@@ -48,6 +50,7 @@
 </head>
 <body>
 <div id="stage">
+  <div id="hook" class="abs"></div>
   <div id="steps" class="abs"></div>
   <div id="title" class="abs"></div>
   <svg id="char" class="abs" viewBox="0 0 400 820"></svg>
@@ -59,7 +62,7 @@
 
 /* ---------- Script: scenes, captions, poses ---------- */
 const S = [
-  { t: 0,  title: 'Git vs <hl c="blue">GitHub</hl>?', pose: [[0,"present"]], mood: "curious",
+  { t: 0,  hook: "Most beginners mix these up 👀", title: 'Git vs <hl c="blue">GitHub</hl>?', pose: [[0,"present"]], mood: "curious",
     cap: [[0,"Git and GitHub..."],[1.8,"are they the same thing?"],[3.3,"Let's clear it up in 60 seconds."]], prop: "vs" },
   { t: 5,  title: 'Git = <hl c="green">save points</hl>', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"Like a save point in a game,"],[2,"Git saves every version"],[4,"of your code."]], prop: "saves" },
@@ -103,9 +106,9 @@ const COL = { blue: ["var(--blue)", "#d4e2ff"], green: ["var(--green)", "#d3f1df
 /* ---------- Props (right side) ---------- */
 const P = {
   vs: lt => `
-    <div class="abs card top-green" style="left:30px;top:90px;width:240px;height:200px;${pop(lt, .2)}">
+    <div class="abs card top-green" style="left:30px;top:90px;width:240px;height:200px;${pop(lt, -1)}">
       <div class="big" style="margin-top:36px">Git</div><div class="sub">tool</div></div>
-    <div class="abs card top-blue" style="left:300px;top:90px;width:260px;height:200px;${pop(lt, .6)}">
+    <div class="abs card top-blue" style="left:300px;top:90px;width:260px;height:200px;${pop(lt, -1)}">
       <div class="big" style="margin-top:36px">GitHub</div><div class="sub">website</div></div>
     <div class="abs" style="left:220px;top:330px;font-size:150px;font-weight:800;color:var(--red);${pop(lt, 1.6)}">?</div>`,
 
@@ -452,7 +455,7 @@ function avatarCard(t, talking, A, open, blink) {
   // clean mouth swaps on 12 fps steps (no cross-fading, which shows two mouths at once)
   const tq = Math.floor(t * 12) / 12;
   const sp = speech(tq, talking);
-  const blinking = (t % 3.6) < .12 || ((t + 1.7) % 7.3) < .1;
+  const blinking = t > .4 && ((t % 3.6) < .12 || ((t + 1.7) % 7.3) < .1);
   const face = blinking ? A.blink : sp.open > .32 ? (A.ee && sp.wide > .75 && sp.open > .55 ? A.ee : A.mid) : A.closed;
   const x = 4, y = 226, w = 392, h = 530, r = 40;
   const zoom = 1.015 + Math.sin(t * .35) * .015;            // slow, continuous push in and out
@@ -517,6 +520,8 @@ function render(t) {
   let si = 0; while (si + 1 < S.length && S[si + 1].t <= t) si++;
   const sc = S[si], lt = t - sc.t;
 
+  // opening hook: a sticker over the first seconds of a scene that has one
+  { const hk = sc.hook && lt < 3.2 ? `<div style="transform:scale(${lerp(.92, 1, backOut(lt / .3)) * (1 + Math.sin(lt * 6) * .015)});opacity:${clamp((3.2 - lt) / .25)}">${sc.hook}</div>` : ""; if ($("hook")) $("hook").innerHTML = hk; }
   // steps
   $("steps").innerHTML = sc.step ? [1, 2, 3, 4].map(n => `<div class="step ${n === sc.step ? "on" : ""}">${n === sc.step ? "STEP " + n : n}</div>`).join("") : "";
 
@@ -524,7 +529,7 @@ function render(t) {
   const mk = easeOut((lt - .25) / .4);
   $("title").innerHTML = sc.title.replace(/<hl c="(\w+)">(.*?)<\/hl>/g, (_, c, w) =>
     `<span class="hl" style="color:${COL[c][0]};--mark:${COL[c][1]};--mk:${mk}"><span>${w}</span></span>`);
-  $("title").style.cssText = `opacity:${clamp(lt / .25)};transform:translateY(${lerp(24, 0, easeOut(lt / .35))}px)`;
+  $("title").style.cssText = si === 0 ? "" : `opacity:${clamp(lt / .25)};transform:translateY(${lerp(24, 0, easeOut(lt / .35))}px)`;   // the opening frame is complete from the start
 
   // caption
   let ci = -1; sc.cap.forEach(([d], i) => { if (lt >= d) ci = i; });
