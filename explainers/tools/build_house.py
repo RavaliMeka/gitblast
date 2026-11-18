@@ -30,7 +30,7 @@ if cfg.get("accent", "#ff5a1f") != "#ff5a1f":
 
 # layout: waist-up presenter bottom-right, visuals a little smaller so they clear his head
 rep("#char { left: 590px; top: 1000px; width: 490px; height: 1004px; z-index: 6; overflow: visible; }",
-    "#char { left: 280px; top: 1110px; width: 840px; height: 1722px; z-index: 6; overflow: visible; }")
+    "#char { left: 260px; top: 1075px; width: 880px; height: 1804px; z-index: 6; overflow: visible; }")
 rep("#prop { left: 60px; top: 580px;", "#prop { left: 60px; top: 540px;")
 rep("scale(${lerp(1.3, 1.38, sk)", "scale(${lerp(1.24, 1.3, sk)")
 

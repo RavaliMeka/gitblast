@@ -85,7 +85,7 @@ def load_uri(u):
 # lips are blended in, colour-matched to the pose. Poses that already have an open mouth are left as they are.
 TALKABLE = {"cross", "peace", "thumb", "shrug", "point1"}
 EYES = (330, 318, 590, 392)        # glasses band in the 900px face frame, used to fit the head
-MOUTH = (459, 483, 66, 40)         # lips ellipse in the 900px face frame
+MOUTH = (459, 487, 76, 50)         # mouth ellipse in the 900px face frame (big enough to cover a pose's own open mouth)
 
 def fit_face(face, pose):
     fa = np.asarray(face)[..., 3].astype(float) / 255
@@ -128,8 +128,11 @@ for arg in sys.argv[3:]:
     img, info = place(Image.open(path))
     d["poseImg"][name] = uri(img); sheet.append(img); print(name, info)
     if name in TALKABLE:
-        fit = fit_face(face_closed, img); tv = talk_variant(img, face_mid, fit)
-        d["poseTalk"][name] = uri(tv); sheet.append(tv); print("   talk fit: err %.1f scale %.3f at %d,%d" % fit)
+        # both mouths come from the close-up frames, so closed and talking always differ clearly
+        fit = fit_face(face_closed, img)
+        cv, tv = talk_variant(img, face_closed, fit), talk_variant(img, face_mid, fit)
+        d["poseImg"][name] = uri(cv); d["poseTalk"][name] = uri(tv); sheet[-1] = cv; sheet.append(tv)
+        print("   talk fit: err %.1f scale %.3f at %d,%d" % fit)
 d["poseBox"] = {"size": SIZE, "headW": HEAD_W, "headCx": HEAD_CX, "headTop": HEAD_TOP}
 json.dump(d, open(out, "w"))
 W = Image.new("RGB", (300 * len(sheet), 300), (243, 241, 234))
