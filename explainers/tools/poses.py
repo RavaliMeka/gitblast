@@ -88,7 +88,7 @@ def load_uri(u):
 
 # Talking mouth: the close-up face frames (closed / mid) are fitted onto each calm pose's head, and only the
 # lips are blended in, colour-matched to the pose. Poses that already have an open mouth are left as they are.
-TALKABLE = {"cross", "peace", "thumb", "shrug", "point1"}
+TALKABLE = set()                   # retired: every talking pose now brings its own mouth pictures (see GEOM)
 EYES = (330, 318, 590, 392)        # glasses band in the 900px face frame, used to fit the head
 MOUTH = (459, 494, 96, 68)         # whole-mouth ellipse in the 900px face frame: moustache edge down to the top of the goatee
 NOSE = (398, 372, 522, 446)        # nose band, used to fine-tune the position (the nose does not move with expressions)

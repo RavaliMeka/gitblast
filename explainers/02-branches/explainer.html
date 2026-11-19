@@ -646,7 +646,7 @@ function render(t) {
   $("bgfx").innerHTML = ["{ }", "$", "+", "</>", "+", "#", ">_", "✓", "*", "//"].map((g, i) => { const hx = (Math.sin(i * 12.9) * 43758.5 % 1 + 1) % 1, hy = (Math.sin(i * 78.2) * 12543.1 % 1 + 1) % 1;
     return `<span style="left:${hx * 960 + Math.sin(t * .3 + i) * 30}px;top:${((hy * 1900 - t * (14 + i * 3)) % 1960 + 1960) % 1960 - 60}px;transform:rotate(${Math.sin(t * .2 + i * 2) * 14}deg);font-size:${46 + (i % 3) * 22}px">${g}</span>`; }).join("");
   // voice equalizer next to the handle
-  { const env = window.VOICE ? (window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : 0;
+  { const env = window.VOICE ? (window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : speech(t, true).open;
     $("eq").innerHTML = [0, 1, 2, 3, 4, 5, 6].map(i => `<i style="height:${8 + env * (26 + 22 * Math.abs(Math.sin(t * 9 + i * 1.7)))}px"></i>`).join(""); }
   // confetti when he cheers
   { let cs = -1; S.forEach(s2 => s2.pose.forEach(([d, n]) => { if (n === "cheer" && s2.t + d <= t) cs = s2.t + d; })); const ct = t - cs;

@@ -110,6 +110,8 @@ function avatarPose(t, talking, A) {
 function avatarSvg(t, talking) {
   if (window.AVATAR.poseImg) return avatarPose(t, talking, window.AVATAR);''')
 
+# the sound bars follow the estimated speech until a voice recording is attached
+rep("(window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : 0;\n    $(\"eq\")", "(window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : speech(t, true).open;\n    $(\"eq\")")
 s = s.replace("__REST__", cfg.get("rest", "stand"))
 open(os.path.join(ep, "explainer.html"), "w").write(s)
 print("built", os.path.join(ep, "explainer.html"))
