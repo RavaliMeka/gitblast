@@ -63,9 +63,9 @@ def head_box(al):
     wmed = sorted(widths)[len(widths) // 2]
     return top, wmed[1], wmed[2]
 
-def place(im, close=0):
+def place(im, close=0, zoom=1):
     al = alpha_of(im, close); top, l, r = head_box(al)
-    s = HEAD_W / (r - l)
+    s = HEAD_W / (r - l) * zoom
     W, H = im.size; nw, nh = round(W * s), round(H * s)
     rgba = np.dstack([np.asarray(im.convert("RGB")), (al * 255).astype(np.uint8)])
     p = Image.fromarray(rgba, "RGBA").resize((nw, nh), Image.LANCZOS)
@@ -149,6 +149,8 @@ def talk_variant(pose, face, fit, tweak=(1, 0, 0), k=(1, 1), M=MOUTH):
 # picture, so hair, eyebrows and body are identical in every frame and nothing wobbles.
 LOWER = (514, 440, 76, 54)         # moustache, lips and chin patch in the 1024px master picture
 EYELIDS = (514, 335, 122, 44)      # both eyes, inside the glasses
+GEOM = {"cross": (LOWER, EYELIDS, (41, 1.1)), "shrug": ((520, 392, 76, 56), (517, 275, 118, 44), (0, 1))}   # lower face, eyes, (body fill, zoom)
+# zoom: the master pose has bigger hair, so its head is enlarged until the glasses are as wide as in the other poses
 def own_variant(base, other, E):
     A, B = np.asarray(base.convert("RGB")).astype(float), np.asarray(other.convert("RGB")).astype(float)
     yy, xx = np.mgrid[0:A.shape[0], 0:A.shape[1]]
@@ -168,14 +170,14 @@ for arg in sys.argv[3:]:
     name, path = arg.split("=", 1)
     if "@" in name: continue
     if name in own:
-        base = Image.open(path); img, info = place(base, 41); d["poseImg"][name] = uri(img); sheet.append(img); print(name, info, "master")
+        LOW, EYE, CL = GEOM[name]; base = Image.open(path); img, info = place(base, *CL); d["poseImg"][name] = uri(img); sheet.append(img); print(name, info, "master")
         for kind, p in own[name].items():
-            v, info2 = place(own_variant(base, Image.open(p), EYELIDS if kind == "blink" else LOWER), 41)
+            v, info2 = place(own_variant(base, Image.open(p), EYE if kind == "blink" else LOW), *CL)
             assert info2 == info, "variant is not lined up with the closed picture"
             d[KEYS[kind]][name] = uri(v); sheet.append(v)
         if "blink" in own[name] and "small" in own[name]:        # blinking while talking
-            both = own_variant(own_variant(base, Image.open(own[name]["small"]), LOWER), Image.open(own[name]["blink"]), EYELIDS)
-            d["poseBlinkTalk"][name] = uri(place(both, 41)[0])
+            both = own_variant(own_variant(base, Image.open(own[name]["small"]), LOW), Image.open(own[name]["blink"]), EYE)
+            d["poseBlinkTalk"][name] = uri(place(both, *CL)[0])
         continue
     img, info = place(Image.open(path))
     d["poseImg"][name] = uri(img); sheet.append(img); print(name, info)
