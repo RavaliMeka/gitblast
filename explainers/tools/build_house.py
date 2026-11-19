@@ -81,11 +81,12 @@ rep("function kinetic(t) {", '''function tm() {
 function kinetic(t) {''')
 
 # presenter: aligned pose pictures; calm poses talk, lively ones are short accents that settle into a calm pose
-rep("function avatarSvg(t, talking) {", '''const POSE_MAP = {   // scene pose -> [accent picture or null, seconds, picture to settle into]
+rep("function avatarSvg(t, talking) {", '''const REST = "__REST__";   // the normal talking pose: "stand" (hands down) unless house.json says "rest": "cross"
+const POSE_MAP = {   // scene pose -> [accent picture or null, seconds, picture to settle into]
   // the default is the master pose (arms crossed): it has its own closed, small, round and wide mouths and a blink
-  present: [null, 0, "cross"], idle: [null, 0, "cross"], cross: [null, 0, "cross"],
+  present: [null, 0, REST], idle: [null, 0, REST], cross: [null, 0, "cross"], stand: [null, 0, "stand"],
   point: [null, 0, "point1"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"],
-  cheer: ["cheer", 3, "cross"], idea: ["idea", 1.6, "cross"], think: ["think", 1.8, "cross"],
+  cheer: ["cheer", 3, REST], idea: ["idea", 1.6, REST], think: ["think", 1.8, REST],
 };
 function avatarPose(t, talking, A) {
   let st = 0, name = "idle";
@@ -109,5 +110,6 @@ function avatarPose(t, talking, A) {
 function avatarSvg(t, talking) {
   if (window.AVATAR.poseImg) return avatarPose(t, talking, window.AVATAR);''')
 
+s = s.replace("__REST__", cfg.get("rest", "stand"))
 open(os.path.join(ep, "explainer.html"), "w").write(s)
 print("built", os.path.join(ep, "explainer.html"))

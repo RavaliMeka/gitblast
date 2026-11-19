@@ -26,16 +26,12 @@ Mix (`-filter_complex`, inputs voice, music, sfx):
 ```
 then two-pass `loudnorm=I=-14:TP=-1.5:LRA=9`.
 
-## Presenter master pose (used by every house-style episode)
+## Presenter poses (used by every house-style episode)
 
-`presenter-src/master-*.webp` are the same arms-crossed picture with five faces: closed, small, round, wide, blink.
-`poses.py` takes only the lower face (or the eyes) from each, so the body never moves:
+`presenter-src/` holds five pictures per talking pose: closed, small, round, wide, blink.
+Poses: `master` (arms crossed), `stand` (hands down), `point`, `shrug` (no blink), `thumb`.
+`poses.py` takes only the lower face (or the eyes) from each picture, so the body never moves.
 
-```
-python3 poses.py ../01-git-github/presenter.json presenter-poses.json \
-  cross=presenter-src/master-closed.webp cross@small=presenter-src/master-small.webp \
-  cross@round=presenter-src/master-round.webp cross@wide=presenter-src/master-wide.webp \
-  cross@blink=presenter-src/master-blink.webp  <other poses: name=path ...>
-```
+Rebuild with `bash build_poses.sh` (run in this folder), then copy `presenter-poses.json` into an episode as `presenter.json`.
 
-Copy `presenter-poses.json` into an episode as `presenter.json`; `build_house.py` makes `cross` the default talking pose.
+The normal talking pose is `stand`. Set `"rest": "cross"` in an episode's `house.json` to use arms crossed instead.

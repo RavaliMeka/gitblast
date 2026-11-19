@@ -154,11 +154,38 @@ EYELIDS = (514, 333, 138, 60)      # both eyes, inside the glasses
 GEOM = {"cross": (LOWER, EYELIDS, (41, 1.1)), "shrug": ((517, 396, 130, 78), (517, 275, 118, 44), (0, 1)),   # lower face, eyes, (body fill, zoom)
         "point1": ((975, 738, 245, 142), (975, 540, 235, 100), (0, 1))}
 # zoom: the master pose has bigger hair, so its head is enlarged until the glasses are as wide as in the other poses
+GEOM["stand"] = ((750, 880, 290, 168), [(637, 645, 112, 104), (868, 645, 112, 104)], (0, 1), (440, 500, 1070, 820))   # eyes: one area per lens, so the frames stay put
+#   # + the box used to line pictures up
+GEOM["thumb"] = ((975, 790, 245, 142), (975, 580, 235, 100), (0, 1))
+def line_up(base, other, box):
+    # The standing pictures were drawn one by one, so the head differs a little in size and place. Scale and shift
+    # each one until its glasses and nose sit exactly on the closed-mouth picture's.
+    q = 4; x0, y0, x1, y1 = [v // q for v in box]
+    A = np.asarray(base.convert("L").resize((base.width // q, base.height // q), Image.BILINEAR)).astype(float)
+    R = A[y0:y1, x0:x1] - A[y0:y1, x0:x1].mean(); best = None
+    for sc in np.arange(.86, 1.145, .01):
+        O = other.convert("L").resize((round(other.width * sc / q), round(other.height * sc / q)), Image.BILINEAR)
+        O = np.asarray(O).astype(float)
+        for dx in range(-40, 41, 2):
+            for dy in range(-40, 41, 2):
+                if y0 + dy < 0 or x0 + dx < 0: continue
+                C = O[y0 + dy:y1 + dy, x0 + dx:x1 + dx]
+                if C.shape != R.shape: continue
+                e = np.abs(R - (C - C.mean())).mean()
+                if best is None or e < best[0]: best = (e, sc, dx * q, dy * q)
+    e, sc, dx, dy = best
+    O = other.convert("RGB").resize((round(other.width * sc), round(other.height * sc)), Image.LANCZOS)
+    out = Image.new("RGB", base.size); out.paste(O, (-dx, -dy)); print("   lined up: err %.1f scale %.2f shift %d,%d" % best)
+    return out
+
 def own_variant(base, other, E):
     A, B = np.asarray(base.convert("RGB")).astype(float), np.asarray(other.convert("RGB")).astype(float)
     yy, xx = np.mgrid[0:A.shape[0], 0:A.shape[1]]
-    dist = np.sqrt(((xx - E[0]) / E[2]) ** 2 + ((yy - E[1]) / E[3]) ** 2)
-    m = np.clip((1 - dist) / .3, 0, 1)[..., None]
+    m = 0
+    for e in (E if isinstance(E, list) else [E]):
+        dist = np.sqrt(((xx - e[0]) / e[2]) ** 2 + ((yy - e[1]) / e[3]) ** 2)
+        m = np.maximum(m, np.clip((1 - dist) / .3, 0, 1))
+    m = m[..., None]
     return Image.fromarray((A * (1 - m) + B * m).astype(np.uint8), "RGB")
 
 src, out = sys.argv[1], sys.argv[2]
@@ -173,13 +200,16 @@ for arg in sys.argv[3:]:
     name, path = arg.split("=", 1)
     if "@" in name: continue
     if name in own:
-        LOW, EYE, CL = GEOM[name]; base = Image.open(path); img, info = place(base, *CL); d["poseImg"][name] = uri(img); sheet.append(img); print(name, info, "master")
+        LOW, EYE, CL = GEOM[name][:3]; base = Image.open(path)
+        if len(GEOM[name]) > 3: own[name] = {k: line_up(base, Image.open(p), GEOM[name][3]) for k, p in own[name].items()}
+        opn = lambda p: p if isinstance(p, Image.Image) else Image.open(p)
+        img, info = place(base, *CL); d["poseImg"][name] = uri(img); sheet.append(img); print(name, info, "master")
         for kind, p in own[name].items():
-            v, info2 = place(own_variant(base, Image.open(p), EYE if kind == "blink" else LOW), *CL)
+            v, info2 = place(own_variant(base, opn(p), EYE if kind == "blink" else LOW), *CL)
             assert info2 == info, "variant is not lined up with the closed picture"
             d[KEYS[kind]][name] = uri(v); sheet.append(v)
         if "blink" in own[name] and "small" in own[name]:        # blinking while talking
-            both = own_variant(own_variant(base, Image.open(own[name]["small"]), LOW), Image.open(own[name]["blink"]), EYE)
+            both = own_variant(own_variant(base, opn(own[name]["small"]), LOW), opn(own[name]["blink"]), EYE)
             d["poseBlinkTalk"][name] = uri(place(both, *CL)[0])
         continue
     img, info = place(Image.open(path))

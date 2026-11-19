@@ -443,11 +443,12 @@ function charSvg(t, talking, mood) {
 /* ---------- Avatar presenter: a ready-made character whose mouth and eyes swap per frame ---------- */
 // window.AVATAR = { closed, mid, open, wide?, blink } (SVG data URIs), set by render.mjs --avatar
 window.AVATAR = null;
+const REST = "cross";   // the normal talking pose: "stand" (hands down) unless house.json says "rest": "cross"
 const POSE_MAP = {   // scene pose -> [accent picture or null, seconds, picture to settle into]
   // the default is the master pose (arms crossed): it has its own closed, small, round and wide mouths and a blink
-  present: [null, 0, "cross"], idle: [null, 0, "cross"], cross: [null, 0, "cross"],
+  present: [null, 0, REST], idle: [null, 0, REST], cross: [null, 0, "cross"], stand: [null, 0, "stand"],
   point: [null, 0, "point1"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"],
-  cheer: ["cheer", 3, "cross"], idea: ["idea", 1.6, "cross"], think: ["think", 1.8, "cross"],
+  cheer: ["cheer", 3, REST], idea: ["idea", 1.6, REST], think: ["think", 1.8, REST],
 };
 function avatarPose(t, talking, A) {
   let st = 0, name = "idle";

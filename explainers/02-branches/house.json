@@ -1,3 +1,27 @@
-{ "title": "Git Branches Explainer", "meta": "ep.02 · branches",
-  "keys": ["break", "safely", "branches", "branch", "save", "slot", "safe", "main", "switch", "feature", "commit", "delete", "untouched", "merge", "push", "pull", "request", "review", "conflicts"],
-  "accent": "#ff5a1f" }
+{
+  "title": "Git Branches Explainer",
+  "meta": "ep.02 · branches",
+  "keys": [
+    "break",
+    "safely",
+    "branches",
+    "branch",
+    "save",
+    "slot",
+    "safe",
+    "main",
+    "switch",
+    "feature",
+    "commit",
+    "delete",
+    "untouched",
+    "merge",
+    "push",
+    "pull",
+    "request",
+    "review",
+    "conflicts"
+  ],
+  "accent": "#ff5a1f",
+  "rest": "cross"
+}
