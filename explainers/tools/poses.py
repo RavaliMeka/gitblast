@@ -117,22 +117,26 @@ def fit_face(face, pose):
             if fine is None or e2 < fine[0]: fine = (e2, dx, dy)
     return (fine[0], s, ox + fine[1], oy + fine[2])
 
-# Per-pose mouth tweak (scale, dx, dy): where the head is turned a little, the frontal mouth is slightly too big.
+# The open mouth is pasted a little smaller than life (SPEAK), anchored on the lip line, so it reads as plain
+# talking and not as a laugh. Per-pose TWEAK multiplies it where the head is turned and the face is smaller.
+LIPS = (459, 492, 80, 56)          # open-mouth area in the 900px frame: lips and chin patch, none of the beard edge
+ANCHOR = (459, 462)                # centre of the closed lip line
+SPEAK = (.9, .85)                 # width, height of the open mouth
 TWEAK = {"cross": (.74, -3, -10)}
 
-def talk_variant(pose, face_mid, fit, tweak=(1, 0, 0)):
+def talk_variant(pose, face, fit, tweak=(1, 0, 0), k=(1, 1), M=MOUTH):
     e, s, ox, oy = fit
-    k, tx, ty = tweak; mx, my = ox + MOUTH[0] * s, oy + MOUTH[1] * s      # shrink / nudge the face around the mouth centre
-    s *= k; ox, oy = round(mx - MOUTH[0] * s + tx), round(my - MOUTH[1] * s + ty)
-    F = face_mid.resize((round(900 * s), round(900 * s)), Image.LANCZOS)
+    t, tx, ty = tweak; ax, ay = ox + ANCHOR[0] * s + tx, oy + ANCHOR[1] * s + ty
+    sx, sy = s * t * k[0], s * t * k[1]; ox, oy = round(ax - ANCHOR[0] * sx), round(ay - ANCHOR[1] * sy)
+    F = face.resize((round(900 * sx), round(900 * sy)), Image.LANCZOS)
     layer = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0)); layer.paste(F, (ox, oy))
     A, B = np.asarray(pose).astype(float), np.asarray(layer).astype(float)
     yy, xx = np.mgrid[0:SIZE, 0:SIZE]
-    cx, cy, rx, ry = ox + MOUTH[0] * s, oy + MOUTH[1] * s, MOUTH[2] * s, MOUTH[3] * s
+    cx, cy, rx, ry = ox + M[0] * sx, oy + M[1] * sy, M[2] * sx, M[3] * sy
     dist = np.sqrt(((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2)
     m = np.clip((1 - dist) / .3, 0, 1)
     ring = (dist > .95) & (dist < 1.2)
-    off = A[ring][:, :3].mean(0) - B[ring][:, :3].mean(0)          # match skin and beard tone around the lips
+    off = np.median(A[ring][:, :3], 0) - np.median(B[ring][:, :3], 0)   # match skin and beard tone around the lips
     res = A.copy(); res[..., :3] = A[..., :3] * (1 - m[..., None]) + np.clip(B[..., :3] + off, 0, 255) * m[..., None]
     return Image.fromarray(res.astype(np.uint8), "RGBA")
 
@@ -146,7 +150,7 @@ for arg in sys.argv[3:]:
     if name in TALKABLE:
         # both mouths come from the close-up frames, so closed and talking always differ clearly
         fit = fit_face(face_closed, img)
-        tw = TWEAK.get(name, (1, 0, 0)); cv, tv = talk_variant(img, face_closed, fit, tw), talk_variant(img, face_mid, fit, tw)
+        tw = TWEAK.get(name, (1, 0, 0)); cv = talk_variant(img, face_closed, fit, tw); tv = talk_variant(cv, face_mid, fit, tw, SPEAK, LIPS)
         d["poseImg"][name] = uri(cv); d["poseTalk"][name] = uri(tv); sheet[-1] = cv; sheet.append(tv)
         print("   talk fit: err %.1f scale %.3f at %d,%d" % fit)
 d["poseBox"] = {"size": SIZE, "headW": HEAD_W, "headCx": HEAD_CX, "headTop": HEAD_TOP}
