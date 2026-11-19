@@ -37,3 +37,13 @@ ART = {
                   "strip": _strip('<g fill="ACC"><rect x="2" y="20" width="22" height="24" rx="3"/><rect x="28" y="6" width="22" height="38" rx="3" opacity=".6"/><rect x="54" y="26" width="22" height="18" rx="3" opacity=".8"/></g>', 80)},
     "git": {"badge": GRAPH, "shapes": None, "strip": None},
 }
+
+# Official product marks (from the simple-icons set), shown unmodified in the product's own colour as the series
+# badge and in the background, to refer to the product the episode teaches.
+import json as _json, os as _os
+_B = _json.load(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "brand_icons.json")))
+def _mark(n): return _svg(f'<path d="{_B[n]["path"]}" fill="{_B[n]["hex"]}"/>', "0 0 24 24")
+for _n in _B:
+    ART[_n]["badge"] = _mark(_n)
+    if ART[_n]["shapes"]: ART[_n]["shapes"] = [_mark(_n) if i % 2 == 0 else x for i, x in enumerate(ART[_n]["shapes"])]
+ART["docker"]["shapes"] = [_mark("docker"), BOX, _mark("docker"), BOX, _mark("docker")]

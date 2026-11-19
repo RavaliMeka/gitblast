@@ -118,6 +118,7 @@ rep("const style = `opacity:${k};transform:translateY(${(1 - easeOut(k)) * 14}px
 rep('<span style="position:relative">${tk}</span></span>`;', '<span class="m"><span style="${rise}">${tk}</span></span></span>`;')
 rep("#kin .w { display: inline-block; margin-right: .24em; position: relative; }",
     "#kin .w { display: inline-block; margin-right: .24em; position: relative; }\n  #kin .m { display: inline-block; overflow: hidden; vertical-align: bottom; position: relative; padding: .06em .04em .1em; margin: -.06em -.04em -.1em; }\n  #kin .m > span { display: inline-block; }")
+rep("transform:scale(${1 + .4 * (1 - easeOut((t - st) / .22))})", "transform:scale(${1 + .14 * (1 - easeOut((t - st) / .22))})")   # gentler chip pop, stays inside the margin
 # --- motion: one directional wipe per chapter change (scenes that carry a step number), across the visual area only
 rep('$("wipe").innerHTML = "";', '''{ const ch = S.find(x => x.step && x.t > 0 && t > x.t - .22 && t < x.t + .5), p = ch ? (t - (ch.t - .22)) / .72 : -1;
     const e = p < 0 ? 0 : p < .5 ? 2 * p * p : 1 - 2 * (1 - p) * (1 - p);     // ease in-out
@@ -143,6 +144,17 @@ if cfg.get("series"):
 if cfg.get("bg"): s = s.replace("transparent 70%), #f3f1ea !important", f"transparent 70%), {cfg['bg']} !important")
 if cfg.get("bg"): rep("--bg: #fbf3e4; --grid: #ead9bd;", f"--bg: {cfg['bg']}; --grid: {cfg.get('grid', '#ead9bd')};")
 if cfg.get("defs"): s = s.replace('<div id="eq" class="abs"></div>', '<div id="eq" class="abs"></div>\n  ' + "\n  ".join(cfg["defs"]), 1)
+# --- type: display face for the headline, italic serif for the emphasised word, a proper coding face for commands
+import base64
+def face(name, file, weight, style="normal"):
+    d = base64.b64encode(open(os.path.join(here, "fonts", file), "rb").read()).decode()
+    return f'@font-face {{ font-family: "{name}"; font-weight: {weight}; font-style: {style}; src: url(data:font/woff2;base64,{d}) format("woff2"); }}'
+s = s.replace("DejaVu Sans Mono", "JetBrains Mono")
+rep("#kin { left: 60px; right: 60px; top: 190px; height: 330px;", '#kin { font-family: "Bricolage Grotesque", Inter, sans-serif; left: 60px; right: 60px; top: 190px; height: 330px;')
+rep('#kin .w:has(.box) { color: #fff; font-family: "JetBrains Mono", monospace; font-size: .82em; letter-spacing: -2px; margin: 0 .36em 0 .14em; }',
+    '#kin .w:has(.box) { color: #fff; font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; font-size: 1.1em; line-height: 1; letter-spacing: -1px; margin: 0 .34em 0 .16em; }')
+rep("  * { box-sizing: border-box;", "  " + "\n  ".join([face("Bricolage Grotesque", "bricolage-grotesque-latin-800-normal.woff2", 800), face("Instrument Serif", "instrument-serif-latin-400-italic.woff2", 400, "italic"),
+    face("JetBrains Mono", "jetbrains-mono-latin-500-normal.woff2", 500), face("JetBrains Mono", "jetbrains-mono-latin-700-normal.woff2", 700)]) + "\n  * { box-sizing: border-box;")
 s = s.replace("__REST__", cfg.get("rest", "stand"))
 s = s.replace("background:ACCENT;", "background:" + cfg.get("accent", "#ff5a1f") + ";")
 open(os.path.join(ep, "explainer.html"), "w").write(s)
