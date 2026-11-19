@@ -113,6 +113,18 @@ function avatarSvg(t, talking) {
 
 # the sound bars follow the estimated speech until a voice recording is attached
 rep("(window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : 0;\n    $(\"eq\")", "(window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : speech(t, true).open;\n    $(\"eq\")")
+# --- motion: masked word reveal. Each headline word rises from behind a mask instead of fading in.
+rep("const style = `opacity:${k};transform:translateY(${(1 - easeOut(k)) * 14}px)`;", "const style = ``, rise = `transform:translateY(${(1 - easeOut(clamp((t - (st - .06)) / .26))) * 105}%)`;")
+rep('<span style="position:relative">${tk}</span></span>`;', '<span class="m"><span style="${rise}">${tk}</span></span></span>`;')
+rep("#kin .w { display: inline-block; margin-right: .24em; position: relative; }",
+    "#kin .w { display: inline-block; margin-right: .24em; position: relative; }\n  #kin .m { display: inline-block; overflow: hidden; vertical-align: bottom; position: relative; padding: .06em .04em .1em; margin: -.06em -.04em -.1em; }\n  #kin .m > span { display: inline-block; }")
+# --- motion: one directional wipe per chapter change (scenes that carry a step number), across the visual area only
+rep('$("wipe").innerHTML = "";', '''{ const ch = S.find(x => x.step && x.t > 0 && t > x.t - .22 && t < x.t + .5), p = ch ? (t - (ch.t - .22)) / .72 : -1;
+    const e = p < 0 ? 0 : p < .5 ? 2 * p * p : 1 - 2 * (1 - p) * (1 - p);     // ease in-out
+    $("wipe").innerHTML = ch ? `<div style="left:${-560 + e * 1700}px;top:400px;bottom:auto;height:760px;width:420px;transform:skewX(-14deg);background:ACCENT;border-radius:40px"></div><div style="left:${-760 + e * 1700}px;top:400px;bottom:auto;height:760px;width:120px;transform:skewX(-14deg);background:#151515;border-radius:30px"></div>` : ""; }''')
+rep("#wipe { inset: 0; z-index: 7;", "#wipe { inset: 0; z-index: 5;")
+# the incoming visual of a chapter appears as the wipe passes over it
+rep("function kinetic(t) {", "const CHAPTER_IN = .14;\nfunction kinetic(t) {")
 # titles written for older themes use colour names the house page does not know
 rep("color:${COL[c][0]};--mark:${COL[c][1]}", "color:${(COL[c] || COL.blue)[0]};--mark:${(COL[c] || COL.blue)[1]}")
 # series art: badge beside the episode label, themed background shapes, a strip along the bottom edge
@@ -132,5 +144,6 @@ if cfg.get("bg"): s = s.replace("transparent 70%), #f3f1ea !important", f"transp
 if cfg.get("bg"): rep("--bg: #fbf3e4; --grid: #ead9bd;", f"--bg: {cfg['bg']}; --grid: {cfg.get('grid', '#ead9bd')};")
 if cfg.get("defs"): s = s.replace('<div id="eq" class="abs"></div>', '<div id="eq" class="abs"></div>\n  ' + "\n  ".join(cfg["defs"]), 1)
 s = s.replace("__REST__", cfg.get("rest", "stand"))
+s = s.replace("background:ACCENT;", "background:" + cfg.get("accent", "#ff5a1f") + ";")
 open(os.path.join(ep, "explainer.html"), "w").write(s)
 print("built", os.path.join(ep, "explainer.html"))
