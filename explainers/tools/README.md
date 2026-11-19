@@ -25,3 +25,17 @@ Mix (`-filter_complex`, inputs voice, music, sfx):
 [0:a]apad=pad_dur=2,asplit=2[v][vsc];[1:a]volume=0.16[m];[m][vsc]sidechaincompress=threshold=0.03:ratio=6:attack=40:release=450[md];[2:a]volume=0.55[fx];[v][md][fx]amix=inputs=3:normalize=0,alimiter=limit=0.9
 ```
 then two-pass `loudnorm=I=-14:TP=-1.5:LRA=9`.
+
+## Presenter master pose (used by every house-style episode)
+
+`presenter-src/master-*.webp` are the same arms-crossed picture with five faces: closed, small, round, wide, blink.
+`poses.py` takes only the lower face (or the eyes) from each, so the body never moves:
+
+```
+python3 poses.py ../01-git-github/presenter.json presenter-poses.json \
+  cross=presenter-src/master-closed.webp cross@small=presenter-src/master-small.webp \
+  cross@round=presenter-src/master-round.webp cross@wide=presenter-src/master-wide.webp \
+  cross@blink=presenter-src/master-blink.webp  <other poses: name=path ...>
+```
+
+Copy `presenter-poses.json` into an episode as `presenter.json`; `build_house.py` makes `cross` the default talking pose.

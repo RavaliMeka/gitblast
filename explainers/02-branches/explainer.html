@@ -58,7 +58,7 @@
   #kin .tk { position: absolute; right: -52px; top: -40px; transform-origin: 0 100%; rotate: 20deg; }
   #kin .w:has(.box) { color: #fff; font-family: "DejaVu Sans Mono", monospace; font-size: .82em; letter-spacing: -2px; margin: 0 .36em 0 .14em; }
   #prop { left: 60px; top: 450px; z-index: 3; transform-origin: 0 0; filter: drop-shadow(0 26px 30px rgba(60,50,20,.16)); }
-  #char { left: 280px; top: 1120px; width: 840px; height: 1722px; z-index: 6; overflow: visible; }
+  #char { left: 240px; top: 1110px; width: 920px; height: 1886px; z-index: 6; overflow: visible; }
   #bgfx { inset: 0; z-index: 1; -webkit-mask-image: linear-gradient(180deg, #000 0, #000 52%, transparent 60%); mask-image: linear-gradient(180deg, #000 0, #000 52%, transparent 60%); font: 700 64px "DejaVu Sans Mono", monospace; color: #151515; }
   #bgfx span { position: absolute; opacity: .06; }
   #wipe { inset: 0; z-index: 7; pointer-events: none; overflow: hidden; }
@@ -444,19 +444,26 @@ function charSvg(t, talking, mood) {
 // window.AVATAR = { closed, mid, open, wide?, blink } (SVG data URIs), set by render.mjs --avatar
 window.AVATAR = null;
 const POSE_MAP = {   // scene pose -> [accent picture or null, seconds, picture to settle into]
-  // the default is the pointing picture: its face is frontal and neutral, so the mouth reads as plain talking
-  // (the arms-crossed picture has a smirk, which turns every open mouth into a laugh)
-  present: [null, 0, "point1"], idle: [null, 0, "point1"], cross: [null, 0, "point1"],
+  // the default is the master pose (arms crossed): it has its own closed, small, round and wide mouths and a blink
+  present: [null, 0, "cross"], idle: [null, 0, "cross"], cross: [null, 0, "cross"],
   point: [null, 0, "point1"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"],
-  cheer: ["cheer", 3, "point1"], idea: ["idea", 1.6, "point1"], think: ["think", 1.8, "point1"],
+  cheer: ["cheer", 3, "cross"], idea: ["idea", 1.6, "cross"], think: ["think", 1.8, "cross"],
 };
 function avatarPose(t, talking, A) {
   let st = 0, name = "idle";
   S.forEach(s => s.pose.forEach(([d, n]) => { if (s.t + d <= t) { st = s.t + d; name = n; } }));
   const [accent, secs, rest] = POSE_MAP[name] || POSE_MAP.idle, since = t - st;
   const showAccent = accent && since < secs, pic = showAccent ? accent : rest;
-  const tq = Math.floor(t * 12) / 12, open = speech(tq, talking).open;
-  const src = !showAccent && open > .32 && A.poseTalk[pic] ? A.poseTalk[pic] : A.poseImg[pic];
+  const tick = Math.floor(t * 12), sp = speech(tick / 12, talking), open = sp.open;
+  const has = k => A[k] && A[k][pic];
+  const blink = (t + 1.3) % 3.9 < .13;
+  let src = A.poseImg[pic];
+  if (!showAccent) {
+    const round = sp.wide < .3 || (tick * 7919) % 7 === 0;            // rounded vowels, plus a little variety
+    if (open > .32) src = open > .8 && has("poseWide") ? A.poseWide[pic] : round && has("poseRound") ? A.poseRound[pic]
+      : blink && has("poseBlinkTalk") ? A.poseBlinkTalk[pic] : A.poseTalk[pic] || src;
+    else if (blink && has("poseBlink")) src = A.poseBlink[pic];
+  }
   const change = showAccent ? since : accent ? since - secs : since;          // time since the picture last changed
   const pop = 1 + (change >= 0 && change < .28 ? Math.sin(Math.PI * change / .28) * .03 : 0);
   return `<g transform="translate(200 400) scale(${pop}) translate(-200 -400) translate(0 ${Math.sin(t * 2.2) * 2})"><image href="${src}" x="0" y="0" width="400" height="400"/></g>`;

@@ -9,7 +9,7 @@ import numpy as np
 
 SIZE, HEAD_W, HEAD_CX, HEAD_TOP = 1200, 330, 600, 150   # target head width / centre / top of hair on the canvas
 
-def alpha_of(im):
+def alpha_of(im, close=0):
     a = np.asarray(im.convert("RGB")).astype(float); H, W, _ = a.shape
     bg = np.concatenate([a[:8, :8].reshape(-1, 3), a[:8, -8:].reshape(-1, 3)]).mean(0)
     dist = np.sqrt(((a - bg) ** 2).sum(2)); cand = dist < 24
@@ -40,6 +40,9 @@ def alpha_of(im):
                     lab[ny, nx] = n; q.append((ny, nx))
         if cnt > best: best, keep = cnt, n
     al = np.where(lab == keep, 255, 0).astype(np.uint8)
+    if close:   # fill small bites where the hoodie is as grey as the background
+        cl = np.asarray(Image.fromarray(al).filter(ImageFilter.MaxFilter(close)).filter(ImageFilter.MinFilter(close)))
+        al = al.copy(); al[int(H * .6):] = cl[int(H * .6):]          # body only: hair and neck keep their real outline
     al = np.asarray(Image.fromarray(al).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(1.1))).astype(float) / 255
     return al
 
@@ -60,8 +63,8 @@ def head_box(al):
     wmed = sorted(widths)[len(widths) // 2]
     return top, wmed[1], wmed[2]
 
-def place(im):
-    al = alpha_of(im); top, l, r = head_box(al)
+def place(im, close=0):
+    al = alpha_of(im, close); top, l, r = head_box(al)
     s = HEAD_W / (r - l)
     W, H = im.size; nw, nh = round(W * s), round(H * s)
     rgba = np.dstack([np.asarray(im.convert("RGB")), (al * 255).astype(np.uint8)])
@@ -71,7 +74,8 @@ def place(im):
     can.alpha_composite(p, (ox, oy)) if ox >= 0 and oy >= 0 else can.paste(p, (ox, oy), p)
     a = np.asarray(can).astype(float)
     yy = np.arange(SIZE)[:, None] / SIZE
-    a[..., 3] *= np.clip((1 - yy) / .1, 0, 1)                    # fade the bottom of the hoodie
+    yb = min(SIZE, oy + nh) / SIZE                               # where the picture ends
+    a[..., 3] *= np.clip((yb - yy) / .1, 0, 1)                   # fade the bottom of the hoodie
     return Image.fromarray(a.astype(np.uint8), "RGBA"), (round(s, 3), ox, oy)
 
 def uri(img):
@@ -140,34 +144,38 @@ def talk_variant(pose, face, fit, tweak=(1, 0, 0), k=(1, 1), M=MOUTH):
     res = A.copy(); res[..., :3] = A[..., :3] * (1 - m[..., None]) + np.clip(B[..., :3] + off, 0, 255) * m[..., None]
     return Image.fromarray(res.astype(np.uint8), "RGBA")
 
-# A pose can also bring its own talking picture ("name@talk=path": same pose, mouth open). It is lined up on the
-# eyes and nose of the base picture and only the lower face (moustache, lips, chin) is blended in, so the body never moves.
-def own_talk(base, talk):
-    A, T = np.asarray(base.convert("L")).astype(float), np.asarray(talk.convert("L")).astype(float)
-    x0, y0, x1, y1 = 470, 290, 730, 450; R = A[y0:y1, x0:x1]; best = None
-    for dx in range(-14, 15):
-        for dy in range(-14, 15):
-            e = np.abs(R - T[y0 + dy:y1 + dy, x0 + dx:x1 + dx]).mean()
-            if best is None or e < best[0]: best = (e, dx, dy)
-    e, dx, dy = best
-    Tm = np.roll(np.asarray(talk).astype(float), (-dy, -dx), (0, 1)); Am = np.asarray(base).astype(float)
-    yy, xx = np.mgrid[0:SIZE, 0:SIZE]
-    dist = np.sqrt(((xx - OWN[0]) / OWN[2]) ** 2 + ((yy - OWN[1]) / OWN[3]) ** 2)
-    m = np.clip((1 - dist) / .35, 0, 1)[..., None]
-    res = Am.copy(); res[..., :3] = Am[..., :3] * (1 - m) + Tm[..., :3] * m
-    return Image.fromarray(res.astype(np.uint8), "RGBA"), best
-OWN = (600, 500, 92, 78)           # lower-face ellipse on the 1200px canvas
+# A master pose brings its own mouth and blink pictures ("name@small=path", "@round", "@wide", "@blink"): the same
+# picture with only the face changed. Only the lower face (or the eyes) is taken from each one, on top of the closed
+# picture, so hair, eyebrows and body are identical in every frame and nothing wobbles.
+LOWER = (514, 440, 76, 54)         # moustache, lips and chin patch in the 1024px master picture
+EYELIDS = (514, 335, 122, 44)      # both eyes, inside the glasses
+def own_variant(base, other, E):
+    A, B = np.asarray(base.convert("RGB")).astype(float), np.asarray(other.convert("RGB")).astype(float)
+    yy, xx = np.mgrid[0:A.shape[0], 0:A.shape[1]]
+    dist = np.sqrt(((xx - E[0]) / E[2]) ** 2 + ((yy - E[1]) / E[3]) ** 2)
+    m = np.clip((1 - dist) / .3, 0, 1)[..., None]
+    return Image.fromarray((A * (1 - m) + B * m).astype(np.uint8), "RGB")
 
 src, out = sys.argv[1], sys.argv[2]
 d = json.load(open(src)); d["poseImg"] = {}; d["poseTalk"] = {}; sheet = []
 face_closed, face_mid = load_uri(d["closed"]), load_uri(d["mid"])
-own = {a.split("@talk=")[0]: a.split("@talk=")[1] for a in sys.argv[3:] if "@talk=" in a}
+own = {}
+for a in sys.argv[3:]:
+    if "@" in a.split("=", 1)[0]: own.setdefault(a.split("@")[0], {})[a.split("@")[1].split("=")[0]] = a.split("=", 1)[1]
+KEYS = {"small": "poseTalk", "round": "poseRound", "wide": "poseWide", "blink": "poseBlink"}
+for k in list(KEYS.values()) + ["poseBlinkTalk"]: d[k] = {}
 for arg in sys.argv[3:]:
-    if "@talk=" in arg: continue
     name, path = arg.split("=", 1)
+    if "@" in name: continue
     if name in own:
-        img, info = place(Image.open(path)); tk, fit = own_talk(img, place(Image.open(own[name]))[0])
-        d["poseImg"][name] = uri(img); d["poseTalk"][name] = uri(tk); sheet += [img, tk]; print(name, info, "own talk: err %.1f shift %d,%d" % fit)
+        base = Image.open(path); img, info = place(base, 41); d["poseImg"][name] = uri(img); sheet.append(img); print(name, info, "master")
+        for kind, p in own[name].items():
+            v, info2 = place(own_variant(base, Image.open(p), EYELIDS if kind == "blink" else LOWER), 41)
+            assert info2 == info, "variant is not lined up with the closed picture"
+            d[KEYS[kind]][name] = uri(v); sheet.append(v)
+        if "blink" in own[name] and "small" in own[name]:        # blinking while talking
+            both = own_variant(own_variant(base, Image.open(own[name]["small"]), LOWER), Image.open(own[name]["blink"]), EYELIDS)
+            d["poseBlinkTalk"][name] = uri(place(both, 41)[0])
         continue
     img, info = place(Image.open(path))
     d["poseImg"][name] = uri(img); sheet.append(img); print(name, info)

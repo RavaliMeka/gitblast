@@ -30,7 +30,7 @@ if cfg.get("accent", "#ff5a1f") != "#ff5a1f":
 
 # layout: waist-up presenter bottom-right, visuals a little smaller so they clear his head
 rep("#char { left: 590px; top: 1000px; width: 490px; height: 1004px; z-index: 6; overflow: visible; }",
-    "#char { left: 280px; top: 1120px; width: 840px; height: 1722px; z-index: 6; overflow: visible; }")
+    "#char { left: 240px; top: 1110px; width: 920px; height: 1886px; z-index: 6; overflow: visible; }")
 rep("#prop { left: 60px; top: 580px;", "#prop { left: 60px; top: 450px;")
 rep("font-weight: 800; font-size: 86px; line-height: 1.12;", "font-weight: 800; font-size: 80px; line-height: 1.12;")
 rep("scale(${lerp(1.3, 1.38, sk)", "scale(${fitScale(sc) * lerp(1, 1.03, sk)")
@@ -82,19 +82,26 @@ function kinetic(t) {''')
 
 # presenter: aligned pose pictures; calm poses talk, lively ones are short accents that settle into a calm pose
 rep("function avatarSvg(t, talking) {", '''const POSE_MAP = {   // scene pose -> [accent picture or null, seconds, picture to settle into]
-  // the default is the pointing picture: its face is frontal and neutral, so the mouth reads as plain talking
-  // (the arms-crossed picture has a smirk, which turns every open mouth into a laugh)
-  present: [null, 0, "point1"], idle: [null, 0, "point1"], cross: [null, 0, "point1"],
+  // the default is the master pose (arms crossed): it has its own closed, small, round and wide mouths and a blink
+  present: [null, 0, "cross"], idle: [null, 0, "cross"], cross: [null, 0, "cross"],
   point: [null, 0, "point1"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"],
-  cheer: ["cheer", 3, "point1"], idea: ["idea", 1.6, "point1"], think: ["think", 1.8, "point1"],
+  cheer: ["cheer", 3, "cross"], idea: ["idea", 1.6, "cross"], think: ["think", 1.8, "cross"],
 };
 function avatarPose(t, talking, A) {
   let st = 0, name = "idle";
   S.forEach(s => s.pose.forEach(([d, n]) => { if (s.t + d <= t) { st = s.t + d; name = n; } }));
   const [accent, secs, rest] = POSE_MAP[name] || POSE_MAP.idle, since = t - st;
   const showAccent = accent && since < secs, pic = showAccent ? accent : rest;
-  const tq = Math.floor(t * 12) / 12, open = speech(tq, talking).open;
-  const src = !showAccent && open > .32 && A.poseTalk[pic] ? A.poseTalk[pic] : A.poseImg[pic];
+  const tick = Math.floor(t * 12), sp = speech(tick / 12, talking), open = sp.open;
+  const has = k => A[k] && A[k][pic];
+  const blink = (t + 1.3) % 3.9 < .13;
+  let src = A.poseImg[pic];
+  if (!showAccent) {
+    const round = sp.wide < .3 || (tick * 7919) % 7 === 0;            // rounded vowels, plus a little variety
+    if (open > .32) src = open > .8 && has("poseWide") ? A.poseWide[pic] : round && has("poseRound") ? A.poseRound[pic]
+      : blink && has("poseBlinkTalk") ? A.poseBlinkTalk[pic] : A.poseTalk[pic] || src;
+    else if (blink && has("poseBlink")) src = A.poseBlink[pic];
+  }
   const change = showAccent ? since : accent ? since - secs : since;          // time since the picture last changed
   const pop = 1 + (change >= 0 && change < .28 ? Math.sin(Math.PI * change / .28) * .03 : 0);
   return `<g transform="translate(200 400) scale(${pop}) translate(-200 -400) translate(0 ${Math.sin(t * 2.2) * 2})"><image href="${src}" x="0" y="0" width="400" height="400"/></g>`;
