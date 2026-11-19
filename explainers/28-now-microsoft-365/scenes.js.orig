@@ -1,0 +1,23 @@
+const S = [
+  { t: 0, title: "Microsoft 365 <hl c=\"red\">down</hl>", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "November 12. Outlook and Teams went down,"], [3.4, "for about a day."]], prop: "case" },
+  { t: 7, title: "Three things at <hl c=\"amber\">once</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Microsoft's early report describes three things at once."]], prop: "three" },
+  { t: 12, step: 1, title: "One: a hidden <hl c=\"red\">bug</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "One: a hidden bug that froze gateway servers under heavy load."]], prop: "bug" },
+  { t: 17.6, title: "Two: less <hl c=\"amber\">capacity</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "Two: about 14 percent of those servers were already offline."]], prop: "cap" },
+  { t: 23, title: "Three: more <hl c=\"blue\">traffic</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "Three: Teams traffic had been moved onto them hours earlier."]], prop: "traffic" },
+  { t: 28.6, step: 2, title: "The <hl c=\"red\">cascade</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "Then the safety system kicked in."], [2.4, "It moved traffic to the healthy servers,"], [5.2, "and overloaded them too."]], prop: "cascade" },
+  { t: 37.4, title: "Over <hl c=\"red\">80%</hl>", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "At the worst point, over 80 percent had stopped responding."]], prop: "eighty" },
+  { t: 42.6, step: 3, title: "The <hl c=\"green\">lesson</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "That's a cascading failure."], [2.2, "The fix: spare capacity, and shed load before servers fall over."]], prop: "lesson" },
+  { t: 51.4, title: "Remember <hl c=\"green\">this</hl>", pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0, "Leave headroom. Fail small, not all at once."]], prop: "recap" },
+  { t: 55.4, title: "More tech <hl c=\"red\">stories</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Next: why every US flight stopped."], [2.8, "Follow for more."]], prop: "next" },
+];
+let END = 60.5;

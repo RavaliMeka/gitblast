@@ -1,0 +1,23 @@
+const S = [
+  { t: 0, title: "Meet <hl c=\"red\">Java4Shell</hl>", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "A new Java bug has a scary name: Java4Shell."], [4, "And an AI helped find it."]], prop: "case" },
+  { t: 7.4, title: "Inside <hl c=\"blue\">OpenJDK</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "It's in OpenJDK, the engine that runs most Java apps."]], prop: "jdk" },
+  { t: 12.6, step: 1, title: "A tiny <hl c=\"amber\">decoder</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "The bug hides in a tiny, speed-tuned piece of code:"], [3.6, "the Base64 decoder."]], prop: "b64" },
+  { t: 19.6, title: "Memory gets <hl c=\"red\">corrupted</hl>", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "Feed it the wrong data, and it corrupts memory."], [3.4, "That can let an attacker run code."]], prop: "mem" },
+  { t: 26.8, step: 2, title: "Found with <hl c=\"blue\">AI</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "The twist: the research firm says it took about an hour to find,"], [4.6, "using an AI coding tool."]], prop: "ai" },
+  { t: 34.4, title: "Don't <hl c=\"green\">panic</hl>", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "Good news: it's hard to exploit,"], [2.4, "and no attacks have been reported so far."]], prop: "fast" },
+  { t: 39.4, step: 3, title: "The <hl c=\"green\">fix</hl> is out", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "Oracle shipped a fix on November 17."], [3, "Update to your Java vendor's patched build."]], prop: "fix" },
+  { t: 46.6, title: "Which Java do <hl c=\"blue\">you</hl> run?", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Don't know which Java you run?"], [2.6, "That's what SCA and an SBOM are for."]], prop: "which" },
+  { t: 53, title: "Remember <hl c=\"green\">this</hl>", pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0, "Find it. Patch it. Fast."]], prop: "recap" },
+  { t: 56.6, title: "More tech <hl c=\"red\">stories</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "Want more stories like this?"], [2.2, "Follow, and comment a topic."]], prop: "next" },
+];
+let END = 61.5;
