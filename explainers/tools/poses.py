@@ -117,8 +117,13 @@ def fit_face(face, pose):
             if fine is None or e2 < fine[0]: fine = (e2, dx, dy)
     return (fine[0], s, ox + fine[1], oy + fine[2])
 
-def talk_variant(pose, face_mid, fit):
+# Per-pose mouth tweak (scale, dx, dy): where the head is turned a little, the frontal mouth is slightly too big.
+TWEAK = {"cross": (.74, -3, -10)}
+
+def talk_variant(pose, face_mid, fit, tweak=(1, 0, 0)):
     e, s, ox, oy = fit
+    k, tx, ty = tweak; mx, my = ox + MOUTH[0] * s, oy + MOUTH[1] * s      # shrink / nudge the face around the mouth centre
+    s *= k; ox, oy = round(mx - MOUTH[0] * s + tx), round(my - MOUTH[1] * s + ty)
     F = face_mid.resize((round(900 * s), round(900 * s)), Image.LANCZOS)
     layer = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0)); layer.paste(F, (ox, oy))
     A, B = np.asarray(pose).astype(float), np.asarray(layer).astype(float)
@@ -141,7 +146,7 @@ for arg in sys.argv[3:]:
     if name in TALKABLE:
         # both mouths come from the close-up frames, so closed and talking always differ clearly
         fit = fit_face(face_closed, img)
-        cv, tv = talk_variant(img, face_closed, fit), talk_variant(img, face_mid, fit)
+        tw = TWEAK.get(name, (1, 0, 0)); cv, tv = talk_variant(img, face_closed, fit, tw), talk_variant(img, face_mid, fit, tw)
         d["poseImg"][name] = uri(cv); d["poseTalk"][name] = uri(tv); sheet[-1] = cv; sheet.append(tv)
         print("   talk fit: err %.1f scale %.3f at %d,%d" % fit)
 d["poseBox"] = {"size": SIZE, "headW": HEAD_W, "headCx": HEAD_CX, "headTop": HEAD_TOP}

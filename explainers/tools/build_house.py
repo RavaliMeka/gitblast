@@ -82,9 +82,11 @@ function kinetic(t) {''')
 
 # presenter: aligned pose pictures; calm poses talk, lively ones are short accents that settle into a calm pose
 rep("function avatarSvg(t, talking) {", '''const POSE_MAP = {   // scene pose -> [accent picture or null, seconds, picture to settle into]
-  present: [null, 0, "cross"], idle: [null, 0, "cross"], cross: [null, 0, "cross"],      // the default: calm, talking
+  // the default is the pointing picture: its face is frontal and neutral, so the mouth reads as plain talking
+  // (the arms-crossed picture has a smirk, which turns every open mouth into a laugh)
+  present: [null, 0, "point1"], idle: [null, 0, "point1"], cross: [null, 0, "point1"],
   point: [null, 0, "point1"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"],
-  cheer: ["cheer", 3, "cross"], idea: ["idea", 1.6, "cross"], think: ["think", 1.8, "cross"],
+  cheer: ["cheer", 3, "point1"], idea: ["idea", 1.6, "point1"], think: ["think", 1.8, "point1"],
 };
 function avatarPose(t, talking, A) {
   let st = 0, name = "idle";
