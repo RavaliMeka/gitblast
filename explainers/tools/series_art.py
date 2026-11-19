@@ -26,6 +26,9 @@ GRAPH = _svg('<g stroke="ACC" stroke-width="5" fill="none" stroke-linecap="round
 SHIELD = _svg('<path d="M32 5 L55 13 V32 C55 46 44 54 32 59 C20 54 9 46 9 32 V13 Z" fill="ACC"/><path d="M22 32 L29 39 L43 24" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>')
 LOCK = _svg('<path d="M21 28 V20 a11 11 0 0 1 22 0 V28" fill="none" stroke="ACC" stroke-width="6"/><rect x="13" y="28" width="38" height="28" rx="6" fill="ACC"/>')
 
+ALERT = _svg('<path d="M32 6 L60 54 H4 Z" fill="ACC" stroke="ACC" stroke-width="6" stroke-linejoin="round"/><path d="M32 24 V38" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="46" r="3.6" fill="#fff"/>')
+BOLT = _svg('<path d="M36 4 L14 36 H30 L26 60 L50 26 H34 Z" fill="ACC"/>')
+
 def _strip(tile, w, h=44):   # one repeating tile, drawn in a w x h box
     return f'<svg width="1080" height="{h}" style="display:block"><defs><pattern id="strip" width="{w}" height="{h}" patternUnits="userSpaceOnUse">{tile}</pattern></defs><rect width="1080" height="{h}" fill="url(#strip)"/></svg>'
 
@@ -40,6 +43,8 @@ ART = {
                   "strip": _strip('<g fill="ACC"><rect x="2" y="20" width="22" height="24" rx="3"/><rect x="28" y="6" width="22" height="38" rx="3" opacity=".6"/><rect x="54" y="26" width="22" height="18" rx="3" opacity=".8"/></g>', 80)},
     "devsecops": {"badge": SHIELD, "shapes": [SHIELD, LOCK, SHIELD, LOCK, SHIELD],
                   "strip": _strip('<path d="M24 6 L40 12 V26 C40 34 32 40 24 43 C16 40 8 34 8 26 V12 Z" fill="none" stroke="ACC" stroke-width="4"/>', 48)},
+    "stories": {"badge": ALERT, "shapes": [ALERT, BOLT, ALERT, BOLT, ALERT],
+                "strip": _strip('<path d="M0 30 H20 L28 12 L40 40 L50 22 L56 30 H90" fill="none" stroke="ACC" stroke-width="4" stroke-linejoin="round"/>', 90)},
     "git": {"badge": GRAPH, "shapes": None, "strip": None},
 }
 
