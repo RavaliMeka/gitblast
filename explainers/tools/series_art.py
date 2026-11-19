@@ -29,6 +29,9 @@ LOCK = _svg('<path d="M21 28 V20 a11 11 0 0 1 22 0 V28" fill="none" stroke="ACC"
 ALERT = _svg('<path d="M32 6 L60 54 H4 Z" fill="ACC" stroke="ACC" stroke-width="6" stroke-linejoin="round"/><path d="M32 24 V38" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="46" r="3.6" fill="#fff"/>')
 BOLT = _svg('<path d="M36 4 L14 36 H30 L26 60 L50 26 H34 Z" fill="ACC"/>')
 
+PROMPT = _svg('<rect x="4" y="10" width="56" height="44" rx="9" fill="ACC"/><path d="M16 24 L26 32 L16 40" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M31 41 H46" stroke="#fff" stroke-width="5" stroke-linecap="round"/>')
+FOLDER = _svg('<path d="M6 18 a6 6 0 0 1 6 -6 H26 l6 7 H52 a6 6 0 0 1 6 6 V46 a6 6 0 0 1 -6 6 H12 a6 6 0 0 1 -6 -6 Z" fill="none" stroke="ACC" stroke-width="5" stroke-linejoin="round"/>')
+
 def _strip(tile, w, h=44):   # one repeating tile, drawn in a w x h box
     return f'<svg width="1080" height="{h}" style="display:block"><defs><pattern id="strip" width="{w}" height="{h}" patternUnits="userSpaceOnUse">{tile}</pattern></defs><rect width="1080" height="{h}" fill="url(#strip)"/></svg>'
 
@@ -45,6 +48,8 @@ ART = {
                   "strip": _strip('<path d="M24 6 L40 12 V26 C40 34 32 40 24 43 C16 40 8 34 8 26 V12 Z" fill="none" stroke="ACC" stroke-width="4"/>', 48)},
     "stories": {"badge": ALERT, "shapes": [ALERT, BOLT, ALERT, BOLT, ALERT],
                 "strip": _strip('<path d="M0 30 H20 L28 12 L40 40 L50 22 L56 30 H90" fill="none" stroke="ACC" stroke-width="4" stroke-linejoin="round"/>', 90)},
+    "linux": {"badge": PROMPT, "shapes": [PROMPT, FOLDER, PROMPT, FOLDER, PROMPT],
+              "strip": _strip('<path d="M8 14 L22 24 L8 34" fill="none" stroke="ACC" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M28 36 H50" stroke="ACC" stroke-width="5" stroke-linecap="round"/>', 70)},
     "git": {"badge": GRAPH, "shapes": None, "strip": None},
 }
 

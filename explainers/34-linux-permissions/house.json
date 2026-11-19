@@ -1,0 +1,28 @@
+{
+  "title": "Linux: file permissions",
+  "meta": "ep.30 · linux permissions",
+  "keys": [
+    "denied",
+    "wall",
+    "owner",
+    "rules",
+    "read",
+    "write",
+    "run",
+    "three",
+    "group",
+    "everyone",
+    "chmod",
+    "runnable",
+    "works",
+    "sudo",
+    "admin",
+    "twice",
+    "others"
+  ],
+  "series": "linux",
+  "accent": "#0d9488",
+  "bg": "#e4f6f3",
+  "grid": "#cdeae6",
+  "rest": "stand"
+}

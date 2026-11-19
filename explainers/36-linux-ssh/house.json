@@ -1,0 +1,30 @@
+{
+  "title": "Linux: SSH",
+  "meta": "ep.32 · linux ssh",
+  "keys": [
+    "another",
+    "country",
+    "ssh",
+    "secure",
+    "shell",
+    "address",
+    "encrypted",
+    "guessed",
+    "keys",
+    "safer",
+    "ssh-keygen",
+    "private",
+    "never",
+    "public",
+    "server",
+    "copy",
+    "scp",
+    "guard",
+    "kit"
+  ],
+  "series": "linux",
+  "accent": "#0d9488",
+  "bg": "#e4f6f3",
+  "grid": "#cdeae6",
+  "rest": "stand"
+}

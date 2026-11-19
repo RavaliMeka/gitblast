@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "A server far <hl c=\"blue\">away</hl>", pose: [[0, "shrug"]], mood: "happy",
+    cap: [[0, "Your server is in another country."], [3, "How do you type commands on it?"]], prop: "far" },
+  { t: 6.4, title: "Use <hl c=\"green\">SSH</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "With SSH: Secure Shell."]], prop: "hero" },
+  { t: 10.4, step: 1, title: "Log <hl c=\"green\">in</hl>", pose: [[0, "point"], [5.4, "cheer"]], mood: "happy",
+    cap: [[0, "Type ssh, your user name, at, the server's address."], [5.4, "You're in!"]], prop: "login" },
+  { t: 18.4, title: "It's <hl c=\"blue\">encrypted</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Everything you type travels encrypted."]], prop: "enc" },
+  { t: 23, step: 2, title: "Keys beat <hl c=\"red\">passwords</hl>", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "Passwords can be guessed. Keys are safer."], [3.4, "Make a pair with ssh-keygen."]], prop: "keygen" },
+  { t: 31, title: "Two <hl c=\"amber\">keys</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "The private key stays with you. Never share it."], [4, "The public key goes on the server."]], prop: "two" },
+  { t: 39.6, step: 3, title: "Copy a <hl c=\"blue\">file</hl>", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "Need to copy a file? Use scp."]], prop: "scp" },
+  { t: 45.6, title: "Remember <hl c=\"green\">this</hl>", pose: [[0, "thumb"]], mood: "happy",
+    cap: [[0, "ssh in. Use keys. Guard the private one."]], prop: "recap" },
+  { t: 50, title: "Your Linux <hl c=\"green\">starter kit</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "That's your Linux starter kit!"], [2.6, "Follow for more."]], prop: "done" },
+];
+let END = 56;

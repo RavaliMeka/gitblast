@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "Ten thousand <hl c=\"red\">lines</hl>", pose: [[0, "shrug"]], mood: "happy",
+    cap: [[0, "A log file with ten thousand lines."], [3, "How do you find the one error?"]], prop: "log" },
+  { t: 6.6, title: "Four small <hl c=\"blue\">commands</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Four small commands do it."]], prop: "four" },
+  { t: 10.2, step: 1, title: "Print it: <hl c=\"blue\">cat</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "cat prints a whole file."], [2.4, "Great for short ones."]], prop: "cat" },
+  { t: 16, title: "The end: <hl c=\"blue\">tail</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "tail shows the end of a file,"], [2.6, "where the newest log lines are."]], prop: "tail" },
+  { t: 23.2, step: 2, title: "Search: <hl c=\"green\">grep</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "grep searches for a word."], [2.4, "grep error app.log"]], prop: "grep" },
+  { t: 31, step: 3, title: "Join them: the <hl c=\"amber\">pipe</hl>", pose: [[0, "point"], [6, "cheer"]], mood: "happy",
+    cap: [[0, "Now join them with a pipe."], [2.6, "tail the file, then grep the result."], [6, "Found it!"]], prop: "pipe" },
+  { t: 40.4, title: "Watch it <hl c=\"green\">live</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "Want it live?"], [1.6, "tail -f follows the file as it grows."]], prop: "live" },
+  { t: 46.6, title: "Log <hl c=\"green\">hunting</hl>", pose: [[0, "thumb"]], mood: "happy",
+    cap: [[0, "cat, tail, grep, pipe. That's log hunting."]], prop: "recap" },
+  { t: 51, title: "Next: <hl c=\"blue\">permissions</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Next: file permissions."], [2.2, "Follow for part four."]], prop: "next" },
+];
+let END = 56;

@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "Port already in <hl c=\"red\">use</hl>", pose: [[0, "shrug"]], mood: "happy",
+    cap: [[0, "Port already in use."], [2, "Something is running. But what?"]], prop: "inuse" },
+  { t: 6.6, title: "Meet the <hl c=\"blue\">process</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Every running program is a process, with an ID."]], prop: "proc" },
+  { t: 11.6, step: 1, title: "List them: <hl c=\"blue\">ps</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "ps aux lists them all."], [2.6, "top shows them live, busiest first."]], prop: "ps" },
+  { t: 19.2, step: 2, title: "Who holds the <hl c=\"amber\">port</hl>?", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "To see who holds a port,"], [2.2, "run ss -tlnp"]], prop: "ss" },
+  { t: 27.4, title: "Stop it: <hl c=\"red\">kill</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "Then stop it: kill, and the process ID."]], prop: "kill" },
+  { t: 33, title: "Be <hl c=\"green\">gentle</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "kill asks nicely first."], [2.2, "kill -9 forces it. Use that last."]], prop: "gentle" },
+  { t: 40.2, step: 3, title: "Long-running <hl c=\"blue\">services</hl>", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "Long-running apps are called services."], [3, "systemctl status shows if one is healthy."]], prop: "svc" },
+  { t: 48.4, title: "Remember <hl c=\"green\">this</hl>", pose: [[0, "thumb"]], mood: "happy",
+    cap: [[0, "Find it. Check the port. Stop it."]], prop: "recap" },
+  { t: 52.4, title: "Next: <hl c=\"blue\">SSH</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "Next: SSH, logging in to servers."], [2.8, "Follow for part six."]], prop: "next" },
+];
+let END = 58;

@@ -1,0 +1,28 @@
+{
+  "title": "Linux: moving around",
+  "meta": "ep.28 · linux navigation",
+  "keys": [
+    "lost",
+    "three",
+    "pwd",
+    "where",
+    "ls",
+    "here",
+    "details",
+    "cd",
+    "folder",
+    "back",
+    "mkdir",
+    "touch",
+    "careful",
+    "rm",
+    "deletes",
+    "good",
+    "never"
+  ],
+  "series": "linux",
+  "accent": "#0d9488",
+  "bg": "#e4f6f3",
+  "grid": "#cdeae6",
+  "rest": "stand"
+}

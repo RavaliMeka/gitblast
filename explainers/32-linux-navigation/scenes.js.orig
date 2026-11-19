@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "<hl c=\"red\">Lost</hl> in the terminal?", pose: [[0, "shrug"]], mood: "happy",
+    cap: [[0, "A black screen and a blinking cursor."], [3, "Where are you? What's here?"]], prop: "blank" },
+  { t: 6.6, title: "Three <hl c=\"blue\">commands</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Three commands answer that."]], prop: "three" },
+  { t: 10.2, step: 1, title: "Where am <hl c=\"blue\">I</hl>?", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "pwd shows where you are."], [2.6, "It stands for print working directory."]], prop: "pwd" },
+  { t: 17.2, title: "What's <hl c=\"blue\">here</hl>?", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "ls lists what's here."], [2.4, "Add -l for details."]], prop: "ls" },
+  { t: 24.2, step: 2, title: "Move <hl c=\"green\">around</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "cd moves you into a folder."], [2.8, "cd .. takes you back up."]], prop: "cd" },
+  { t: 32.4, title: "Make <hl c=\"green\">things</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "Make a folder with mkdir."], [2.6, "Make an empty file with touch."]], prop: "make" },
+  { t: 40.2, step: 3, title: "Careful: <hl c=\"red\">rm</hl>", pose: [[0, "shrug"]], mood: "happy",
+    cap: [[0, "Careful with rm."], [1.8, "It deletes for good. There's no recycle bin."]], prop: "rm" },
+  { t: 47.6, title: "Never <hl c=\"green\">lost</hl>", pose: [[0, "thumb"]], mood: "happy",
+    cap: [[0, "pwd. ls. cd. You're never lost again."]], prop: "recap" },
+  { t: 52.2, title: "Next: <hl c=\"blue\">files</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Next: reading and searching files."], [2.8, "Follow for part three."]], prop: "next" },
+];
+let END = 58;

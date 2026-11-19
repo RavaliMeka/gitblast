@@ -1,4 +1,4 @@
-# Voice-over scripts: episodes 2–30
+# Voice-over scripts: episodes 2–32 and four specials
 
 ## How to record
 
@@ -1026,6 +1026,7 @@
 | secret | SEE-krit |
 | scanning | SKAN-ing |
 | API | “A-P-I” |
+| private | PRY-vit |
 | repo | REE-poh |
 | gitleaks | GIT-leeks |
 | commit | kuh-MIT |
@@ -1100,9 +1101,9 @@
 > That's your DevSecOps toolkit! / Follow for more.
 > 🗣 *Say:* That's your dev-SEK-ops toolkit! / Follow for more.
 
-# Trending now
+# Special topics (no episode number)
 
-## Episode 27: Six days of outages
+## Special: Six days of outages
 
 *About 58 seconds · 95 words*
 
@@ -1140,7 +1141,7 @@
 >
 > If this helped, / follow for more.
 
-## Episode 28: What broke Microsoft 365
+## Special: What broke Microsoft 365
 
 *About 61 seconds · 106 words*
 
@@ -1179,7 +1180,7 @@
 >
 > If this helped, / follow for more.
 
-## Episode 29: Why every US flight stopped
+## Special: Why every US flight stopped
 
 *About 56 seconds · 102 words*
 
@@ -1215,7 +1216,7 @@
 >
 > If this helped, / follow for more.
 
-## Episode 30: Java4Shell explained
+## Special: Java4Shell explained
 
 *About 62 seconds · 125 words*
 
@@ -1259,3 +1260,252 @@
 > Find it. Patch it. Fast.
 >
 > If this helped, / follow for more.
+
+# Linux
+
+## Episode 27: What is Linux?
+
+*About 56 seconds · 96 words*
+
+**Say it like this**
+
+| Word | How to say it |
+|---|---|
+| linux | LIN-uks |
+| kernel | KUR-nul |
+| hardware | HARD-wair |
+| distros | DIS-trohz |
+| ubuntu | oo-BOON-too |
+| debian | DEB-ee-un |
+| fedora | fuh-DOR-uh |
+| automate | AW-tuh-mayt |
+| terminal | TUR-mi-nul |
+| whoami | “who am I” |
+| docker | DOK-er |
+| kubernetes | koo-ber-NET-eez |
+
+**Script**
+
+> Most of the internet runs on one operating system. / And it's free.
+>
+> It's called Linux. / An open-source system that anyone can use.
+>
+> At its heart is the kernel, / the part that talks to your hardware.
+>
+> Linux comes in flavors, called distros: / Ubuntu, Debian, Fedora, and many more.
+>
+> Why does DevOps love it? / It's free, stable, and easy to automate.
+>
+> You control it by typing commands in the terminal. / Try one: whoami
+> 🗣 *Say:* You control it by typing commands in the terminal. / Try one: who am I
+>
+> Docker, Kubernetes, the cloud: / they all run on Linux.
+>
+> Learn Linux, and everything else gets easier.
+>
+> Next: moving around with commands. / Follow for part two.
+
+## Episode 28: Linux: moving around
+
+*About 58 seconds · 85 words*
+
+**Say it like this**
+
+| Word | How to say it |
+|---|---|
+| cursor | KUR-ser |
+| pwd | “P-W-D” |
+| directory | di-REK-tuh-ree |
+| ls | “L-S” |
+| -l | “dash L” |
+| cd | “C-D” |
+| mkdir | “make-dir” |
+| rm | “R-M” |
+| recycle | ree-SY-kul |
+
+**Script**
+
+> A black screen and a blinking cursor. / Where are you? What's here?
+>
+> Three commands answer that.
+>
+> pwd shows where you are. / It stands for print working directory.
+> 🗣 *Say:* P-W-D shows where you are. / It stands for print working directory.
+>
+> ls lists what's here. / Add -l for details.
+> 🗣 *Say:* L-S lists what's here. / Add dash L for details.
+>
+> cd moves you into a folder. / cd .. takes you back up.
+> 🗣 *Say:* C-D moves you into a folder. / C-D .. takes you back up.
+>
+> Make a folder with mkdir. / Make an empty file with touch.
+> 🗣 *Say:* Make a folder with make-dir. / Make an empty file with touch.
+>
+> Careful with rm. / It deletes for good. There's no recycle bin.
+> 🗣 *Say:* Careful with R-M. / It deletes for good. There's no recycle bin.
+>
+> pwd. ls. cd. You're never lost again.
+> 🗣 *Say:* P-W-D. L-S. C-D. You're never lost again.
+>
+> Next: reading and searching files. / Follow for part three.
+
+## Episode 29: Linux: reading and searching files
+
+*About 56 seconds · 89 words*
+
+**Say it like this**
+
+| Word | How to say it |
+|---|---|
+| grep | grep (rhymes with “step”) |
+| app.log | “app dot log” |
+| -f | “dash f” |
+| permissions | per-MISH-unz |
+
+**Script**
+
+> A log file with ten thousand lines. / How do you find the one error?
+>
+> Four small commands do it.
+>
+> cat prints a whole file. / Great for short ones.
+>
+> tail shows the end of a file, / where the newest log lines are.
+>
+> grep searches for a word. / grep error app.log
+> 🗣 *Say:* grep searches for a word. / grep error app dot log
+>
+> Now join them with a pipe. / tail the file, then grep the result. / Found it! 🎉
+>
+> Want it live? / tail -f follows the file as it grows.
+> 🗣 *Say:* Want it live? / tail dash f follows the file as it grows.
+>
+> cat, tail, grep, pipe. That's log hunting.
+>
+> Next: file permissions. / Follow for part four.
+
+## Episode 30: Linux: file permissions
+
+*About 59 seconds · 88 words*
+
+**Say it like this**
+
+| Word | How to say it |
+|---|---|
+| permission | per-MISH-un |
+| linux | LIN-uks |
+| ls | “L-S” |
+| -l | “dash L” |
+| chmod | ch-mod (“change mode”) |
+| +x | “plus X” |
+| runnable | RUN-uh-bul |
+| sudo | SOO-doo |
+| processes | PROH-ses-iz |
+
+**Script**
+
+> Permission denied. / Every Linux user hits this wall.
+>
+> Every file has an owner, and rules.
+>
+> Run ls -l to see them. / r is read. w is write. x is run.
+> 🗣 *Say:* Run L-S dash L to see them. / r is read. w is write. x is run.
+>
+> The rules come in three groups: / the owner, the group, and everyone else.
+>
+> chmod changes the rules. / chmod +x makes a file runnable.
+> 🗣 *Say:* chmod changes the rules. / chmod plus X makes a file runnable.
+>
+> Run it again... / it works! 🎉
+>
+> sudo runs one command as the admin. / Powerful. So read it twice before you press enter.
+>
+> Read, write, run. Owner, group, others.
+>
+> Next: processes and ports. / Follow for part five.
+
+## Episode 31: Linux: processes and ports
+
+*About 58 seconds · 86 words*
+
+**Say it like this**
+
+| Word | How to say it |
+|---|---|
+| process | PROH-ses |
+| ID | “I-D” |
+| ps | “P-S” |
+| aux | “A-U-X” |
+| ss | “S-S” |
+| -tlnp | “dash T-L-N-P” |
+| -9 | “dash nine” |
+| services | SUR-vis-iz |
+| systemctl | system control |
+| SSH | “S-S-H” |
+
+**Script**
+
+> Port already in use. / Something is running. But what?
+>
+> Every running program is a process, with an ID.
+> 🗣 *Say:* Every running program is a process, with an I-D.
+>
+> ps aux lists them all. / top shows them live, busiest first.
+> 🗣 *Say:* P-S A-U-X lists them all. / top shows them live, busiest first.
+>
+> To see who holds a port, / run ss -tlnp
+> 🗣 *Say:* To see who holds a port, / run S-S dash T-L-N-P
+>
+> Then stop it: kill, and the process ID.
+> 🗣 *Say:* Then stop it: kill, and the process I-D.
+>
+> kill asks nicely first. / kill -9 forces it. Use that last.
+> 🗣 *Say:* kill asks nicely first. / kill dash nine forces it. Use that last.
+>
+> Long-running apps are called services. / systemctl status shows if one is healthy.
+>
+> Find it. Check the port. Stop it.
+>
+> Next: SSH, logging in to servers. / Follow for part six.
+> 🗣 *Say:* Next: S-S-H, logging in to servers. / Follow for part six.
+
+## Episode 32: Linux: SSH
+
+*About 56 seconds · 84 words*
+
+**Say it like this**
+
+| Word | How to say it |
+|---|---|
+| SSH | “S-S-H” |
+| encrypted | en-KRIP-tid |
+| ssh-keygen | “S-S-H key-gen” |
+| private | PRY-vit |
+| public | PUB-lik |
+| scp | “S-C-P” |
+| linux | LIN-uks |
+
+**Script**
+
+> Your server is in another country. / How do you type commands on it?
+>
+> With SSH: Secure Shell.
+> 🗣 *Say:* With S-S-H: Secure Shell.
+>
+> Type ssh, your user name, at, the server's address. / You're in! 🎉
+> 🗣 *Say:* Type S-S-H, your user name, at, the server's address. / You're in!
+>
+> Everything you type travels encrypted.
+>
+> Passwords can be guessed. Keys are safer. / Make a pair with ssh-keygen.
+> 🗣 *Say:* Passwords can be guessed. Keys are safer. / Make a pair with S-S-H key-gen.
+>
+> The private key stays with you. Never share it. / The public key goes on the server.
+>
+> Need to copy a file? Use scp.
+> 🗣 *Say:* Need to copy a file? Use S-C-P.
+>
+> ssh in. Use keys. Guard the private one.
+> 🗣 *Say:* S-S-H in. Use keys. Guard the private one.
+>
+> That's your Linux starter kit! / Follow for more.

@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "Permission <hl c=\"red\">denied</hl>", pose: [[0, "shrug"]], mood: "happy",
+    cap: [[0, "Permission denied."], [1.8, "Every Linux user hits this wall."]], prop: "denied" },
+  { t: 6, title: "Owner and <hl c=\"blue\">rules</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Every file has an owner, and rules."]], prop: "owner" },
+  { t: 10.4, step: 1, title: "Read the <hl c=\"blue\">rules</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "Run ls -l to see them."], [2.8, "r is read. w is write. x is run."]], prop: "lsl" },
+  { t: 19.4, title: "Three <hl c=\"amber\">groups</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "The rules come in three groups:"], [2.6, "the owner, the group, and everyone else."]], prop: "groups" },
+  { t: 26.8, step: 2, title: "Change them: <hl c=\"green\">chmod</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "chmod changes the rules."], [2.4, "chmod +x makes a file runnable."]], prop: "chmod" },
+  { t: 34.6, title: "Try <hl c=\"green\">again</hl>", pose: [[0, "point"], [2, "cheer"]], mood: "happy",
+    cap: [[0, "Run it again..."], [2, "it works!"]], prop: "works" },
+  { t: 40.2, step: 3, title: "The admin: <hl c=\"red\">sudo</hl>", pose: [[0, "shrug"]], mood: "happy",
+    cap: [[0, "sudo runs one command as the admin."], [3.2, "Powerful. So read it twice before you press enter."]], prop: "sudo" },
+  { t: 48.6, title: "Remember <hl c=\"green\">this</hl>", pose: [[0, "thumb"]], mood: "happy",
+    cap: [[0, "Read, write, run. Owner, group, others."]], prop: "recap" },
+  { t: 53, title: "Next: <hl c=\"blue\">processes</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Next: processes and ports."], [2.6, "Follow for part five."]], prop: "next" },
+];
+let END = 58.5;

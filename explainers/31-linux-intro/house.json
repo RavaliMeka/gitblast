@@ -1,0 +1,27 @@
+{
+  "title": "What is Linux?",
+  "meta": "ep.27 · linux intro",
+  "keys": [
+    "internet",
+    "free",
+    "linux",
+    "open-source",
+    "kernel",
+    "hardware",
+    "distros",
+    "ubuntu",
+    "stable",
+    "automate",
+    "terminal",
+    "commands",
+    "whoami",
+    "docker",
+    "kubernetes",
+    "easier"
+  ],
+  "series": "linux",
+  "accent": "#0d9488",
+  "bg": "#e4f6f3",
+  "grid": "#cdeae6",
+  "rest": "stand"
+}

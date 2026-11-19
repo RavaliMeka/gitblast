@@ -78,3 +78,12 @@ function followCard(lt, line = "DevOps, one simple idea at a time") {
   return G(lt, .2, 320, 150, box(-290, -96, 580, 192, DS.line, "#fff", 22) + T(0, -14, "@dnimbus.ai", DS.ink, 46, 800, "middle", MONO) + T(0, 40, line, DS.mute, 22, 600)) +
     G(lt, 1.6, 320, 370, `<rect x="-176" y="-44" width="360" height="100" rx="50" fill="${DS.ink}" opacity=".18"/><rect x="-180" y="-52" width="360" height="100" rx="50" fill="${DS.red}"/>` + T(0, 12, "+ Follow", "#fff", 40, 800));
 }
+// plain title sticker (no shield) and a labelled stack of layers
+function titleCard(lt, big, sub, col = DS.blue) {
+  return G(lt, .1, 320, 230, `<rect x="-262" y="-116" width="540" height="260" rx="60" fill="${DS.ink}" opacity=".16"/><rect x="-272" y="-130" width="540" height="260" rx="60" fill="#fff"/>` +
+    `<rect x="-248" y="-106" width="492" height="212" rx="42" fill="#fff" stroke="${DS.ink}" stroke-width="10"/>` + T(0, 12, big, col, big.length > 8 ? 64 : 92, 800) + T(0, 68, sub, DS.mute, 22, 600));
+}
+function stack(lt, rows, d0 = .2, top = 60) {
+  return rows.map(([n, c, note], i) => G(lt, d0 + (rows.length - 1 - i) * .4, 320, top + i * 92, `<rect x="-225" y="-27" width="460" height="76" rx="14" fill="${DS.ink}" opacity=".1"/><rect x="-230" y="-36" width="460" height="76" rx="14" fill="${c}"/>` +
+    T(-200, 12, n, "#fff", 28, 800, "start") + (note ? T(206, 11, note, "#fff", 19, 600, "end", MONO) : ""))).join("");
+}

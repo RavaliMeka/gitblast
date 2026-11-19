@@ -1,0 +1,29 @@
+{
+  "title": "Linux: processes and ports",
+  "meta": "ep.31 · linux processes",
+  "keys": [
+    "port",
+    "use",
+    "running",
+    "process",
+    "id",
+    "ps",
+    "top",
+    "live",
+    "holds",
+    "ss",
+    "kill",
+    "stop",
+    "nicely",
+    "forces",
+    "last",
+    "services",
+    "systemctl",
+    "healthy"
+  ],
+  "series": "linux",
+  "accent": "#0d9488",
+  "bg": "#e4f6f3",
+  "grid": "#cdeae6",
+  "rest": "stand"
+}

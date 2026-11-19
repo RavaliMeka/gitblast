@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "What runs the <hl c=\"blue\">internet</hl>?", pose: [[0, "shrug"]], mood: "happy",
+    cap: [[0, "Most of the internet runs on one operating system."], [3.6, "And it's free."]], prop: "runs" },
+  { t: 6.6, title: "Meet <hl c=\"green\">Linux</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "It's called Linux."], [1.8, "An open-source system that anyone can use."]], prop: "hero" },
+  { t: 12.6, step: 1, title: "The <hl c=\"blue\">kernel</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "At its heart is the kernel,"], [2.2, "the part that talks to your hardware."]], prop: "kernel" },
+  { t: 18.8, title: "Many <hl c=\"amber\">flavors</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Linux comes in flavors, called distros:"], [3.2, "Ubuntu, Debian, Fedora, and many more."]], prop: "distros" },
+  { t: 25.8, step: 2, title: "Why DevOps <hl c=\"green\">loves</hl> it", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "Why does DevOps love it?"], [2.2, "It's free, stable, and easy to automate."]], prop: "why" },
+  { t: 32.6, title: "The <hl c=\"blue\">terminal</hl>", pose: [[0, "point"]], mood: "happy",
+    cap: [[0, "You control it by typing commands in the terminal."], [4, "Try one: whoami"]], prop: "term" },
+  { t: 40, step: 3, title: "It's <hl c=\"green\">everywhere</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Docker, Kubernetes, the cloud:"], [2.6, "they all run on Linux."]], prop: "all" },
+  { t: 46.2, title: "Start <hl c=\"green\">here</hl>", pose: [[0, "thumb"]], mood: "happy",
+    cap: [[0, "Learn Linux, and everything else gets easier."]], prop: "recap" },
+  { t: 50.4, title: "Next: <hl c=\"blue\">commands</hl>", pose: [[0, "present"]], mood: "happy",
+    cap: [[0, "Next: moving around with commands."], [2.8, "Follow for part two."]], prop: "next" },
+];
+let END = 56;
