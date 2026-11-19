@@ -147,9 +147,12 @@ def talk_variant(pose, face, fit, tweak=(1, 0, 0), k=(1, 1), M=MOUTH):
 # A master pose brings its own mouth and blink pictures ("name@small=path", "@round", "@wide", "@blink"): the same
 # picture with only the face changed. Only the lower face (or the eyes) is taken from each one, on top of the closed
 # picture, so hair, eyebrows and body are identical in every frame and nothing wobbles.
-LOWER = (514, 440, 76, 54)         # moustache, lips and chin patch in the 1024px master picture
-EYELIDS = (514, 335, 122, 44)      # both eyes, inside the glasses
-GEOM = {"cross": (LOWER, EYELIDS, (41, 1.1)), "shrug": ((520, 392, 76, 56), (517, 275, 118, 44), (0, 1))}   # lower face, eyes, (body fill, zoom)
+# The area taken is the whole lower face: nose tip to under the chin, beard included, so its edge lies on plain
+# cheek and neck (identical in every picture) and never near the lips or moustache.
+LOWER = (514, 452, 132, 82)        # in the 1024px arms-crossed picture
+EYELIDS = (514, 333, 138, 60)      # both eyes, inside the glasses
+GEOM = {"cross": (LOWER, EYELIDS, (41, 1.1)), "shrug": ((517, 396, 130, 78), (517, 275, 118, 44), (0, 1)),   # lower face, eyes, (body fill, zoom)
+        "point1": ((975, 738, 245, 142), (975, 540, 235, 100), (0, 1))}
 # zoom: the master pose has bigger hair, so its head is enlarged until the glasses are as wide as in the other poses
 def own_variant(base, other, E):
     A, B = np.asarray(base.convert("RGB")).astype(float), np.asarray(other.convert("RGB")).astype(float)
