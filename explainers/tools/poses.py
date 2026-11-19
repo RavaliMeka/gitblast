@@ -140,11 +140,35 @@ def talk_variant(pose, face, fit, tweak=(1, 0, 0), k=(1, 1), M=MOUTH):
     res = A.copy(); res[..., :3] = A[..., :3] * (1 - m[..., None]) + np.clip(B[..., :3] + off, 0, 255) * m[..., None]
     return Image.fromarray(res.astype(np.uint8), "RGBA")
 
+# A pose can also bring its own talking picture ("name@talk=path": same pose, mouth open). It is lined up on the
+# eyes and nose of the base picture and only the lower face (moustache, lips, chin) is blended in, so the body never moves.
+def own_talk(base, talk):
+    A, T = np.asarray(base.convert("L")).astype(float), np.asarray(talk.convert("L")).astype(float)
+    x0, y0, x1, y1 = 470, 290, 730, 450; R = A[y0:y1, x0:x1]; best = None
+    for dx in range(-14, 15):
+        for dy in range(-14, 15):
+            e = np.abs(R - T[y0 + dy:y1 + dy, x0 + dx:x1 + dx]).mean()
+            if best is None or e < best[0]: best = (e, dx, dy)
+    e, dx, dy = best
+    Tm = np.roll(np.asarray(talk).astype(float), (-dy, -dx), (0, 1)); Am = np.asarray(base).astype(float)
+    yy, xx = np.mgrid[0:SIZE, 0:SIZE]
+    dist = np.sqrt(((xx - OWN[0]) / OWN[2]) ** 2 + ((yy - OWN[1]) / OWN[3]) ** 2)
+    m = np.clip((1 - dist) / .35, 0, 1)[..., None]
+    res = Am.copy(); res[..., :3] = Am[..., :3] * (1 - m) + Tm[..., :3] * m
+    return Image.fromarray(res.astype(np.uint8), "RGBA"), best
+OWN = (600, 500, 92, 78)           # lower-face ellipse on the 1200px canvas
+
 src, out = sys.argv[1], sys.argv[2]
 d = json.load(open(src)); d["poseImg"] = {}; d["poseTalk"] = {}; sheet = []
 face_closed, face_mid = load_uri(d["closed"]), load_uri(d["mid"])
+own = {a.split("@talk=")[0]: a.split("@talk=")[1] for a in sys.argv[3:] if "@talk=" in a}
 for arg in sys.argv[3:]:
+    if "@talk=" in arg: continue
     name, path = arg.split("=", 1)
+    if name in own:
+        img, info = place(Image.open(path)); tk, fit = own_talk(img, place(Image.open(own[name]))[0])
+        d["poseImg"][name] = uri(img); d["poseTalk"][name] = uri(tk); sheet += [img, tk]; print(name, info, "own talk: err %.1f shift %d,%d" % fit)
+        continue
     img, info = place(Image.open(path))
     d["poseImg"][name] = uri(img); sheet.append(img); print(name, info)
     if name in TALKABLE:
