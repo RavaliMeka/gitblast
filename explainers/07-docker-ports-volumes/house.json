@@ -1,0 +1,22 @@
+{
+  "title": "Docker Ports and Volumes Explainer",
+  "meta": "ep.07 · docker ports volumes",
+  "keys": [
+    "apartment",
+    "compose",
+    "data",
+    "docker",
+    "door",
+    "gone",
+    "locker",
+    "numbers",
+    "storage",
+    "survives"
+  ],
+  "defs": [],
+  "accent": "#0b84e3",
+  "bg": "#e3f1fc",
+  "grid": "#d3e4f1",
+  "rest": "stand",
+  "series": "docker"
+}

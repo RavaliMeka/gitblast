@@ -1,0 +1,26 @@
+{
+  "title": "What is CI/CD Explainer",
+  "meta": "ep.13 · cicd intro",
+  "keys": [
+    "actions",
+    "assembly",
+    "by",
+    "cd",
+    "ci",
+    "do",
+    "first",
+    "hand",
+    "line",
+    "rest",
+    "ship",
+    "test",
+    "the",
+    "workflow"
+  ],
+  "defs": [],
+  "accent": "#0f9d58",
+  "bg": "#e6f5ea",
+  "grid": "#d5e9da",
+  "rest": "stand",
+  "series": "ci/cd"
+}

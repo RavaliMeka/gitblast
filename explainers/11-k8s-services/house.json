@@ -1,0 +1,22 @@
+{
+  "title": "Kubernetes Services and Ingress Explainer",
+  "meta": "ep.11 · k8s services",
+  "keys": [
+    "balancing",
+    "door",
+    "front",
+    "get",
+    "in",
+    "kinds",
+    "load",
+    "restaurant",
+    "scaling",
+    "service"
+  ],
+  "defs": [],
+  "accent": "#3d5afe",
+  "bg": "#e8ecfd",
+  "grid": "#d9def5",
+  "rest": "stand",
+  "series": "kubernetes"
+}

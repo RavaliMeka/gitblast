@@ -1,0 +1,21 @@
+{
+  "title": "Kubernetes Scaling and Rolling Updates Explainer",
+  "meta": "ep.12 · k8s scaling",
+  "keys": [
+    "autoscale",
+    "by",
+    "cd",
+    "ci",
+    "done",
+    "hand",
+    "rolling",
+    "undo",
+    "viral"
+  ],
+  "defs": [],
+  "accent": "#3d5afe",
+  "bg": "#e8ecfd",
+  "grid": "#d9def5",
+  "rest": "stand",
+  "series": "kubernetes"
+}

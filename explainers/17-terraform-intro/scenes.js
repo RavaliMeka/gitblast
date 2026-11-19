@@ -11,13 +11,13 @@ const S = [
     cap: [[0,"Terraform reads it... and builds it for you."]], prop: "build" },
   { t: 28, step: 3, title: 'Any cloud: <hl c="yellow">providers</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"It works with AWS, Azure, Google Cloud, and more."],[4,"Those plugins are called providers."]], prop: "providers" },
-  { t: 35, title: 'Edit the file, <hl c="red">done</hl>', pose: [[0,"point"]], mood: "happy",
+  { t: 35, title: 'Edit the file, <hl c="red">done</hl>', pose: [[0,"both"]], mood: "happy",
     cap: [[0,"Need a change? Edit the file."],[3,"Terraform updates only what's different."]], prop: "change" },
   { t: 41, title: 'Same <hl c="green">every time</hl>', pose: [[0,"present"],[.8,"cheer"]], mood: "happy",
     cap: [[0,"Dev, staging, production: identical. No surprises."]], prop: "same" },
   { t: 46, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"Write it. Review it. Reuse it."]], prop: "recap" },
-  { t: 50, title: 'Next: <hl c="blue">3 commands</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 50, title: 'Next: <hl c="blue">3 commands</hl>', pose: [[0,"peace"]], mood: "happy",
     cap: [[0,"Next: your first Terraform commands."],[3,"Follow for part two."]], prop: "next" },
 ];
 let END = 55.5;

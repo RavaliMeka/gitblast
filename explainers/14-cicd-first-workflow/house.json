@@ -1,0 +1,25 @@
+{
+  "title": "First GitHub Actions Workflow Explainer",
+  "meta": "ep.14 · cicd first workflow",
+  "keys": [
+    "actions",
+    "cast",
+    "file",
+    "jobs",
+    "live",
+    "name",
+    "pull",
+    "push",
+    "requests",
+    "run",
+    "runner",
+    "steps",
+    "trigger"
+  ],
+  "defs": [],
+  "accent": "#0f9d58",
+  "bg": "#e6f5ea",
+  "grid": "#d5e9da",
+  "rest": "stand",
+  "series": "ci/cd"
+}

@@ -1,0 +1,21 @@
+const S = [
+  { t: 0,  title: 'Just <hl c="orange">3 commands</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Three commands run almost everything in Terraform."],[3,"Think of planning a hike."]], prop: "three" },
+  { t: 6,  title: 'Start: <hl c="wood">main.tf</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"First, a file: main.tf"],[2,"A provider... and one resource: a server."]], prop: "tf" },
+  { t: 13, step: 1, title: 'init: <hl c="green">pack gear</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"terraform init: pack your gear."],[3,"It downloads the provider plugins."]], prop: "init" },
+  { t: 19, step: 2, title: 'plan: <hl c="wood">check map</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"terraform plan: check the map."],[3,"It shows exactly what will change... before anything happens."],[7,"One to add. Nothing destroyed."]], prop: "plan" },
+  { t: 29, step: 3, title: 'apply: <hl c="orange">go!</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"terraform apply: start walking."],[3,"Type yes... and it builds."]], prop: "apply" },
+  { t: 37, title: 'Server is <hl c="green">live</hl>', pose: [[0,"present"],[.6,"cheer"]], mood: "happy",
+    cap: [[0,"Your server is live. Created from code."]], prop: "live" },
+  { t: 41, title: 'The <hl c="orange">golden rule</hl>', pose: [[0,"idea"]], mood: "serious",
+    cap: [[0,"Golden rule: always read the plan before you apply."]], prop: "rule" },
+  { t: 46, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0,"Init. Plan. Apply."]], prop: "recap" },
+  { t: 50, title: 'Next: <hl c="wood">state</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Next: state and variables."],[2.4,"Follow for part three."]], prop: "next" },
+];
+let END = 55.5;

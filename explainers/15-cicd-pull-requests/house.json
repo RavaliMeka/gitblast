@@ -1,0 +1,22 @@
+{
+  "title": "CI on Pull Requests Explainer",
+  "meta": "ep.15 · cicd pull requests",
+  "keys": [
+    "all",
+    "auto",
+    "broken",
+    "bugs",
+    "deploy",
+    "green",
+    "locked",
+    "matrix",
+    "parallel",
+    "pr"
+  ],
+  "defs": [],
+  "accent": "#0f9d58",
+  "bg": "#e6f5ea",
+  "grid": "#d5e9da",
+  "rest": "stand",
+  "series": "ci/cd"
+}

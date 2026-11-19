@@ -9,15 +9,15 @@ const S = [
     cap: [[0,"A Deployment is the gardener."],[2,"You tell it: always keep three plants."]], prop: "gardener" },
   { t: 20, title: 'One dies? <hl c="green">Replanted.</hl>', pose: [[0,"shrug"],[2,"present"]], mood: "happy",
     cap: [[0,"One plant dies?"],[2,"The gardener notices... and plants a new one."],[5,"That's self-healing."]], prop: "heal" },
-  { t: 28, step: 2, title: 'The <hl c="terra">Deployment</hl> file', pose: [[0,"point"]], mood: "happy",
+  { t: 28, step: 2, title: 'The <hl c="terra">Deployment</hl> file', pose: [[0,"both"]], mood: "happy",
     cap: [[0,"Here's the file: kind Deployment, replicas three, and your image."]], prop: "yaml" },
   { t: 34, step: 3, title: 'Apply + <hl c="green">check</hl>', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"Apply it: kubectl apply -f deploy.yaml"],[4,"Check with kubectl get pods."]], prop: "kubectl" },
-  { t: 41, title: 'Delete one. <hl c="green">It\'s back!</hl>', pose: [[0,"point"],[2.6,"cheer"]], mood: "happy",
+  { t: 41, title: 'Delete one. <hl c="green">It\'s back!</hl>', pose: [[0,"both"],[2.6,"cheer"]], mood: "happy",
     cap: [[0,"Delete a pod on purpose..."],[2.4,"and watch a new one appear."]], prop: "test" },
   { t: 46, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"Pod: runs your container."],[2.2,"Deployment: keeps them alive."]], prop: "recap" },
-  { t: 51, title: 'Next: <hl c="terra">Services</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 51, title: 'Next: <hl c="terra">Services</hl>', pose: [[0,"peace"]], mood: "happy",
     cap: [[0,"Next: how users reach your pods."],[2.6,"Follow for part three."]], prop: "next" },
 ];
 let END = 56.5;

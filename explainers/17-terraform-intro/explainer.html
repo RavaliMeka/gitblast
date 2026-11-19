@@ -6,7 +6,7 @@
 <title>What is Terraform Explainer</title>
 <style>
   :root {
-    --bg: #fbf3e4; --grid: #ead9bd; --ink: #151515; --muted: #6b6b6b;
+    --bg: #f1e9fb; --grid: #e3d8f1; --ink: #151515; --muted: #6b6b6b;
     --blue: #2f6fe4; --green: #22a45d; --red: #e5484d; --orange: #f2a33a;
     --card: #ffffff; --term: #1d1f23;
   }
@@ -15,23 +15,22 @@
   body { display: flex; align-items: center; justify-content: center; font-family: Inter, "Inter Display", system-ui, sans-serif; }
   #stage {
     position: relative; width: 1080px; height: 1920px; flex: none; overflow: hidden;
-    background-color: #fff6d6;
-    background-image: radial-gradient(circle at 50% 50%, rgba(255,195,0,.30) 0 10px, transparent 11px), linear-gradient(180deg, #fffbe9, #ffefc2);
-    background-size: 64px 64px, 100% 100%; transform-origin: center center;
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--grid) 3px, transparent 3.5px), radial-gradient(1200px 500px at 50% 0%, #fff8ec, transparent);
+    background-size: 60px 60px, 100% 100%; transform-origin: center center;
   }
   .abs { position: absolute; }
-  #steps { left: 0; right: 0; top: 90px; display: flex; justify-content: center; gap: 14px; }
-  .step { min-width: 46px; height: 46px; border-radius: 10px; background: #fff; border: 2px solid #eadfb8; color: #7b7f9e; font-weight: 700; font-size: 24px; display: flex; align-items: center; justify-content: center; padding: 0 14px; }
-  .step.on { background: #e63946; color: #fff; letter-spacing: 1px; }
-  #title { left: 40px; right: 40px; top: 170px; font-size: 64px; text-align: center; font-weight: 800; font-size: 84px; line-height: 1.12; color: #22223b; letter-spacing: -1px; }
+  #steps { left: 0; right: 0; top: 150px; display: flex; justify-content: center; gap: 14px; }
+  .step { min-width: 46px; height: 46px; border-radius: 23px; background: #e3e2dc; color: #777; font-weight: 700; font-size: 24px; display: flex; align-items: center; justify-content: center; padding: 0 14px; }
+  .step.on { background: #151515; color: #ffd84a; letter-spacing: 1px; }
+  #title { left: 40px; right: 40px; top: 220px; text-align: center; font-weight: 800; font-size: 84px; line-height: 1.12; color: var(--ink); letter-spacing: -1.5px; }
   .hl { position: relative; display: inline-block; }
-  .hl::after { content: ""; position: absolute; left: -16px; right: -16px; bottom: -6px; top: 0; z-index: -1; border-radius: 8px; rotate: 0deg; background: var(--mark, #1d7dd8); box-shadow: inset 0 9px 0 rgba(255,255,255,.3), 0 8px 0 rgba(34,34,59,.22); transform-origin: left; transform: scaleX(var(--mk, 1)); }
+  .hl::after { content: ""; position: absolute; left: -10px; right: -10px; bottom: -2px; top: 10px; z-index: -1; border-radius: 14px; rotate: -1.5deg; background: var(--mark, #cfe0ff); transform-origin: left; transform: scaleX(var(--mk, 1)); }
   .hl span { position: relative; }
-  #title .hl { margin: 0 .32em; }
-  #char { left: 660px; top: 910px; width: 470px; height: 964px; overflow: visible; z-index: 2; }
-  #prop { left: 40px; top: 310px; width: 620px; height: 860px; transform: scale(1.25); transform-origin: 0 0; }
-  #caption { left: 40px; right: 40px; top: 1740px; z-index: 5; display: flex; justify-content: center; }
-  #caption div { background: radial-gradient(circle 7px at 50% 50%, rgba(255,255,255,.16) 98%, transparent) 0 0 / 30px 30px, #2bb673; color: #fff; font-weight: 800; font-size: 38px; line-height: 1.25; text-align: center; max-width: 980px; padding: 18px 36px 22px; border-radius: 14px; border: none; box-shadow: 0 10px 0 #1e8a56, 0 22px 30px rgba(34,34,59,.18); max-width: 980px; text-align: center; }
+  #char { left: 30px; top: 610px; width: 470px; height: 964px; }
+  #prop { left: 470px; top: 560px; width: 580px; height: 860px; }
+  #caption { left: 0; right: 0; top: 1500px; display: flex; justify-content: center; }
+  #caption div { background: #ffd84a; color: #151515; font-weight: 800; font-size: 52px; padding: 16px 34px 20px; border-radius: 999px; border: 4px solid #151515; box-shadow: 6px 6px 0 #151515; max-width: 980px; text-align: center; }
   .card { background: var(--card); border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 8px 0 rgba(0,0,0,.08); }
   .card.top-blue { border-top: 12px solid var(--blue); }
   .card.top-green { border-top: 12px solid var(--green); }
@@ -44,16 +43,51 @@
   .term .c { color: #8b8f98; }
   .term .ok { color: #7ee2a8; }
   .term .cur { display: inline-block; width: 14px; height: 26px; background: #e9e9e9; vertical-align: -4px; }
+  /* ===== v2 look: editorial paper, kinetic headline, commit-timeline progress ===== */
+  #stage { background: radial-gradient(1100px 900px at 30% 40%, #ffffff, transparent 70%), #f1e9fb !important; }
+  #grid { inset: 0; background-image: linear-gradient(rgba(21,21,21,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(21,21,21,.045) 1px, transparent 1px); background-size: 36px 36px; }
+  #vig { inset: 0; background: radial-gradient(1500px 1800px at 50% 45%, transparent 60%, rgba(120,100,60,.14)); pointer-events: none; z-index: 8; }
+  #title, #caption, #steps { display: none; }
+  #meta { left: 60px; right: 60px; top: 64px; display: flex; justify-content: space-between; font: 600 24px "DejaVu Sans Mono", monospace; color: #8b877c; letter-spacing: 1px; z-index: 9; }
+  #meta b { color: #7b42bc; font-weight: 700; }
+  #tl { left: 60px; right: 60px; top: 118px; height: 30px; z-index: 9; }
+  #kin { left: 60px; right: 60px; top: 190px; height: 330px; z-index: 9; text-align: left; font-weight: 800; font-size: 80px; line-height: 1.12; letter-spacing: -2.5px; color: #bdb9ad; }
+  #kin .w { display: inline-block; margin-right: .24em; position: relative; }
+  #kin .now, #kin .said { color: #151515; }
+  #kin .box { position: absolute; inset: 4px -14px 0 -14px; border-radius: 14px; background: #7b42bc; rotate: -1.5deg; }
+  #kin .tk { position: absolute; right: -52px; top: -40px; transform-origin: 0 100%; rotate: 20deg; }
+  #kin .w:has(.box) { color: #fff; font-family: "DejaVu Sans Mono", monospace; font-size: .82em; letter-spacing: -2px; margin: 0 .36em 0 .14em; }
+  #prop { left: 60px; top: 450px; z-index: 3; transform-origin: 0 0; filter: drop-shadow(0 26px 30px rgba(60,50,20,.16)); }
+  #char { left: 240px; top: 1110px; width: 920px; height: 1886px; z-index: 6; overflow: visible; }
+  #bgfx { inset: 0; z-index: 1; -webkit-mask-image: linear-gradient(180deg, transparent 0, transparent 19%, #000 23%, #000 52%, transparent 60%); mask-image: linear-gradient(180deg, transparent 0, transparent 19%, #000 23%, #000 52%, transparent 60%); font: 700 64px "DejaVu Sans Mono", monospace; color: #151515; }
+  #bgfx span { position: absolute; opacity: .13; }
+  #wipe { inset: 0; z-index: 7; pointer-events: none; overflow: hidden; }
+  #wipe div { position: absolute; top: -10%; bottom: -10%; width: 46%; }
+  #fx { inset: 0; z-index: 7; pointer-events: none; }
+  #eq { left: 320px; bottom: 74px; height: 56px; display: flex; align-items: flex-end; gap: 7px; z-index: 9; }
+  #eq i { width: 10px; border-radius: 5px; background: #7b42bc; }
+  #handle { left: 60px; bottom: 70px; font: 700 28px "DejaVu Sans Mono", monospace; color: #151515; background: #fff; border: 3px solid #151515; border-radius: 12px; padding: 10px 18px; rotate: -2deg; box-shadow: 5px 5px 0 #151515; z-index: 9; }
   #hint { position: fixed; bottom: 10px; left: 0; right: 0; text-align: center; color: #999; font: 13px system-ui; }
 </style>
 </head>
 <body>
 <div id="stage">
+  <div id="grid" class="abs"></div>
   <div id="steps" class="abs"></div>
+  <div id="meta" class="abs"></div>
+  <div id="tl" class="abs"></div>
+  <div id="kin" class="abs"></div>
+  <div id="bgfx" class="abs"></div>
+  <div id="wipe" class="abs"></div>
+  <div id="fx" class="abs"></div>
+  <div id="eq" class="abs"></div>
+  <div class="abs" style="left:0;bottom:0;z-index:2;opacity:.2"><svg width="1080" height="44" style="display:block"><defs><pattern id="strip" width="80" height="44" patternUnits="userSpaceOnUse"><g fill="#7b42bc"><rect x="2" y="20" width="22" height="24" rx="3"/><rect x="28" y="6" width="22" height="38" rx="3" opacity=".6"/><rect x="54" y="26" width="22" height="18" rx="3" opacity=".8"/></g></pattern></defs><rect width="1080" height="44" fill="url(#strip)"/></svg></div>
+  <div id="handle" class="abs">@dnimbus.ai</div>
   <div id="title" class="abs"></div>
   <svg id="char" class="abs" viewBox="0 0 400 820"></svg>
   <div id="prop" class="abs"></div>
   <div id="caption" class="abs"></div>
+  <div id="vig" class="abs"></div>
 </div>
 <div id="hint">Click to restart · add ?t=12 to freeze a moment</div>
 <script>
@@ -72,13 +106,13 @@ const S = [
     cap: [[0,"Terraform reads it... and builds it for you."]], prop: "build" },
   { t: 28, step: 3, title: 'Any cloud: <hl c="yellow">providers</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"It works with AWS, Azure, Google Cloud, and more."],[4,"Those plugins are called providers."]], prop: "providers" },
-  { t: 35, title: 'Edit the file, <hl c="red">done</hl>', pose: [[0,"point"]], mood: "happy",
+  { t: 35, title: 'Edit the file, <hl c="red">done</hl>', pose: [[0,"both"]], mood: "happy",
     cap: [[0,"Need a change? Edit the file."],[3,"Terraform updates only what's different."]], prop: "change" },
   { t: 41, title: 'Same <hl c="green">every time</hl>', pose: [[0,"present"],[.8,"cheer"]], mood: "happy",
     cap: [[0,"Dev, staging, production: identical. No surprises."]], prop: "same" },
   { t: 46, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"Write it. Review it. Reuse it."]], prop: "recap" },
-  { t: 50, title: 'Next: <hl c="blue">3 commands</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 50, title: 'Next: <hl c="blue">3 commands</hl>', pose: [[0,"peace"]], mood: "happy",
     cap: [[0,"Next: your first Terraform commands."],[3,"Follow for part two."]], prop: "next" },
 ];
 let END = 55.5;
@@ -91,11 +125,13 @@ const backOut = x => { x = clamp(x); const c = 1.6; return 1 + (c + 1) * Math.po
 const lerp = (a, b, k) => a + (b - a) * k;
 // entrance style: fade + rise + pop, starting `d` seconds into the scene
 function pop(lt, d = 0, dur = 0.45) {
-  const k = (lt - d) / dur, o = clamp(k * 1.6), s = lerp(0.85, 1, backOut(k)), y = lerp(30, 0, easeOut(k));
-  return `opacity:${o};transform:translateY(${y}px) scale(${s});`;
+  // v2: each element flies in from a side (picked from its delay) with a bounce and a small spin
+  const k = (lt - d) / dur, o = clamp(k * 1.6), b = backOut(k), h = Math.abs(Math.sin(d * 91.7 + 3.1) * 43758.5) % 1;
+  const dir = h < .34 ? -1 : h < .68 ? 1 : 0;
+  return `opacity:${o};transform:translate(${lerp(dir * 150, 0, b)}px, ${lerp(dir ? 20 : 60, 0, b)}px) rotate(${lerp(dir ? dir * 9 : -5, 0, b)}deg) scale(${lerp(.72, 1, b)});`;
 }
 const fade = (lt, d = 0, dur = 0.35) => `opacity:${clamp((lt - d) / dur)};`;
-const COL = { blue: ["#fff", "#1d7dd8"], red: ["#fff", "#e63946"], green: ["#fff", "#2bb673"], yellow: ["#22223b", "#ffc300"] };
+const COL = { blue: ["var(--blue)", "#d4e2ff"], green: ["var(--green)", "#d3f1df"], red: ["var(--red)", "#ffd9da"] };
 
 /* ---------- Props: building-blocks theme ---------- */
 const RD = "#e63946", BL = "#1d7dd8", YE = "#ffc300", GR = "#2bb673", INK = "#22223b", MU = "#7b7f9e";
@@ -161,7 +197,7 @@ const P = {
 function term(lt, lines, top = 60) {
   const shown = lines.filter(([d]) => lt >= d);
   const last = shown[shown.length - 1];
-  return `<div class="abs term" style="left:20px;top:${top}px;width:540px;min-height:300px;${pop(lt, 0, .35)}">
+  return `<div class="abs term" style="left:20px;top:${top}px;width:540px;min-height:150px;${pop(lt, 0, .35)}">
     <div style="display:flex;gap:10px;margin-bottom:18px"><i style="width:16px;height:16px;border-radius:50%;background:#ff5f57"></i><i style="width:16px;height:16px;border-radius:50%;background:#febc2e"></i><i style="width:16px;height:16px;border-radius:50%;background:#28c840"></i></div>
     ${shown.map(([d, h]) => {
       // type each command out
@@ -361,7 +397,34 @@ function charSvg(t, talking, mood) {
 /* ---------- Avatar presenter: a ready-made character whose mouth and eyes swap per frame ---------- */
 // window.AVATAR = { closed, mid, open, wide?, blink } (SVG data URIs), set by render.mjs --avatar
 window.AVATAR = null;
+const REST = "stand";   // the normal talking pose: "stand" (hands down) unless house.json says "rest": "cross"
+const POSE_MAP = {   // scene pose -> [accent picture or null, seconds, picture to settle into]
+  // the default is the master pose (arms crossed): it has its own closed, small, round and wide mouths and a blink
+  present: [null, 0, REST], idle: [null, 0, REST], cross: [null, 0, "cross"], stand: [null, 0, "stand"], both: [null, 0, "both"],
+  point: [null, 0, "point1"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"],
+  cheer: ["cheer", 3, REST], idea: ["idea", 1.6, REST], think: ["think", 1.8, REST],
+};
+function avatarPose(t, talking, A) {
+  let st = 0, name = "idle";
+  S.forEach(s => s.pose.forEach(([d, n]) => { if (s.t + d <= t) { st = s.t + d; name = n; } }));
+  const [accent, secs, rest] = POSE_MAP[name] || POSE_MAP.idle, since = t - st;
+  const showAccent = accent && since < secs, pic = showAccent ? accent : rest;
+  const tick = Math.floor(t * 12), sp = speech(tick / 12, talking), open = sp.open;
+  const has = k => A[k] && A[k][pic];
+  const blink = (t + 1.3) % 3.9 < .13;
+  let src = A.poseImg[pic];
+  if (!showAccent) {
+    const round = sp.wide < .3 || (tick * 7919) % 7 === 0;            // rounded vowels, plus a little variety
+    if (open > .32) src = open > .8 && has("poseWide") ? A.poseWide[pic] : round && has("poseRound") ? A.poseRound[pic]
+      : blink && has("poseBlinkTalk") ? A.poseBlinkTalk[pic] : A.poseTalk[pic] || src;
+    else if (blink && has("poseBlink")) src = A.poseBlink[pic];
+  }
+  const change = showAccent ? since : accent ? since - secs : since;          // time since the picture last changed
+  const pop = 1 + (change >= 0 && change < .28 ? Math.sin(Math.PI * change / .28) * .03 : 0);
+  return `<g transform="translate(200 400) scale(${pop}) translate(-200 -400) translate(0 ${Math.sin(t * 2.2) * 2})"><image href="${src}" x="0" y="0" width="400" height="400"/></g>`;
+}
 function avatarSvg(t, talking) {
+  if (window.AVATAR.poseImg) return avatarPose(t, talking, window.AVATAR);
   const A = window.AVATAR, { open } = speech(t, talking);
   const blink = (t % 3.6) < .13 || ((t + 1.7) % 7.3) < .11;
   if (A.card) return avatarCard(t, talking, A, open, blink);
@@ -413,6 +476,7 @@ function avatarCard(t, talking, A, open, blink) {
     </g>`;
 }
 
+
 /* ---------- Pro: retime everything to the recorded voice ---------- */
 window.TIMING = null;   // { caps: [{text,start,end,words:[t...]}...], end }  set by render.mjs --timing
 let TIMED = false;
@@ -442,6 +506,59 @@ function mapPW(A, x, from, to) {
 const warpNew = (sc, oldLt) => mapPW(anchors(sc), oldLt, 0, 1);
 const warpOld = (sc, newLt) => sc.oldCaps ? mapPW(anchors(sc), newLt, 1, 0) : newLt;
 
+const KEY = new Set(["booklet", "builds", "click", "code", "commands", "done", "every", "providers", "time", "want"]);
+// Each scene's visual is measured once and scaled to fit the visual area (960 x 540 px, starting at y 540),
+// so nothing ever sits behind the presenter, whose head starts below that area. Narrow visuals are centred.
+const FIT = { W: 960, H: 680, MAX: 1.5 };
+function fitScale(sc) {
+  if (sc.fit) return sc.fit;
+  const box = document.createElement("div"); box.style.cssText = "position:absolute;left:0;top:0;width:600px;visibility:hidden";
+  $("stage").appendChild(box);
+  const k = $("stage").getBoundingClientRect().width / 1080, len = sc.oldLen ?? (sc.end - sc.t);
+  let w = 10, h = 10;
+  [.35, .7, 1].forEach(f => {
+    box.innerHTML = P[sc.prop](len * f - .05); const o = box.getBoundingClientRect();
+    box.querySelectorAll("*").forEach(e => {
+      if (["svg", "g", "defs", "clipPath", "filter"].includes(e.tagName) || e.closest("defs")) return;
+      const r = e.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) { w = Math.max(w, (r.right - o.left) / k); h = Math.max(h, (r.bottom - o.top) / k); }
+    });
+  });
+  box.remove();
+  sc.fit = Math.min(FIT.MAX, FIT.W / w, FIT.H / h); sc.fitX = Math.max(0, (FIT.W - w * sc.fit) / 2);
+  return sc.fit;
+}
+function tm() {
+  if (window.TIMING) return window.TIMING;
+  if (!window.SYN) {
+    const caps = [];
+    S.forEach(sc => sc.cap.forEach(([d, text], ci) => {
+      const start = sc.t + d + .1, nxt = ci + 1 < sc.cap.length ? sc.t + sc.cap[ci + 1][0] : sc.end, n = text.split(" ").length, dur = Math.max(.3, Math.min(nxt - start - .3, n * .32));
+      caps.push({ text, start, end: start + dur, words: text.split(" ").map((_, i) => start + dur * i / n) });
+    }));
+    window.SYN = { caps, end: END - 1.6 };
+  }
+  return window.SYN;
+}
+function kinetic(t) {
+  const C = tm().caps;
+  let ci = -1; C.forEach((c, i) => { if (t >= c.start - .05) ci = i; });
+  if (ci < 0) return "";
+  const c = C[ci], next = C[ci + 1];
+  if (t > c.end + .9 && (!next || t < next.start - .05)) return "";          // clear during long pauses
+  const toks = c.text.split(" ");
+  let cur = -1; c.words.forEach((w, i) => { if (t >= w - .03) cur = i; });
+  return toks.map((tk, i) => {
+    const st = c.words[i], shown = t >= st - .06;
+    const k = clamp((t - (st - .06)) / .16);
+    const clean = tk.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const box = i === cur && KEY.has(clean);
+    const cls = i === cur ? "now" : i < cur ? "said" : "";
+    if (!shown) return "";
+    const style = `opacity:${k};transform:translateY(${(1 - easeOut(k)) * 14}px)`;
+    return `<span class="w ${cls}" style="${style}">${box ? `<span class="box" style="transform:scale(${1 + .4 * (1 - easeOut((t - st) / .22))})"></span><svg class="tk" width="60" height="60" viewBox="0 0 60 60" style="opacity:${clamp(1 - (t - st) / .5)};transform:scale(${.5 + clamp((t - st) / .3) * .8})"><path d="M8 40 L20 30 M26 46 L28 28 M44 44 L36 30" stroke="#7b42bc" stroke-width="6" stroke-linecap="round"/></svg>` : ""}<span style="position:relative">${tk}</span></span>`;
+  }).join("");
+}
 
 /* ---------- Render one moment ---------- */
 const $ = id => document.getElementById(id);
@@ -451,12 +568,12 @@ function render(t) {
   const sc = S[si], lt = t - sc.t;
 
   // steps
-  $("steps").innerHTML = sc.step ? [1, 2, 3].map(n => `<div class="step ${n === sc.step ? "on" : ""}">${n === sc.step ? "STEP " + n : n}</div>`).join("") : "";
+  $("steps").innerHTML = sc.step ? [1, 2, 3, 4].map(n => `<div class="step ${n === sc.step ? "on" : ""}">${n === sc.step ? "STEP " + n : n}</div>`).join("") : "";
 
   // title with highlighted word
   const mk = easeOut((lt - .25) / .4);
   $("title").innerHTML = sc.title.replace(/<hl c="(\w+)">(.*?)<\/hl>/g, (_, c, w) =>
-    `<span class="hl" style="color:${COL[c][0]};--mark:${COL[c][1]};--mk:${mk}"><span>${w}</span></span>`);
+    `<span class="hl" style="color:${(COL[c] || COL.blue)[0]};--mark:${(COL[c] || COL.blue)[1]};--mk:${mk}"><span>${w}</span></span>`);
   $("title").style.cssText = `opacity:${clamp(lt / .25)};transform:translateY(${lerp(24, 0, easeOut(lt / .35))}px)`;
 
   // caption
@@ -467,7 +584,42 @@ function render(t) {
   const talking = ci >= 0 && lt < capEnd - 0.25 && cl < Math.max(1.1, sc.cap[ci][1].length * 0.075);
 
   $("char").innerHTML = window.AVATAR ? avatarSvg(t, talking) : charSvg(t, talking, sc.mood);
-  $("prop").innerHTML = P[sc.prop](warpOld(sc, lt));
+  const olt = warpOld(sc, lt);
+  $("prop").innerHTML = P[sc.prop](olt);
+  // camera: slow push-in through each scene with a gentle drift, quick settle on scene change
+  const sk = clamp(lt / Math.max(1, sc.end - sc.t)), enter = easeOut(lt / .45);
+  // ---- v2 extra motion ----
+  // seconds since the most recent key word started (drives the zoom-punch)
+  let kp = 9;
+  tm().caps.forEach(c => { const tk = c.text.split(" "); c.words.forEach((w, i) => { if (t >= w && t - w < kp && KEY.has(tk[i].toLowerCase().replace(/[^a-z0-9]/g, ""))) kp = t - w; }); });
+  const punch = kp < .3 ? Math.sin(Math.PI * kp / .3) : 0;
+  $("kin").style.transform = `scale(${1 + punch * .035})`; $("kin").style.transformOrigin = "0 50%";
+  // scene changes stay quiet: no full-screen wipe, the new visual just slides in
+  $("wipe").innerHTML = "";
+  // drifting code symbols in the background
+  $("bgfx").innerHTML = ["<svg viewBox=\"0 0 64 64\" width=\"1em\" height=\"1em\" style=\"display:block\"><g fill=\"#7b42bc\"><rect x=\"6\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\"/><rect x=\"34\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".65\"/><rect x=\"20\" y=\"8\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".4\"/></g></svg>", "<svg viewBox=\"0 0 64 64\" width=\"1em\" height=\"1em\" style=\"display:block\"><path d=\"M18 46 C8 46 6 34 15 31 C15 20 30 16 35 25 C42 20 53 25 51 34 C59 36 57 46 49 46 Z\" fill=\"none\" stroke=\"#7b42bc\" stroke-width=\"5\" stroke-linejoin=\"round\"/></svg>", "<svg viewBox=\"0 0 64 64\" width=\"1em\" height=\"1em\" style=\"display:block\"><g fill=\"#7b42bc\"><rect x=\"6\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\"/><rect x=\"34\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".65\"/><rect x=\"20\" y=\"8\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".4\"/></g></svg>", "<svg viewBox=\"0 0 64 64\" width=\"1em\" height=\"1em\" style=\"display:block\"><path d=\"M18 46 C8 46 6 34 15 31 C15 20 30 16 35 25 C42 20 53 25 51 34 C59 36 57 46 49 46 Z\" fill=\"none\" stroke=\"#7b42bc\" stroke-width=\"5\" stroke-linejoin=\"round\"/></svg>", "<svg viewBox=\"0 0 64 64\" width=\"1em\" height=\"1em\" style=\"display:block\"><g fill=\"#7b42bc\"><rect x=\"6\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\"/><rect x=\"34\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".65\"/><rect x=\"20\" y=\"8\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".4\"/></g></svg>", "<svg viewBox=\"0 0 64 64\" width=\"1em\" height=\"1em\" style=\"display:block\"><g fill=\"#7b42bc\"><rect x=\"6\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\"/><rect x=\"34\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".65\"/><rect x=\"20\" y=\"8\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".4\"/></g></svg>", "<svg viewBox=\"0 0 64 64\" width=\"1em\" height=\"1em\" style=\"display:block\"><path d=\"M18 46 C8 46 6 34 15 31 C15 20 30 16 35 25 C42 20 53 25 51 34 C59 36 57 46 49 46 Z\" fill=\"none\" stroke=\"#7b42bc\" stroke-width=\"5\" stroke-linejoin=\"round\"/></svg>", "<svg viewBox=\"0 0 64 64\" width=\"1em\" height=\"1em\" style=\"display:block\"><g fill=\"#7b42bc\"><rect x=\"6\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\"/><rect x=\"34\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".65\"/><rect x=\"20\" y=\"8\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".4\"/></g></svg>", "<svg viewBox=\"0 0 64 64\" width=\"1em\" height=\"1em\" style=\"display:block\"><path d=\"M18 46 C8 46 6 34 15 31 C15 20 30 16 35 25 C42 20 53 25 51 34 C59 36 57 46 49 46 Z\" fill=\"none\" stroke=\"#7b42bc\" stroke-width=\"5\" stroke-linejoin=\"round\"/></svg>", "<svg viewBox=\"0 0 64 64\" width=\"1em\" height=\"1em\" style=\"display:block\"><g fill=\"#7b42bc\"><rect x=\"6\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\"/><rect x=\"34\" y=\"36\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".65\"/><rect x=\"20\" y=\"8\" width=\"22\" height=\"22\" rx=\"4\" opacity=\".4\"/></g></svg>"].map((g, i) => { const hx = (Math.sin(i * 12.9) * 43758.5 % 1 + 1) % 1, hy = (Math.sin(i * 78.2) * 12543.1 % 1 + 1) % 1;
+    return `<span style="left:${hx * 960 + Math.sin(t * .3 + i) * 30}px;top:${((hy * 1900 - t * (14 + i * 3)) % 1960 + 1960) % 1960 - 60}px;transform:rotate(${Math.sin(t * .2 + i * 2) * 14}deg);font-size:${46 + (i % 3) * 22}px">${g}</span>`; }).join("");
+  // voice equalizer next to the handle
+  { const env = window.VOICE ? (window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : speech(t, true).open;
+    $("eq").innerHTML = [0, 1, 2, 3, 4, 5, 6].map(i => `<i style="height:${8 + env * (26 + 22 * Math.abs(Math.sin(t * 9 + i * 1.7)))}px"></i>`).join(""); }
+  // confetti when he cheers
+  { let cs = -1; S.forEach(s2 => s2.pose.forEach(([d, n]) => { if (n === "cheer" && s2.t + d <= t) cs = s2.t + d; })); const ct = t - cs;
+    $("fx").innerHTML = cs >= 0 && ct < 2.4 ? `<svg width="1080" height="1920">${Array.from({ length: 46 }, (_, i) => { const a = -Math.PI / 2 + (((Math.sin(i * 7.3) * 9999) % 1) - .0) * 1.6, v = 700 + (i % 7) * 130;
+      const x = 560 + Math.cos(a) * v * ct * (i % 2 ? 1 : -1) * .8, y = 1250 + Math.sin(a) * v * ct + 900 * ct * ct;
+      return `<rect x="${x}" y="${y}" width="${14 + i % 3 * 6}" height="${10 + i % 2 * 12}" rx="3" fill="${["#7b42bc", "#151515", "#22a45d", "#2f6fe4", "#ffd84a"][i % 5]}" opacity="${clamp(2.4 - ct)}" transform="rotate(${i * 40 + ct * 400} ${x} ${y})"/>`; }).join("")}</svg>` : ""; }
+  // presenter gives a small bounce on each scene change
+  $("char").style.transform = `scale(${1 + punch * .012})`; $("char").style.transformOrigin = "50% 100%";
+  $("prop").style.transform = `translate(${fitScale(sc) * 0 + sc.fitX + Math.sin(t * .5 + si) * 8 + lerp(-50, 0, easeOut(lt / .4))}px, ${Math.cos(t * .4) * 9}px) rotate(${lerp(si % 2 ? 1.5 : -1.5, Math.sin(t * .6 + si) * .8, enter)}deg) scale(${fitScale(sc) * lerp(1, 1.03, sk) * lerp(.9, 1, enter) * (1 + punch * .04)})`;
+  $("prop").style.filter = `blur(${(1 - enter) * 4}px) drop-shadow(0 26px 30px rgba(60,50,20,.16))`;
+  $("prop").style.opacity = clamp(lt / .3);
+  $("kin").innerHTML = kinetic(t);
+  // top meta row + commit-timeline progress: one dot per scene, HEAD rides along
+  $("meta").innerHTML = `<span><span style="display:inline-flex;align-items:center;gap:14px"><span style="font-size:60px;margin:-18px 0"><svg viewBox="0 0 64 64" width="1em" height="1em" style="display:block"><g fill="#7b42bc"><rect x="6" y="36" width="22" height="22" rx="4"/><rect x="34" y="36" width="22" height="22" rx="4" opacity=".65"/><rect x="20" y="8" width="22" height="22" rx="4" opacity=".4"/></g></svg></span>ep.17 · terraform intro</span></span><span>SCENE <b>${String(si + 1).padStart(2, "0")}</b>/${S.length}</span>`;
+  { const W = 960, n = S.length, px = i => 14 + i * (W - 28) / (n - 1), hx = 14 + clamp(t / (END - 1.6)) * (W - 28);
+    $("tl").innerHTML = `<svg width="${W}" height="30" viewBox="0 0 ${W} 30"><path d="M14 15 H${W - 14}" stroke="#d9d5c8" stroke-width="4" stroke-linecap="round"/><path d="M14 15 H${hx}" stroke="#151515" stroke-width="4" stroke-linecap="round"/>` +
+      S.map((_, i) => `<circle cx="${px(i)}" cy="15" r="${i === si ? 10 : 7}" fill="${i <= si ? "#151515" : "#f3f1ea"}" stroke="${i <= si ? "#151515" : "#d9d5c8"}" stroke-width="4"/>`).join("") +
+      `<circle cx="${hx}" cy="15" r="6" fill="#7b42bc"/></svg>`; }
+  $("grid").style.backgroundPosition = `${t * 6}px ${t * 4}px`;
 }
 
 /* ---------- Playback ---------- */

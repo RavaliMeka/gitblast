@@ -1,0 +1,22 @@
+{
+  "title": "What is Terraform Explainer",
+  "meta": "ep.17 · terraform intro",
+  "keys": [
+    "booklet",
+    "builds",
+    "click",
+    "code",
+    "commands",
+    "done",
+    "every",
+    "providers",
+    "time",
+    "want"
+  ],
+  "defs": [],
+  "accent": "#7b42bc",
+  "bg": "#f1e9fb",
+  "grid": "#e3d8f1",
+  "rest": "stand",
+  "series": "terraform"
+}

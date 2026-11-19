@@ -3,7 +3,7 @@ const S = [
     cap: [[0,"Three commands run almost everything in Terraform."],[3,"Think of planning a hike."]], prop: "three" },
   { t: 6,  title: 'Start: <hl c="wood">main.tf</hl>', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"First, a file: main.tf"],[2,"A provider... and one resource: a server."]], prop: "tf" },
-  { t: 13, step: 1, title: 'init: <hl c="green">pack gear</hl>', pose: [[0,"point"]], mood: "happy",
+  { t: 13, step: 1, title: 'init: <hl c="green">pack gear</hl>', pose: [[0,"both"]], mood: "happy",
     cap: [[0,"terraform init: pack your gear."],[3,"It downloads the provider plugins."]], prop: "init" },
   { t: 19, step: 2, title: 'plan: <hl c="wood">check map</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"terraform plan: check the map."],[3,"It shows exactly what will change... before anything happens."],[7,"One to add. Nothing destroyed."]], prop: "plan" },
@@ -15,7 +15,7 @@ const S = [
     cap: [[0,"Golden rule: always read the plan before you apply."]], prop: "rule" },
   { t: 46, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"Init. Plan. Apply."]], prop: "recap" },
-  { t: 50, title: 'Next: <hl c="wood">state</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 50, title: 'Next: <hl c="wood">state</hl>', pose: [[0,"peace"]], mood: "happy",
     cap: [[0,"Next: state and variables."],[2.4,"Follow for part three."]], prop: "next" },
 ];
 let END = 55.5;

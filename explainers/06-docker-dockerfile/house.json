@@ -1,0 +1,25 @@
+{
+  "title": "Your First Dockerfile Explainer",
+  "meta": "ep.06 · docker dockerfile",
+  "keys": [
+    "alive",
+    "build",
+    "cmd",
+    "copy",
+    "expose",
+    "from",
+    "ports",
+    "recipe",
+    "run",
+    "volumes",
+    "workdir"
+  ],
+  "defs": [
+    "<svg width=\"0\" height=\"0\" style=\"position:absolute\"><filter id=\"paper\"><feDropShadow dx=\"0\" dy=\"10\" stdDeviation=\"12\" flood-color=\"#4a2c1d\" flood-opacity=\".12\"/></filter></svg>"
+  ],
+  "accent": "#0b84e3",
+  "bg": "#e3f1fc",
+  "grid": "#d3e4f1",
+  "rest": "stand",
+  "series": "docker"
+}

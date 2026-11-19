@@ -7,7 +7,7 @@ const S = [
     cap: [[0,"Think of a factory assembly line."],[3,"Your code goes in one end..."],[5,"and a tested, working app comes out the other."]], prop: "line" },
   { t: 19, step: 1, title: 'CI: <hl c="green">test</hl> every push', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"CI is continuous integration:"],[3,"every push gets built and tested automatically."],[7,"Broken code gets caught before it spreads."]], prop: "ci" },
-  { t: 30, step: 2, title: 'CD: <hl c="orange">ship</hl> what passes', pose: [[0,"point"]], mood: "happy",
+  { t: 30, step: 2, title: 'CD: <hl c="orange">ship</hl> what passes', pose: [[0,"both"]], mood: "happy",
     cap: [[0,"CD is continuous delivery:"],[2,"code that passes gets shipped automatically."],[6,"No late-night manual deploys."]], prop: "cd" },
   { t: 39, step: 3, title: 'The tool: <hl c="yellow">Actions</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"The tool we'll use is GitHub Actions."],[3,"It's built into GitHub, and free to start."]], prop: "tool" },
@@ -15,7 +15,7 @@ const S = [
     cap: [[0,"Push code... robots do the rest."]], prop: "robots" },
   { t: 48, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"CI: test every change."],[2.4,"CD: ship every change."]], prop: "recap" },
-  { t: 53, title: 'Next: <hl c="yellow">first workflow</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 53, title: 'Next: <hl c="yellow">first workflow</hl>', pose: [[0,"peace"]], mood: "happy",
     cap: [[0,"Next: your first workflow."],[2.2,"Follow for part two."]], prop: "next" },
 ];
 let END = 58.5;

@@ -1,0 +1,23 @@
+const S = [
+  { t: 0,  title: 'Click, click, <hl c="red">click…</hl>', pose: [[0,"shrug"]], mood: "curious",
+    cap: [[0,"Setting up servers by clicking around a cloud console?"],[3,"Slow... and impossible to repeat exactly."]], prop: "clicks" },
+  { t: 7,  title: 'Infra as <hl c="blue">code</hl>', pose: [[0,"idea"]], mood: "happy",
+    cap: [[0,"There's a better way: infrastructure as code."]], prop: "iac" },
+  { t: 10, title: 'Blocks + <hl c="yellow">booklet</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Think of building blocks with an instruction booklet."],[3,"Follow the booklet... get the same model every time."]], prop: "booklet" },
+  { t: 17, step: 1, title: 'Write what you <hl c="blue">want</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"With Terraform, you write what you want in a file:"],[3,"a server, a database, a network."]], prop: "file" },
+  { t: 24, step: 2, title: 'Terraform <hl c="green">builds</hl> it', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Terraform reads it... and builds it for you."]], prop: "build" },
+  { t: 28, step: 3, title: 'Any cloud: <hl c="yellow">providers</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"It works with AWS, Azure, Google Cloud, and more."],[4,"Those plugins are called providers."]], prop: "providers" },
+  { t: 35, title: 'Edit the file, <hl c="red">done</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"Need a change? Edit the file."],[3,"Terraform updates only what's different."]], prop: "change" },
+  { t: 41, title: 'Same <hl c="green">every time</hl>', pose: [[0,"present"],[.8,"cheer"]], mood: "happy",
+    cap: [[0,"Dev, staging, production: identical. No surprises."]], prop: "same" },
+  { t: 46, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0,"Write it. Review it. Reuse it."]], prop: "recap" },
+  { t: 50, title: 'Next: <hl c="blue">3 commands</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Next: your first Terraform commands."],[3,"Follow for part two."]], prop: "next" },
+];
+let END = 55.5;

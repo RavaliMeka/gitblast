@@ -9,11 +9,11 @@ const S = [
     cap: [[0,"Customers just say \"a table, please\"..."],[3,"and the host sends them to a free one."],[5,"That's load balancing."]], prop: "balance" },
   { t: 24, step: 2, title: 'Two <hl c="gold">kinds</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"A ClusterIP service works inside the cluster."],[3,"A LoadBalancer service opens it to the internet."]], prop: "kinds" },
-  { t: 30, step: 3, title: 'One <hl c="red">front door</hl>', pose: [[0,"point"],[9,"cheer"]], mood: "happy",
+  { t: 30, step: 3, title: 'One <hl c="red">front door</hl>', pose: [[0,"both"],[9,"cheer"]], mood: "happy",
     cap: [[0,"Got many services?"],[2,"An Ingress is the front entrance, with signs:"],[5,"/shop goes here... /api goes there."],[9,"One address. Traffic goes to the right place."]], prop: "ingress" },
   { t: 43, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"Service: a stable address."],[2.4,"Ingress: smart routing."]], prop: "recap" },
-  { t: 48, title: 'Next: <hl c="gold">scaling</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 48, title: 'Next: <hl c="gold">scaling</hl>', pose: [[0,"peace"]], mood: "happy",
     cap: [[0,"Next: scaling, and updates with zero downtime."],[3.6,"Follow for part four."]], prop: "next" },
 ];
 let END = 54.5;

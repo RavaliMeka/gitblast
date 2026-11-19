@@ -1,0 +1,27 @@
+{
+  "title": "What is Kubernetes Explainer",
+  "meta": "ep.09 · k8s intro",
+  "keys": [
+    "cluster",
+    "control",
+    "easy",
+    "healing",
+    "keeps",
+    "kubernetes",
+    "manages",
+    "move",
+    "nodes",
+    "plane",
+    "pods",
+    "self",
+    "tower",
+    "want",
+    "words"
+  ],
+  "defs": [],
+  "accent": "#3d5afe",
+  "bg": "#e8ecfd",
+  "grid": "#d9def5",
+  "rest": "stand",
+  "series": "kubernetes"
+}

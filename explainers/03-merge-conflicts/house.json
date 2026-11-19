@@ -1,0 +1,31 @@
+{
+  "title": "Merge Conflicts Explainer",
+  "meta": "ep.03 · merge conflicts",
+  "keys": [
+    "add",
+    "asks",
+    "clean",
+    "commit",
+    "conflict",
+    "edits",
+    "hello",
+    "hi",
+    "markers",
+    "mistakes",
+    "steps",
+    "there",
+    "tip",
+    "two",
+    "undoing",
+    "up",
+    "you"
+  ],
+  "defs": [
+    "<svg width=\"0\" height=\"0\" style=\"position:absolute\"><filter id=\"rough\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.035\" numOctaves=\"2\" seed=\"4\"/><feDisplacementMap in=\"SourceGraphic\" scale=\"3.2\"/></filter></svg>"
+  ],
+  "accent": "#ff5a1f",
+  "bg": "#f3f1ea",
+  "grid": "#ead9bd",
+  "rest": "stand",
+  "series": "git"
+}

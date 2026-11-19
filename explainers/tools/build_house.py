@@ -4,6 +4,7 @@
 #   { "title": "...", "meta": "ep.02 · branches", "keys": ["branch", "merge", ...], "accent": "#ff5a1f" }
 # The base is 01-git-github/explainer-v2.html. Use tools/presenter-poses.json as the presenter.
 import json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 here = os.path.dirname(os.path.abspath(__file__))
 ep = os.path.abspath(sys.argv[1])
@@ -112,6 +113,24 @@ function avatarSvg(t, talking) {
 
 # the sound bars follow the estimated speech until a voice recording is attached
 rep("(window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : 0;\n    $(\"eq\")", "(window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : speech(t, true).open;\n    $(\"eq\")")
+# titles written for older themes use colour names the house page does not know
+rep("color:${COL[c][0]};--mark:${COL[c][1]}", "color:${(COL[c] || COL.blue)[0]};--mark:${(COL[c] || COL.blue)[1]}")
+# series art: badge beside the episode label, themed background shapes, a strip along the bottom edge
+if cfg.get("series"):
+    from series_art import ART
+    art = ART[cfg["series"]]; acc = cfg.get("accent", "#ff5a1f"); col = lambda x: x.replace("ACC", acc)
+    rep("// " + cfg["meta"], '<span style="display:inline-flex;align-items:center;gap:14px"><span style="font-size:60px;margin:-18px 0">' + col(art["badge"]) + '</span>' + cfg["meta"] + '</span>')
+    if art["shapes"]:
+        rep('["{ }", "$", "+", "</>", "+", "#", ">_", "✓", "*", "//"]', json.dumps([col(x) for x in art["shapes"]] * 2))
+        rep("#bgfx span { position: absolute; opacity: .06; }", "#bgfx span { position: absolute; opacity: .13; }")
+        # themed shapes stay clear of the headline: they only show in the visual area
+        s = s.replace("linear-gradient(180deg, #000 0, #000 52%, transparent 60%)", "linear-gradient(180deg, transparent 0, transparent 19%, #000 23%, #000 52%, transparent 60%)")
+    if art["strip"]:
+        rep('<div id="eq" class="abs"></div>', '<div id="eq" class="abs"></div>\n  <div class="abs" style="left:0;bottom:0;z-index:2;opacity:.2">' + col(art["strip"]) + '</div>')
+# series look: paper colour, grid dots, and any SVG filters the episode's visuals refer to
+if cfg.get("bg"): s = s.replace("transparent 70%), #f3f1ea !important", f"transparent 70%), {cfg['bg']} !important")
+if cfg.get("bg"): rep("--bg: #fbf3e4; --grid: #ead9bd;", f"--bg: {cfg['bg']}; --grid: {cfg.get('grid', '#ead9bd')};")
+if cfg.get("defs"): s = s.replace('<div id="eq" class="abs"></div>', '<div id="eq" class="abs"></div>\n  ' + "\n  ".join(cfg["defs"]), 1)
 s = s.replace("__REST__", cfg.get("rest", "stand"))
 open(os.path.join(ep, "explainer.html"), "w").write(s)
 print("built", os.path.join(ep, "explainer.html"))

@@ -9,13 +9,13 @@ const S = [
     cap: [[0,"Never edit it by hand."],[2,"And never commit it to Git: it can hold secrets."]], prop: "warn" },
   { t: 25, step: 2, title: 'Remote + <hl c="green">locked</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"Teams keep it in remote storage, with a lock,"],[3,"so two people can't change things at once."]], prop: "remote" },
-  { t: 32, step: 3, title: 'Use <hl c="navy">variables</hl>', pose: [[0,"point"]], mood: "happy",
+  { t: 32, step: 3, title: 'Use <hl c="navy">variables</hl>', pose: [[0,"both"]], mood: "happy",
     cap: [[0,"Now, variables."],[1.4,"Don't hard-code values. Use a variable."],[5,"Same code... different settings for dev and prod."]], prop: "vars" },
   { t: 42, title: 'And <hl c="green">outputs</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"And outputs print useful results, like your server's address."]], prop: "out" },
   { t: 46, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"State remembers. Variables customize. Outputs report."]], prop: "recap" },
-  { t: 51, title: 'Next: <hl c="navy">modules</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 51, title: 'Next: <hl c="navy">modules</hl>', pose: [[0,"peace"]], mood: "happy",
     cap: [[0,"Next: modules, and cleaning up."],[2.6,"Follow for part four."]], prop: "next" },
 ];
 let END = 56.5;

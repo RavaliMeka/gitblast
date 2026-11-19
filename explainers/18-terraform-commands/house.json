@@ -1,0 +1,24 @@
+{
+  "title": "Terraform init, plan, apply Explainer",
+  "meta": "ep.18 · terraform commands",
+  "keys": [
+    "check",
+    "commands",
+    "gear",
+    "go",
+    "golden",
+    "live",
+    "main",
+    "map",
+    "pack",
+    "rule",
+    "state",
+    "tf"
+  ],
+  "defs": [],
+  "accent": "#7b42bc",
+  "bg": "#f1e9fb",
+  "grid": "#e3d8f1",
+  "rest": "stand",
+  "series": "terraform"
+}

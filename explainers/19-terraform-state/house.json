@@ -1,0 +1,21 @@
+{
+  "title": "Terraform State and Variables Explainer",
+  "meta": "ep.19 · terraform state",
+  "keys": [
+    "care",
+    "file",
+    "ledger",
+    "locked",
+    "modules",
+    "outputs",
+    "remembers",
+    "state",
+    "variables"
+  ],
+  "defs": [],
+  "accent": "#7b42bc",
+  "bg": "#f1e9fb",
+  "grid": "#e3d8f1",
+  "rest": "stand",
+  "series": "terraform"
+}

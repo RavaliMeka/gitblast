@@ -1,0 +1,21 @@
+{
+  "title": "Kubernetes Pods and Deployments Explainer",
+  "meta": "ep.10 · k8s deployments",
+  "keys": [
+    "back",
+    "check",
+    "deployment",
+    "gardener",
+    "it",
+    "plants",
+    "pod",
+    "replanted",
+    "services"
+  ],
+  "defs": [],
+  "accent": "#3d5afe",
+  "bg": "#e8ecfd",
+  "grid": "#d9def5",
+  "rest": "stand",
+  "series": "kubernetes"
+}

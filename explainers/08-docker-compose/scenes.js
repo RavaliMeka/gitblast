@@ -9,7 +9,7 @@ const S = [
     cap: [[0,"Think of an orchestra."],[2,"Each musician is a container."],[4,"Compose is the conductor."]], prop: "orchestra" },
   { t: 15, step: 1, title: 'The <hl c="red">compose.yaml</hl>', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"You write one file: compose.yaml."],[3,"List your services: web, API, database."],[6,"Add their images, ports and volumes."],[9,"depends_on... tells who starts first."]], prop: "yaml" },
-  { t: 28, step: 2, title: 'One command: <hl c="gold">up</hl>', pose: [[0,"point"],[3.2,"cheer"]], mood: "happy",
+  { t: 28, step: 2, title: 'One command: <hl c="gold">up</hl>', pose: [[0,"both"],[3.2,"cheer"]], mood: "happy",
     cap: [[0,"Then one command: docker compose up."],[3,"Everything starts together!"]], prop: "up" },
   { t: 34, step: 3, title: 'And <hl c="red">down</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"docker compose down... stops it all."]], prop: "down" },
@@ -17,7 +17,7 @@ const S = [
     cap: [[0,"Same file works for your whole team."]], prop: "team" },
   { t: 40, title: 'Docker basics: <hl c="red">done!</hl>', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"And that's Docker basics:"],[1.6,"Dockerfile, image, container, ports, volumes, Compose."]], prop: "recap" },
-  { t: 47, title: 'Next: <hl c="gold">Kubernetes?</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 47, title: 'Next: <hl c="gold">Kubernetes?</hl>', pose: [[0,"peace"]], mood: "happy",
     cap: [[0,"Next topic: Kubernetes? Comment K8S if you want it."],[5,"Follow for more."]], prop: "next" },
 ];
 let END = 55;

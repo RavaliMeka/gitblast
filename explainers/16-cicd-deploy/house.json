@@ -1,0 +1,23 @@
+{
+  "title": "CD and Secrets with GitHub Actions Explainer",
+  "meta": "ep.16 · cicd deploy",
+  "keys": [
+    "cd",
+    "check",
+    "ci",
+    "deploy",
+    "it",
+    "lift",
+    "off",
+    "safety",
+    "secrets",
+    "ship",
+    "terraform"
+  ],
+  "defs": [],
+  "accent": "#0f9d58",
+  "bg": "#e6f5ea",
+  "grid": "#d5e9da",
+  "rest": "stand",
+  "series": "ci/cd"
+}

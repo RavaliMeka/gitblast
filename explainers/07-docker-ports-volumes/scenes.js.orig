@@ -1,0 +1,21 @@
+const S = [
+  { t: 0,  title: 'Can\'t reach it? <hl c="red">Data gone?</hl>', pose: [[0,"shrug"]], mood: "curious",
+    cap: [[0,"Your container is running... but you can't reach it?"],[3,"Or your data vanished on restart?"]], prop: "hook" },
+  { t: 5,  title: 'Two fixes', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Two fixes: ports and volumes."]], prop: "two" },
+  { t: 8,  title: 'Container = <hl c="blue">apartment</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"A container is like a sealed apartment."]], prop: "apartment" },
+  { t: 11, step: 1, title: 'Ports = <hl c="blue">door numbers</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"Ports are the door number."],[2,"-p 8000:3000"],[5,"knock on 8000 outside... reach 3000 inside."]], prop: "ports" },
+  { t: 20, title: 'Delete it, <hl c="red">data\'s gone</hl>', pose: [[0,"shrug"]], mood: "serious",
+    cap: [[0,"Now, data."],[2,"Delete a container... and everything inside goes with it."]], prop: "lost" },
+  { t: 26, step: 2, title: 'Volumes = <hl c="orange">storage locker</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"A volume is a storage locker outside the apartment."],[3,"-v my-data:/data"],[6,"connects the locker to the container."]], prop: "volume" },
+  { t: 35, step: 3, title: 'Data <hl c="green">survives</hl>', pose: [[0,"present"],[3.2,"cheer"]], mood: "happy",
+    cap: [[0,"Delete the container..."],[2,"start a new one..."],[3,"your data is still there!"]], prop: "survive" },
+  { t: 41, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0,"Ports: let traffic in."],[2,"Volumes: keep data safe."]], prop: "recap" },
+  { t: 46, title: 'Next: <hl c="blue">Docker Compose</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Next: Docker Compose... many containers, one command."],[5,"Follow so you don't miss it."]], prop: "next" },
+];
+let END = 54;

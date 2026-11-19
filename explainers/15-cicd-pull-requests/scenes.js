@@ -5,7 +5,7 @@ const S = [
     cap: [[0,"Change the trigger to pull_request."],[3,"Now every PR gets tested before it merges."]], prop: "trigger" },
   { t: 13, step: 2, title: 'Jobs in <hl c="teal">parallel</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"Add more jobs: lint, test, build."],[3,"They run at the same time, on separate runners."]], prop: "jobs" },
-  { t: 20, step: 3, title: 'The <hl c="purple">matrix</hl>', pose: [[0,"point"]], mood: "happy",
+  { t: 20, step: 3, title: 'The <hl c="purple">matrix</hl>', pose: [[0,"both"]], mood: "happy",
     cap: [[0,"Need to test several versions?"],[2,"A matrix runs the same job on Node 18, 20 and 22."]], prop: "matrix" },
   { t: 27, title: 'Fail = <hl c="red">locked</hl>', pose: [[0,"shrug"]], mood: "serious",
     cap: [[0,"If anything fails... red X."],[3,"Turn on branch protection, and the merge button stays locked."]], prop: "fail" },
@@ -15,7 +15,7 @@ const S = [
     cap: [[0,"Bugs get caught by robots... not by your users."]], prop: "robots" },
   { t: 46, title: 'Remember', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"PR trigger. Parallel jobs. Matrix. Protection."]], prop: "recap" },
-  { t: 50, title: 'Next: <hl c="teal">auto-deploy</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 50, title: 'Next: <hl c="teal">auto-deploy</hl>', pose: [[0,"peace"]], mood: "happy",
     cap: [[0,"Next: deploying automatically."],[2.4,"Follow for part four."]], prop: "next" },
 ];
 let END = 55.5;

@@ -9,7 +9,7 @@ const S = [
     cap: [[0,"Think of an airport control tower."],[3,"Planes are your containers."],[5,"The tower decides where each one lands."]], prop: "tower" },
   { t: 18, step: 1, title: 'The <hl c="amber">cluster</hl>', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"A Kubernetes setup is called a cluster."]], prop: "c0" },
-  { t: 21, step: 2, title: 'Machines: <hl c="amber">nodes</hl>', pose: [[0,"point"]], mood: "happy",
+  { t: 21, step: 2, title: 'Machines: <hl c="amber">nodes</hl>', pose: [[0,"both"]], mood: "happy",
     cap: [[0,"It has worker machines, called nodes."]], prop: "c1" },
   { t: 24, step: 3, title: 'Containers in <hl c="amber">pods</hl>', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"Your containers run inside pods, on those nodes."]], prop: "c2" },
@@ -19,11 +19,11 @@ const S = [
     cap: [[0,"You don't say \"run this on machine three.\""],[3,"You just say what you want: three copies of my app."]], prop: "want" },
   { t: 39, title: 'It <hl c="amber">keeps</hl> it that way', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"Kubernetes makes it happen... and keeps it that way."]], prop: "keeps" },
-  { t: 43, title: 'Node down? <hl c="amber">Pods move.</hl>', pose: [[0,"point"],[2,"cheer"]], mood: "happy",
+  { t: 43, title: 'Node down? <hl c="amber">Pods move.</hl>', pose: [[0,"both"],[2,"cheer"]], mood: "happy",
     cap: [[0,"A node goes down?"],[1.6,"Pods move to another one."]], prop: "heal" },
   { t: 47, title: '<hl c="amber">4 words</hl> to remember', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"Cluster. Node. Pod. Control plane."]], prop: "recap" },
-  { t: 51, title: 'Next: <hl c="amber">self-healing</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 51, title: 'Next: <hl c="amber">self-healing</hl>', pose: [[0,"peace"]], mood: "happy",
     cap: [[0,"Next: pods and self-healing."],[2.4,"Follow for part two."]], prop: "next" },
 ];
 let END = 56.5;

@@ -1,0 +1,20 @@
+{
+  "title": "Terraform Modules and Destroy Explainer",
+  "meta": "ep.20 · terraform modules",
+  "keys": [
+    "destroy",
+    "done",
+    "kit",
+    "monitoring",
+    "registry",
+    "repeat",
+    "tidy",
+    "toolbox"
+  ],
+  "defs": [],
+  "accent": "#7b42bc",
+  "bg": "#f1e9fb",
+  "grid": "#e3d8f1",
+  "rest": "stand",
+  "series": "terraform"
+}

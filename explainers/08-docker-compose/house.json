@@ -1,0 +1,26 @@
+{
+  "title": "Docker Compose Explainer",
+  "meta": "ep.08 · docker compose",
+  "keys": [
+    "compose",
+    "database",
+    "docker",
+    "done",
+    "down",
+    "kubernetes",
+    "orchestra",
+    "team",
+    "ugh",
+    "up",
+    "whole",
+    "yaml"
+  ],
+  "defs": [
+    "<svg width=\"0\" height=\"0\" style=\"position:absolute\"><filter id=\"lift\" x=\"-10%\" y=\"-10%\" width=\"120%\" height=\"140%\"><feDropShadow dx=\"0\" dy=\"10\" stdDeviation=\"12\" flood-color=\"#8c1c3a\" flood-opacity=\".12\"/></filter></svg>"
+  ],
+  "accent": "#0b84e3",
+  "bg": "#e3f1fc",
+  "grid": "#d3e4f1",
+  "rest": "stand",
+  "series": "docker"
+}

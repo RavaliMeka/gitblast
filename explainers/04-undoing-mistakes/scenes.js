@@ -1,0 +1,19 @@
+const S = [
+  { t: 0,  title: 'Oops. <hl c="red">Undo?</hl>', pose: [[0,"shrug"]], mood: "curious",
+    cap: [[0,"We all make mistakes..."],[1.6,"even in Git."]], prop: "oops" },
+  { t: 3,  title: 'Git has <hl c="blue">3 undo buttons</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"The good news?"],[1,"Git has an undo button."],[3,"Actually... three."]], prop: "three" },
+  { t: 8,  step: 1, title: 'Not committed: <hl c="green">restore</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"One: changed a file but haven't committed?"],[3,"git restore throws your changes away."]], prop: "restore" },
+  { t: 15, step: 2, title: 'Committed: <hl c="red">reset</hl>', pose: [[0,"both"]], mood: "serious",
+    cap: [[0,"Two: committed, and want to take it back?"],[3,"git reset moves you back to an earlier commit."],[7,"Careful: only on commits you haven't pushed."]], prop: "reset" },
+  { t: 27, step: 3, title: 'Pushed: <hl c="blue">revert</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Three: already pushed and shared?"],[3,"Use git revert."],[4,"It makes a new commit that cancels the old one."],[9,"History stays safe for everyone."]], prop: "revert" },
+  { t: 39, title: 'The <hl c="green">quick rule</hl>', pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0,"Quick rule:"],[1,"Not committed... restore."],[3,"Not pushed... reset."],[5,"Pushed... revert."]], prop: "rule" },
+  { t: 47, title: 'That\'s a wrap on <hl c="blue">Git</hl>!', pose: [[0,"present"],[.6,"cheer"]], mood: "happy",
+    cap: [[0,"And that's a wrap on Git basics!"]], prop: "wrap" },
+  { t: 50, title: 'Next up: <hl c="red">Docker</hl>', pose: [[0,"peace"]], mood: "happy",
+    cap: [[0,"Next, we start a brand-new topic: Docker."],[4,"If this helped, follow along for more."]], prop: "follow" },
+];
+let END = 58.5;

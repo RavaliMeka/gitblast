@@ -1,0 +1,23 @@
+const S = [
+  { t: 0,  title: 'Uh oh: <hl c="red">CONFLICT</hl>', pose: [[0,"present"]], mood: "curious",
+    cap: [[0,"You merge a branch..."],[1.6,"and Git says... CONFLICT."],[4,"Don't panic. It's normal."]], prop: "alarm" },
+  { t: 6,  title: 'Same line, <hl c="blue">two edits</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"A conflict happens when two branches"],[2,"change the same line."]], prop: "twolines" },
+  { t: 10, title: '<hl c="blue">Hello</hl> vs <hl c="green">Hi there</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Say main says \"Hello\"..."],[2,"and your feature says \"Hi there\"."]], prop: "versus" },
+  { t: 15, title: 'Git <hl c="red">asks you</hl>', pose: [[0,"shrug"]], mood: "curious",
+    cap: [[0,"Git can't guess which one you want,"],[2,"so it asks you."]], prop: "asks" },
+  { t: 19, step: 1, title: 'Read the <hl c="red">markers</hl>', pose: [[0,"point"]], mood: "happy",
+    cap: [[0,"Open the file."],[1,"You'll see these markers."],[3,"Above the line: your version."],[6,"Below it: theirs."]], prop: "markers" },
+  { t: 28, step: 2, title: 'Choose, then <hl c="green">clean up</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Keep one, or combine both,"],[2,"then delete the markers."]], prop: "resolve" },
+  { t: 33, step: 3, title: 'Save it: <hl c="blue">add + commit</hl>', pose: [[0,"point"],[4,"cheer"]], mood: "happy",
+    cap: [[0,"Now run git add..."],[2,"and git commit."],[4,"Conflict solved!"]], prop: "commit" },
+  { t: 39, title: 'Pro <hl c="green">tip</hl>', pose: [[0,"idea"]], mood: "happy",
+    cap: [[0,"Pro tip: pull often"],[3,"and keep branches small."]], prop: "tip" },
+  { t: 46, title: 'The fix in <hl c="blue">4 steps</hl>', pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0,"Conflict. Fix the file."],[2,"Add. Commit."],[4,"That's it."]], prop: "recap" },
+  { t: 52, title: 'Next: <hl c="red">undoing mistakes</hl>', pose: [[0,"present"]], mood: "happy",
+    cap: [[0,"Next up: undoing mistakes."],[2,"If this helped,"],[3,"follow along for more."]], prop: "follow" },
+];
+let END = 57.5;
