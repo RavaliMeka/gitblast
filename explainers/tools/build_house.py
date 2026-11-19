@@ -84,7 +84,7 @@ function kinetic(t) {''')
 rep("function avatarSvg(t, talking) {", '''const REST = "__REST__";   // the normal talking pose: "stand" (hands down) unless house.json says "rest": "cross"
 const POSE_MAP = {   // scene pose -> [accent picture or null, seconds, picture to settle into]
   // the default is the master pose (arms crossed): it has its own closed, small, round and wide mouths and a blink
-  present: [null, 0, REST], idle: [null, 0, REST], cross: [null, 0, "cross"], stand: [null, 0, "stand"],
+  present: [null, 0, REST], idle: [null, 0, REST], cross: [null, 0, "cross"], stand: [null, 0, "stand"], both: [null, 0, "both"],
   point: [null, 0, "point1"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"],
   cheer: ["cheer", 3, REST], idea: ["idea", 1.6, REST], think: ["think", 1.8, REST],
 };

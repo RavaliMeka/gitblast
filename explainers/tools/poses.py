@@ -151,12 +151,13 @@ def talk_variant(pose, face, fit, tweak=(1, 0, 0), k=(1, 1), M=MOUTH):
 # cheek and neck (identical in every picture) and never near the lips or moustache.
 LOWER = (514, 452, 132, 82)        # in the 1024px arms-crossed picture
 EYELIDS = (514, 333, 138, 60)      # both eyes, inside the glasses
-GEOM = {"cross": (LOWER, EYELIDS, (41, 1.1)), "shrug": ((517, 396, 130, 78), (517, 275, 118, 44), (0, 1)),   # lower face, eyes, (body fill, zoom)
+GEOM = {"cross": (LOWER, EYELIDS, (41, 1.1)), "shrug": ((517, 396, 130, 78), [(463, 276, 42, 38), (570, 276, 42, 38)], (0, 1)),   # lower face, eyes, (body fill, zoom)
         "point1": ((975, 738, 245, 142), (975, 540, 235, 100), (0, 1))}
 # zoom: the master pose has bigger hair, so its head is enlarged until the glasses are as wide as in the other poses
 GEOM["stand"] = ((750, 880, 290, 168), [(637, 645, 112, 104), (868, 645, 112, 104)], (0, 1), (440, 500, 1070, 820))   # eyes: one area per lens, so the frames stay put
 #   # + the box used to line pictures up
 GEOM["thumb"] = ((975, 790, 245, 142), (975, 580, 235, 100), (0, 1))
+GEOM["both"] = ((983, 890, 259, 150), [(864, 645, 110, 104), (1123, 645, 110, 104)], (0, 1), (725, 560, 1273, 828))
 def line_up(base, other, box):
     # The standing pictures were drawn one by one, so the head differs a little in size and place. Scale and shift
     # each one until its glasses and nose sit exactly on the closed-mouth picture's.
