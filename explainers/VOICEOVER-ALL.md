@@ -861,7 +861,7 @@
 
 ## Episode 27: Six days of outages
 
-*About 58 seconds · 98 words*
+*About 58 seconds · 95 words*
 
 **Say it like this**
 
@@ -888,11 +888,11 @@
 >
 > Outages aren't rare. Being ready is.
 >
-> Next: what really broke Microsoft 365. / Follow for more.
+> If this helped, / follow for more.
 
 ## Episode 28: What broke Microsoft 365
 
-*About 61 seconds · 109 words*
+*About 61 seconds · 106 words*
 
 **Say it like this**
 
@@ -920,17 +920,16 @@
 >
 > Leave headroom. Fail small, not all at once.
 >
-> Next: why every US flight stopped. / Follow for more.
+> If this helped, / follow for more.
 
 ## Episode 29: Why every US flight stopped
 
-*About 56 seconds · 105 words*
+*About 56 seconds · 102 words*
 
 **Say it like this**
 
 | Word | How to say it |
 |---|---|
-| Java4Shell | “java for shell” |
 | FAA | “F-A-A” |
 
 **Script**
@@ -949,11 +948,11 @@
 >
 > Old isn't the problem. Unprotected is.
 >
-> Next: Java4Shell, the new Java bug. / Follow for more.
+> If this helped, / follow for more.
 
 ## Episode 30: Java4Shell explained
 
-*About 62 seconds · 129 words*
+*About 62 seconds · 125 words*
 
 **Say it like this**
 
@@ -986,4 +985,4 @@
 >
 > Find it. Patch it. Fast.
 >
-> Want more stories like this? / Follow, and comment a topic.
+> If this helped, / follow for more.

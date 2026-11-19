@@ -17,7 +17,7 @@ const S = [
     cap: [[0, "That's a cascading failure."], [2.2, "The fix: spare capacity, and shed load before servers fall over."]], prop: "lesson" },
   { t: 51.4, title: "Remember <hl c=\"green\">this</hl>", pose: [[0,"thumb"]], mood: "happy",
     cap: [[0, "Leave headroom. Fail small, not all at once."]], prop: "recap" },
-  { t: 55.4, title: "More tech <hl c=\"red\">stories</hl>", pose: [[0,"peace"]], mood: "happy",
-    cap: [[0, "Next: why every US flight stopped."], [2.8, "Follow for more."]], prop: "next" },
+  { t: 55.4, title: "Follow for <hl c=\"red\">more</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "If this helped,"], [1.6, "follow for more."]], prop: "next" },
 ];
 let END = 60.5;

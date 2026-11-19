@@ -114,8 +114,8 @@ const S = [
     cap: [[0, "The lesson: protect old systems from traffic floods."], [3.8, "Use rate limits, and test changes on a copy first."]], prop: "lesson" },
   { t: 46, title: "Remember <hl c=\"green\">this</hl>", pose: [[0,"thumb"]], mood: "happy",
     cap: [[0, "Old isn't the problem. Unprotected is."]], prop: "recap" },
-  { t: 50, title: "More tech <hl c=\"red\">stories</hl>", pose: [[0,"peace"]], mood: "happy",
-    cap: [[0, "Next: Java4Shell, the new Java bug."], [3, "Follow for more."]], prop: "next" },
+  { t: 50, title: "Follow for <hl c=\"red\">more</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "If this helped,"], [1.6, "follow for more."]], prop: "next" },
 ];
 let END = 56;
 S.forEach((s, i) => s.end = i + 1 < S.length ? S[i + 1].t : END);
@@ -210,6 +210,11 @@ function caseCard(lt, date, name, col = DS.red, note = "a true story") {
 function stat(lt, d, big, label, col = DS.red, y = 200) {
   return G(lt, d, 320, y, box(-280, -130, 560, 260, col, "#fff", 26, 6) + T(0, 28, big, col, big.length > 6 ? 78 : 120, 800) + T(0, 92, label, DS.mute, label.length > 30 ? 19 : 22, 700, "middle", MONO));
 }
+// closing card with no next topic: just the handle and a follow button
+function followCard(lt, line = "DevOps, one simple idea at a time") {
+  return G(lt, .2, 320, 150, box(-290, -96, 580, 192, DS.line, "#fff", 22) + T(0, -14, "@dnimbus.ai", DS.ink, 46, 800, "middle", MONO) + T(0, 40, line, DS.mute, 22, 600)) +
+    G(lt, 1.6, 320, 370, `<rect x="-176" y="-44" width="360" height="100" rx="50" fill="${DS.ink}" opacity=".18"/><rect x="-180" y="-52" width="360" height="100" rx="50" fill="${DS.red}"/>` + T(0, 12, "+ Follow", "#fff", 40, 800));
+}
 
 const P = {
   case: lt => svg(caseCard(lt, "13 NOV 2026", "Flights grounded", DS.red, "public reports · 19 Nov 2026"), 420),
@@ -221,7 +226,7 @@ const P = {
   old: lt => svg(compare(lt, { title: "strength", lines: ["proven", "runs for decades", "well understood"], col: DS.green }, { title: "weakness", lines: ["built for old loads", "hard to change", "breaks on surprises"], col: DS.amber, d: 2.4 }, 30, 290), 370),
   lesson: lt => svg(bullets(lt, [[.3, "1", "rate limits in front", DS.blue], [3.8, "2", "test on a copy first", DS.amber], [5.6, "3", "change one site at a time", DS.green]], 10, 108), 350),
   recap: lt => svg(recap(lt, [["Shield", "limit the traffic", DS.blue], ["Stage", "one site at a time", DS.amber], ["Rehearse", "on a copy", DS.green]]), 450),
-  next: lt => svg(nextCard(lt, "Next story", "Java4Shell", 3), 450),
+  next: lt => svg(followCard(lt), 450),
 };
 
 function term(lt, lines, top = 60) {
@@ -647,7 +652,7 @@ function render(t) {
   $("prop").style.opacity = clamp(lt / .3);
   $("kin").innerHTML = kinetic(t);
   // top meta row + commit-timeline progress: one dot per scene, HEAD rides along
-  $("meta").innerHTML = `<span><span style="display:inline-flex;align-items:center;gap:14px"><span style="font-size:60px;margin:-18px 0"><svg viewBox="0 0 64 64" width="1em" height="1em" style="display:block"><path d="M32 6 L60 54 H4 Z" fill="#d97706" stroke="#d97706" stroke-width="6" stroke-linejoin="round"/><path d="M32 24 V38" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="46" r="3.6" fill="#fff"/></svg></span>ep.29 · now faa ground stop</span></span><span>SCENE <b>${String(si + 1).padStart(2, "0")}</b>/${S.length}</span>`;
+  $("meta").innerHTML = `<span><span style="display:inline-flex;align-items:center;gap:14px"><span style="font-size:60px;margin:-18px 0"><svg viewBox="0 0 64 64" width="1em" height="1em" style="display:block"><path d="M32 6 L60 54 H4 Z" fill="#d97706" stroke="#d97706" stroke-width="6" stroke-linejoin="round"/><path d="M32 24 V38" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="46" r="3.6" fill="#fff"/></svg></span>tech news · faa ground stop</span></span><span>SCENE <b>${String(si + 1).padStart(2, "0")}</b>/${S.length}</span>`;
   { const W = 960, n = S.length, px = i => 14 + i * (W - 28) / (n - 1), hx = 14 + clamp(t / (END - 1.6)) * (W - 28);
     $("tl").innerHTML = `<svg width="${W}" height="30" viewBox="0 0 ${W} 30"><path d="M14 15 H${W - 14}" stroke="#d9d5c8" stroke-width="4" stroke-linecap="round"/><path d="M14 15 H${hx}" stroke="#151515" stroke-width="4" stroke-linecap="round"/>` +
       S.map((_, i) => `<circle cx="${px(i)}" cy="15" r="${i === si ? 10 : 7}" fill="${i <= si ? "#151515" : "#f3f1ea"}" stroke="${i <= si ? "#151515" : "#d9d5c8"}" stroke-width="4"/>`).join("") +

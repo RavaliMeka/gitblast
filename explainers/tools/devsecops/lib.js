@@ -73,3 +73,8 @@ function caseCard(lt, date, name, col = DS.red, note = "a true story") {
 function stat(lt, d, big, label, col = DS.red, y = 200) {
   return G(lt, d, 320, y, box(-280, -130, 560, 260, col, "#fff", 26, 6) + T(0, 28, big, col, big.length > 6 ? 78 : 120, 800) + T(0, 92, label, DS.mute, label.length > 30 ? 19 : 22, 700, "middle", MONO));
 }
+// closing card with no next topic: just the handle and a follow button
+function followCard(lt, line = "DevOps, one simple idea at a time") {
+  return G(lt, .2, 320, 150, box(-290, -96, 580, 192, DS.line, "#fff", 22) + T(0, -14, "@dnimbus.ai", DS.ink, 46, 800, "middle", MONO) + T(0, 40, line, DS.mute, 22, 600)) +
+    G(lt, 1.6, 320, 370, `<rect x="-176" y="-44" width="360" height="100" rx="50" fill="${DS.ink}" opacity=".18"/><rect x="-180" y="-52" width="360" height="100" rx="50" fill="${DS.red}"/>` + T(0, 12, "+ Follow", "#fff", 40, 800));
+}

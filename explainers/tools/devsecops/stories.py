@@ -14,7 +14,7 @@ EPS["27-now-outage-wave"] = dict(title="Six days of outages", keys="six outages 
   (31.4, "Why all at " + hl("blue", "once") + "?", "present", [[0, "So why all at once?"], [2, "Partly coincidence. Partly, everything is connected."]], "linked"),
   (38.4, "The " + hl("green", "lesson"), "point", [[0, "The lesson for engineers: assume your dependencies will fail."], [4.4, "And plan for it."]], "lesson", 3),
   (46.6, "Remember " + hl("green", "this"), "thumb", [[0, "Outages aren't rare. Being ready is."]], "recap"),
-  (50.8, "More tech " + hl("red", "stories"), "present", [[0, "Next: what really broke Microsoft 365."], [3, "Follow for more."]], "next"),
+  (50.8, "Follow for " + hl("red", "more"), "present", [[0, "If this helped,"], [1.6, "follow for more."]], "next"),
 ], props="""
 const P = {
   case: lt => svg(caseCard(lt, "NOV 2026", "The outage wave", DS.red, "public reports · 19 Nov 2026"), 420),
@@ -25,7 +25,7 @@ const P = {
     (lt > 2.2 ? [0, 1, 2, 3].map(i => `<path d="M320 140 L${100 + i * 147} 244" stroke="${DS.mute}" stroke-width="3" stroke-dasharray="6 7"/>`).join("") : ""), 340),
   lesson: lt => svg(bullets(lt, [[.3, "1", "timeouts and retries", DS.blue], [2.4, "2", "a fallback mode", DS.amber], [4.4, "3", "a second region", DS.green]], 10, 108), 350),
   recap: lt => svg(recap(lt, [["Expect", "things to fail", DS.red], ["Limit", "the blast radius", DS.amber], ["Practice", "the recovery", DS.green]]), 450),
-  next: lt => svg(nextCard(lt, "Next story", "What broke Microsoft 365", 3), 450),
+  next: lt => svg(followCard(lt), 450),
 };""")
 
 EPS["28-now-microsoft-365"] = dict(title="What broke Microsoft 365", keys="down hours three bug load percent offline teams earlier safety healthy overloaded eighty cascading capacity shed headroom small".split(), end=60.5, scenes=[
@@ -38,7 +38,7 @@ EPS["28-now-microsoft-365"] = dict(title="What broke Microsoft 365", keys="down 
   (37.4, "Over " + hl("red", "80%"), "shrug", [[0, "At the worst point, over 80 percent had stopped responding."]], "eighty"),
   (42.6, "The " + hl("green", "lesson"), "point", [[0, "That's a cascading failure."], [2.2, "The fix: spare capacity, and shed load before servers fall over."]], "lesson", 3),
   (51.4, "Remember " + hl("green", "this"), "thumb", [[0, "Leave headroom. Fail small, not all at once."]], "recap"),
-  (55.4, "More tech " + hl("red", "stories"), "present", [[0, "Next: why every US flight stopped."], [2.8, "Follow for more."]], "next"),
+  (55.4, "Follow for " + hl("red", "more"), "present", [[0, "If this helped,"], [1.6, "follow for more."]], "next"),
 ], props="""
 const servers = (lt, downAt) => Array.from({ length: 16 }, (_, i) => { const x = 80 + (i % 8) * 68, y = 70 + Math.floor(i / 8) * 76, off = lt > downAt(i);
   return `<rect x="${x - 27}" y="${y - 30}" width="54" height="60" rx="10" fill="${off ? "#fff" : DS.green}" stroke="${off ? DS.red : DS.green}" stroke-width="4" stroke-dasharray="${off ? "6 6" : "0"}"/>` + (off ? T(x, y + 9, "✕", DS.red, 24, 800) : ""); }).join("");
@@ -52,7 +52,7 @@ const P = {
   eighty: lt => svg(stat(lt, .2, ">80%", "of gateway servers not responding", DS.red), 360),
   lesson: lt => svg(bullets(lt, [[2.2, "1", "keep spare capacity", DS.green], [4.2, "2", "shed load early", DS.amber], [6, "3", "limit automatic failover", DS.blue]], 10, 108), 350),
   recap: lt => svg(recap(lt, [["Headroom", "never run at the edge", DS.green], ["Shed", "drop some, save most", DS.amber], ["Limit", "stop the chain", DS.red]]), 450),
-  next: lt => svg(nextCard(lt, "Next story", "Why every US flight stopped", 2.8), 450),
+  next: lt => svg(followCard(lt), 450),
 };""")
 
 EPS["29-now-faa-ground-stop"] = dict(title="Why every US flight stopped", keys="stopped four ground stop flying nothing network traffic old attack investigated decades load protect limits copy unprotected".split(), end=56, scenes=[
@@ -63,7 +63,7 @@ EPS["29-now-faa-ground-stop"] = dict(title="Why every US flight stopped", keys="
   (29.4, "Old " + hl("amber", "systems"), "point", [[0, "Old systems are the hard part."], [2.4, "They work for decades, until the load changes."]], "old", 2),
   (36.6, "The " + hl("green", "lesson"), "point", [[0, "The lesson: protect old systems from traffic floods."], [3.8, "Use rate limits, and test changes on a copy first."]], "lesson", 3),
   (46, "Remember " + hl("green", "this"), "thumb", [[0, "Old isn't the problem. Unprotected is."]], "recap"),
-  (50, "More tech " + hl("red", "stories"), "present", [[0, "Next: Java4Shell, the new Java bug."], [3, "Follow for more."]], "next"),
+  (50, "Follow for " + hl("red", "more"), "present", [[0, "If this helped,"], [1.6, "follow for more."]], "next"),
 ], props="""
 const P = {
   case: lt => svg(caseCard(lt, "13 NOV 2026", "Flights grounded", DS.red, "public reports · 19 Nov 2026"), 420),
@@ -75,7 +75,7 @@ const P = {
   old: lt => svg(compare(lt, { title: "strength", lines: ["proven", "runs for decades", "well understood"], col: DS.green }, { title: "weakness", lines: ["built for old loads", "hard to change", "breaks on surprises"], col: DS.amber, d: 2.4 }, 30, 290), 370),
   lesson: lt => svg(bullets(lt, [[.3, "1", "rate limits in front", DS.blue], [3.8, "2", "test on a copy first", DS.amber], [5.6, "3", "change one site at a time", DS.green]], 10, 108), 350),
   recap: lt => svg(recap(lt, [["Shield", "limit the traffic", DS.blue], ["Stage", "one site at a time", DS.amber], ["Rehearse", "on a copy", DS.green]]), 450),
-  next: lt => svg(nextCard(lt, "Next story", "Java4Shell", 3), 450),
+  next: lt => svg(followCard(lt), 450),
 };""")
 
 EPS["30-now-java4shell"] = dict(title="Java4Shell explained", keys="java4shell ai openjdk engine decoder memory code hour exploit attacks fix update patched sca sbom fast".split(), end=61.5, scenes=[
@@ -88,7 +88,7 @@ EPS["30-now-java4shell"] = dict(title="Java4Shell explained", keys="java4shell a
   (39.4, "The " + hl("green", "fix") + " is out", "point", [[0, "Oracle shipped a fix on November 17."], [3, "Update to your Java vendor's patched build."]], "fix", 3),
   (46.6, "Which Java do " + hl("blue", "you") + " run?", "present", [[0, "Don't know which Java you run?"], [2.6, "That's what SCA and an SBOM are for."]], "which"),
   (53, "Remember " + hl("green", "this"), "thumb", [[0, "Find it. Patch it. Fast."]], "recap"),
-  (56.6, "More tech " + hl("red", "stories"), "present", [[0, "Want more stories like this?"], [2.2, "Follow, and comment a topic."]], "next"),
+  (56.6, "Follow for " + hl("red", "more"), "present", [[0, "If this helped,"], [1.6, "follow for more."]], "next"),
 ], props="""
 const P = {
   case: lt => svg(caseCard(lt, "17 NOV 2026", "Java4Shell", DS.red, "public reports · 19 Nov 2026"), 420),
@@ -103,7 +103,7 @@ const P = {
   fix: lt => svg(shell(lt, [[.3, "$ java -version"]]) + bullets(lt, [[2, "1", "check your version", DS.blue], [3.2, "2", "read your vendor's advisory", DS.amber], [4.4, "3", "install the patched build", DS.green]], 110, 100), 440),
   which: lt => svg(bullets(lt, [[.3, "SCA", "find vulnerable versions", DS.amber], [2.6, "SBOM", "list what you run", DS.blue]], 30, 120), 300),
   recap: lt => svg(recap(lt, [["Find", "which Java you run", DS.blue], ["Patch", "to a fixed build", DS.green], ["Fast", "before attackers", DS.red]]), 450),
-  next: lt => svg(nextCard(lt, "Your pick", "Comment the next story", 2.2), 450),
+  next: lt => svg(followCard(lt), 450),
 };""")
 
 for name, e in EPS.items():
@@ -112,5 +112,5 @@ for name, e in EPS.items():
     for f in ("scenes.js.orig", "house.json"):
         if os.path.exists(os.path.join(d, f)): os.remove(os.path.join(d, f))
     open(os.path.join(d, "props.js"), "w").write(LIB + e["props"] + "\n")
-    json.dump({"title": e["title"], "meta": "ep.%s · %s" % (name[:2], name[3:].replace("-", " ")), "keys": e["keys"]}, open(os.path.join(d, "house.json"), "w"), indent=2)
+    json.dump({"title": e["title"], "meta": "tech news · %s" % name[7:].replace("-", " "), "keys": e["keys"]}, open(os.path.join(d, "house.json"), "w"), indent=2)
     subprocess.check_call([sys.executable, os.path.join(here, "..", "convert_house.py"), d])

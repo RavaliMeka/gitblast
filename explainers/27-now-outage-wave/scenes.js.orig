@@ -13,7 +13,7 @@ const S = [
     cap: [[0, "The lesson for engineers: assume your dependencies will fail."], [4.4, "And plan for it."]], prop: "lesson" },
   { t: 46.6, title: "Remember <hl c=\"green\">this</hl>", pose: [[0,"thumb"]], mood: "happy",
     cap: [[0, "Outages aren't rare. Being ready is."]], prop: "recap" },
-  { t: 50.8, title: "More tech <hl c=\"red\">stories</hl>", pose: [[0,"present"]], mood: "happy",
-    cap: [[0, "Next: what really broke Microsoft 365."], [3, "Follow for more."]], prop: "next" },
+  { t: 50.8, title: "Follow for <hl c=\"red\">more</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "If this helped,"], [1.6, "follow for more."]], prop: "next" },
 ];
 let END = 57.5;

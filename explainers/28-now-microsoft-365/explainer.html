@@ -118,8 +118,8 @@ const S = [
     cap: [[0, "That's a cascading failure."], [2.2, "The fix: spare capacity, and shed load before servers fall over."]], prop: "lesson" },
   { t: 51.4, title: "Remember <hl c=\"green\">this</hl>", pose: [[0,"thumb"]], mood: "happy",
     cap: [[0, "Leave headroom. Fail small, not all at once."]], prop: "recap" },
-  { t: 55.4, title: "More tech <hl c=\"red\">stories</hl>", pose: [[0,"peace"]], mood: "happy",
-    cap: [[0, "Next: why every US flight stopped."], [2.8, "Follow for more."]], prop: "next" },
+  { t: 55.4, title: "Follow for <hl c=\"red\">more</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "If this helped,"], [1.6, "follow for more."]], prop: "next" },
 ];
 let END = 60.5;
 S.forEach((s, i) => s.end = i + 1 < S.length ? S[i + 1].t : END);
@@ -214,6 +214,11 @@ function caseCard(lt, date, name, col = DS.red, note = "a true story") {
 function stat(lt, d, big, label, col = DS.red, y = 200) {
   return G(lt, d, 320, y, box(-280, -130, 560, 260, col, "#fff", 26, 6) + T(0, 28, big, col, big.length > 6 ? 78 : 120, 800) + T(0, 92, label, DS.mute, label.length > 30 ? 19 : 22, 700, "middle", MONO));
 }
+// closing card with no next topic: just the handle and a follow button
+function followCard(lt, line = "DevOps, one simple idea at a time") {
+  return G(lt, .2, 320, 150, box(-290, -96, 580, 192, DS.line, "#fff", 22) + T(0, -14, "@dnimbus.ai", DS.ink, 46, 800, "middle", MONO) + T(0, 40, line, DS.mute, 22, 600)) +
+    G(lt, 1.6, 320, 370, `<rect x="-176" y="-44" width="360" height="100" rx="50" fill="${DS.ink}" opacity=".18"/><rect x="-180" y="-52" width="360" height="100" rx="50" fill="${DS.red}"/>` + T(0, 12, "+ Follow", "#fff", 40, 800));
+}
 
 const servers = (lt, downAt) => Array.from({ length: 16 }, (_, i) => { const x = 80 + (i % 8) * 68, y = 70 + Math.floor(i / 8) * 76, off = lt > downAt(i);
   return `<rect x="${x - 27}" y="${y - 30}" width="54" height="60" rx="10" fill="${off ? "#fff" : DS.green}" stroke="${off ? DS.red : DS.green}" stroke-width="4" stroke-dasharray="${off ? "6 6" : "0"}"/>` + (off ? T(x, y + 9, "✕", DS.red, 24, 800) : ""); }).join("");
@@ -227,7 +232,7 @@ const P = {
   eighty: lt => svg(stat(lt, .2, ">80%", "of gateway servers not responding", DS.red), 360),
   lesson: lt => svg(bullets(lt, [[2.2, "1", "keep spare capacity", DS.green], [4.2, "2", "shed load early", DS.amber], [6, "3", "limit automatic failover", DS.blue]], 10, 108), 350),
   recap: lt => svg(recap(lt, [["Headroom", "never run at the edge", DS.green], ["Shed", "drop some, save most", DS.amber], ["Limit", "stop the chain", DS.red]]), 450),
-  next: lt => svg(nextCard(lt, "Next story", "Why every US flight stopped", 2.8), 450),
+  next: lt => svg(followCard(lt), 450),
 };
 
 function term(lt, lines, top = 60) {
@@ -653,7 +658,7 @@ function render(t) {
   $("prop").style.opacity = clamp(lt / .3);
   $("kin").innerHTML = kinetic(t);
   // top meta row + commit-timeline progress: one dot per scene, HEAD rides along
-  $("meta").innerHTML = `<span><span style="display:inline-flex;align-items:center;gap:14px"><span style="font-size:60px;margin:-18px 0"><svg viewBox="0 0 64 64" width="1em" height="1em" style="display:block"><path d="M32 6 L60 54 H4 Z" fill="#d97706" stroke="#d97706" stroke-width="6" stroke-linejoin="round"/><path d="M32 24 V38" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="46" r="3.6" fill="#fff"/></svg></span>ep.28 · now microsoft 365</span></span><span>SCENE <b>${String(si + 1).padStart(2, "0")}</b>/${S.length}</span>`;
+  $("meta").innerHTML = `<span><span style="display:inline-flex;align-items:center;gap:14px"><span style="font-size:60px;margin:-18px 0"><svg viewBox="0 0 64 64" width="1em" height="1em" style="display:block"><path d="M32 6 L60 54 H4 Z" fill="#d97706" stroke="#d97706" stroke-width="6" stroke-linejoin="round"/><path d="M32 24 V38" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="46" r="3.6" fill="#fff"/></svg></span>tech news · microsoft 365</span></span><span>SCENE <b>${String(si + 1).padStart(2, "0")}</b>/${S.length}</span>`;
   { const W = 960, n = S.length, px = i => 14 + i * (W - 28) / (n - 1), hx = 14 + clamp(t / (END - 1.6)) * (W - 28);
     $("tl").innerHTML = `<svg width="${W}" height="30" viewBox="0 0 ${W} 30"><path d="M14 15 H${W - 14}" stroke="#d9d5c8" stroke-width="4" stroke-linecap="round"/><path d="M14 15 H${hx}" stroke="#151515" stroke-width="4" stroke-linecap="round"/>` +
       S.map((_, i) => `<circle cx="${px(i)}" cy="15" r="${i === si ? 10 : 7}" fill="${i <= si ? "#151515" : "#f3f1ea"}" stroke="${i <= si ? "#151515" : "#d9d5c8"}" stroke-width="4"/>`).join("") +

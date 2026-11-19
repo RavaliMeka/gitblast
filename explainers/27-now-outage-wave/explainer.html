@@ -114,8 +114,8 @@ const S = [
     cap: [[0, "The lesson for engineers: assume your dependencies will fail."], [4.4, "And plan for it."]], prop: "lesson" },
   { t: 46.6, title: "Remember <hl c=\"green\">this</hl>", pose: [[0,"thumb"]], mood: "happy",
     cap: [[0, "Outages aren't rare. Being ready is."]], prop: "recap" },
-  { t: 50.8, title: "More tech <hl c=\"red\">stories</hl>", pose: [[0,"peace"]], mood: "happy",
-    cap: [[0, "Next: what really broke Microsoft 365."], [3, "Follow for more."]], prop: "next" },
+  { t: 50.8, title: "Follow for <hl c=\"red\">more</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "If this helped,"], [1.6, "follow for more."]], prop: "next" },
 ];
 let END = 57.5;
 S.forEach((s, i) => s.end = i + 1 < S.length ? S[i + 1].t : END);
@@ -210,6 +210,11 @@ function caseCard(lt, date, name, col = DS.red, note = "a true story") {
 function stat(lt, d, big, label, col = DS.red, y = 200) {
   return G(lt, d, 320, y, box(-280, -130, 560, 260, col, "#fff", 26, 6) + T(0, 28, big, col, big.length > 6 ? 78 : 120, 800) + T(0, 92, label, DS.mute, label.length > 30 ? 19 : 22, 700, "middle", MONO));
 }
+// closing card with no next topic: just the handle and a follow button
+function followCard(lt, line = "DevOps, one simple idea at a time") {
+  return G(lt, .2, 320, 150, box(-290, -96, 580, 192, DS.line, "#fff", 22) + T(0, -14, "@dnimbus.ai", DS.ink, 46, 800, "middle", MONO) + T(0, 40, line, DS.mute, 22, 600)) +
+    G(lt, 1.6, 320, 370, `<rect x="-176" y="-44" width="360" height="100" rx="50" fill="${DS.ink}" opacity=".18"/><rect x="-180" y="-52" width="360" height="100" rx="50" fill="${DS.red}"/>` + T(0, 12, "+ Follow", "#fff", 40, 800));
+}
 
 const P = {
   case: lt => svg(caseCard(lt, "NOV 2026", "The outage wave", DS.red, "public reports · 19 Nov 2026"), 420),
@@ -220,7 +225,7 @@ const P = {
     (lt > 2.2 ? [0, 1, 2, 3].map(i => `<path d="M320 140 L${100 + i * 147} 244" stroke="${DS.mute}" stroke-width="3" stroke-dasharray="6 7"/>`).join("") : ""), 340),
   lesson: lt => svg(bullets(lt, [[.3, "1", "timeouts and retries", DS.blue], [2.4, "2", "a fallback mode", DS.amber], [4.4, "3", "a second region", DS.green]], 10, 108), 350),
   recap: lt => svg(recap(lt, [["Expect", "things to fail", DS.red], ["Limit", "the blast radius", DS.amber], ["Practice", "the recovery", DS.green]]), 450),
-  next: lt => svg(nextCard(lt, "Next story", "What broke Microsoft 365", 3), 450),
+  next: lt => svg(followCard(lt), 450),
 };
 
 function term(lt, lines, top = 60) {
@@ -646,7 +651,7 @@ function render(t) {
   $("prop").style.opacity = clamp(lt / .3);
   $("kin").innerHTML = kinetic(t);
   // top meta row + commit-timeline progress: one dot per scene, HEAD rides along
-  $("meta").innerHTML = `<span><span style="display:inline-flex;align-items:center;gap:14px"><span style="font-size:60px;margin:-18px 0"><svg viewBox="0 0 64 64" width="1em" height="1em" style="display:block"><path d="M32 6 L60 54 H4 Z" fill="#d97706" stroke="#d97706" stroke-width="6" stroke-linejoin="round"/><path d="M32 24 V38" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="46" r="3.6" fill="#fff"/></svg></span>ep.27 · now outage wave</span></span><span>SCENE <b>${String(si + 1).padStart(2, "0")}</b>/${S.length}</span>`;
+  $("meta").innerHTML = `<span><span style="display:inline-flex;align-items:center;gap:14px"><span style="font-size:60px;margin:-18px 0"><svg viewBox="0 0 64 64" width="1em" height="1em" style="display:block"><path d="M32 6 L60 54 H4 Z" fill="#d97706" stroke="#d97706" stroke-width="6" stroke-linejoin="round"/><path d="M32 24 V38" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="46" r="3.6" fill="#fff"/></svg></span>tech news · outage wave</span></span><span>SCENE <b>${String(si + 1).padStart(2, "0")}</b>/${S.length}</span>`;
   { const W = 960, n = S.length, px = i => 14 + i * (W - 28) / (n - 1), hx = 14 + clamp(t / (END - 1.6)) * (W - 28);
     $("tl").innerHTML = `<svg width="${W}" height="30" viewBox="0 0 ${W} 30"><path d="M14 15 H${W - 14}" stroke="#d9d5c8" stroke-width="4" stroke-linecap="round"/><path d="M14 15 H${hx}" stroke="#151515" stroke-width="4" stroke-linecap="round"/>` +
       S.map((_, i) => `<circle cx="${px(i)}" cy="15" r="${i === si ? 10 : 7}" fill="${i <= si ? "#151515" : "#f3f1ea"}" stroke="${i <= si ? "#151515" : "#d9d5c8"}" stroke-width="4"/>`).join("") +

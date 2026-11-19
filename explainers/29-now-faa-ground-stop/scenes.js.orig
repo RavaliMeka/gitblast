@@ -13,7 +13,7 @@ const S = [
     cap: [[0, "The lesson: protect old systems from traffic floods."], [3.8, "Use rate limits, and test changes on a copy first."]], prop: "lesson" },
   { t: 46, title: "Remember <hl c=\"green\">this</hl>", pose: [[0,"thumb"]], mood: "happy",
     cap: [[0, "Old isn't the problem. Unprotected is."]], prop: "recap" },
-  { t: 50, title: "More tech <hl c=\"red\">stories</hl>", pose: [[0,"present"]], mood: "happy",
-    cap: [[0, "Next: Java4Shell, the new Java bug."], [3, "Follow for more."]], prop: "next" },
+  { t: 50, title: "Follow for <hl c=\"red\">more</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "If this helped,"], [1.6, "follow for more."]], prop: "next" },
 ];
 let END = 56;

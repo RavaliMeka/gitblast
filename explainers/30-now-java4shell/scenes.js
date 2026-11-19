@@ -17,7 +17,7 @@ const S = [
     cap: [[0, "Don't know which Java you run?"], [2.6, "That's what SCA and an SBOM are for."]], prop: "which" },
   { t: 53, title: "Remember <hl c=\"green\">this</hl>", pose: [[0,"thumb"]], mood: "happy",
     cap: [[0, "Find it. Patch it. Fast."]], prop: "recap" },
-  { t: 56.6, title: "More tech <hl c=\"red\">stories</hl>", pose: [[0,"peace"]], mood: "happy",
-    cap: [[0, "Want more stories like this?"], [2.2, "Follow, and comment a topic."]], prop: "next" },
+  { t: 56.6, title: "Follow for <hl c=\"red\">more</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "If this helped,"], [1.6, "follow for more."]], prop: "next" },
 ];
 let END = 61.5;
