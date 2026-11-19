@@ -9,10 +9,11 @@ import numpy as np
 
 SIZE, HEAD_W, HEAD_CX, HEAD_TOP = 1200, 330, 600, 150   # target head width / centre / top of hair on the canvas
 
+THR = [24]   # how far from the background colour still counts as background
 def alpha_of(im, close=0):
     a = np.asarray(im.convert("RGB")).astype(float); H, W, _ = a.shape
     bg = np.concatenate([a[:8, :8].reshape(-1, 3), a[:8, -8:].reshape(-1, 3)]).mean(0)
-    dist = np.sqrt(((a - bg) ** 2).sum(2)); cand = dist < 24
+    dist = np.sqrt(((a - bg) ** 2).sum(2)); cand = dist < THR[0]
     seen = np.zeros((H, W), bool); q = deque()
     for x in range(W):
         if cand[0, x]: seen[0, x] = 1; q.append((0, x))
@@ -158,6 +159,7 @@ GEOM["stand"] = ((750, 880, 290, 168), [(637, 645, 112, 104), (868, 645, 112, 10
 #   # + the box used to line pictures up
 GEOM["thumb"] = ((975, 790, 245, 142), (975, 580, 235, 100), (0, 1))
 GEOM["both"] = ((983, 890, 259, 150), [(864, 645, 110, 104), (1123, 645, 110, 104)], (0, 1), (725, 560, 1273, 828))
+GEOM["peace"] = ((517, 470, 135, 82), [(465, 352, 44, 40), (573, 352, 44, 40)], (0, 1))
 def line_up(base, other, box):
     # The standing pictures were drawn one by one, so the head differs a little in size and place. Scale and shift
     # each one until its glasses and nose sit exactly on the closed-mouth picture's.
@@ -200,6 +202,7 @@ for k in list(KEYS.values()) + ["poseBlinkTalk"]: d[k] = {}
 for arg in sys.argv[3:]:
     name, path = arg.split("=", 1)
     if "@" in name: continue
+    THR[0] = {"peace": 46}.get(name, 24)   # this set has a noisier background
     if name in own:
         LOW, EYE, CL = GEOM[name][:3]; base = Image.open(path)
         if len(GEOM[name]) > 3: own[name] = {k: line_up(base, Image.open(p), GEOM[name][3]) for k, p in own[name].items()}

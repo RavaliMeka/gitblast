@@ -29,7 +29,7 @@ then two-pass `loudnorm=I=-14:TP=-1.5:LRA=9`.
 ## Presenter poses (used by every house-style episode)
 
 `presenter-src/` holds five pictures per talking pose: closed, small, round, wide, blink.
-Poses: `master` (arms crossed), `stand` (hands down), `point`, `shrug`, `thumb`, `both` (two-hand point).
+Poses: `master` (arms crossed), `stand` (hands down), `point`, `shrug`, `thumb`, `both` (two-hand point), `peace`.
 `poses.py` takes only the lower face (or the eyes) from each picture, so the body never moves.
 
 Rebuild with `bash build_poses.sh` (run in this folder), then copy `presenter-poses.json` into an episode as `presenter.json`.
