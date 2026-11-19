@@ -30,9 +30,36 @@ if cfg.get("accent", "#ff5a1f") != "#ff5a1f":
 
 # layout: waist-up presenter bottom-right, visuals a little smaller so they clear his head
 rep("#char { left: 590px; top: 1000px; width: 490px; height: 1004px; z-index: 6; overflow: visible; }",
-    "#char { left: 260px; top: 1075px; width: 880px; height: 1804px; z-index: 6; overflow: visible; }")
-rep("#prop { left: 60px; top: 580px;", "#prop { left: 60px; top: 540px;")
-rep("scale(${lerp(1.3, 1.38, sk)", "scale(${lerp(1.24, 1.3, sk)")
+    "#char { left: 280px; top: 1120px; width: 840px; height: 1722px; z-index: 6; overflow: visible; }")
+rep("#prop { left: 60px; top: 580px;", "#prop { left: 60px; top: 450px;")
+rep("font-weight: 800; font-size: 86px; line-height: 1.12;", "font-weight: 800; font-size: 80px; line-height: 1.12;")
+rep("scale(${lerp(1.3, 1.38, sk)", "scale(${fitScale(sc) * lerp(1, 1.03, sk)")
+rep("$(\"prop\").style.transform = `translate(${Math.sin(t * .5 + si) * 12 +", "$(\"prop\").style.transform = `translate(${fitScale(sc) * 0 + sc.fitX + Math.sin(t * .5 + si) * 8 +")
+rep("function kinetic(t) {", '''// Each scene's visual is measured once and scaled to fit the visual area (960 x 540 px, starting at y 540),
+// so nothing ever sits behind the presenter, whose head starts below that area. Narrow visuals are centred.
+const FIT = { W: 960, H: 680, MAX: 1.5 };
+function fitScale(sc) {
+  if (sc.fit) return sc.fit;
+  const box = document.createElement("div"); box.style.cssText = "position:absolute;left:0;top:0;width:600px;visibility:hidden";
+  $("stage").appendChild(box);
+  const k = $("stage").getBoundingClientRect().width / 1080, len = sc.oldLen ?? (sc.end - sc.t);
+  let w = 10, h = 10;
+  [.35, .7, 1].forEach(f => {
+    box.innerHTML = P[sc.prop](len * f - .05); const o = box.getBoundingClientRect();
+    box.querySelectorAll("*").forEach(e => {
+      if (["svg", "g", "defs", "clipPath", "filter"].includes(e.tagName) || e.closest("defs")) return;
+      const r = e.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) { w = Math.max(w, (r.right - o.left) / k); h = Math.max(h, (r.bottom - o.top) / k); }
+    });
+  });
+  box.remove();
+  sc.fit = Math.min(FIT.MAX, FIT.W / w, FIT.H / h); sc.fitX = Math.max(0, (FIT.W - w * sc.fit) / 2);
+  return sc.fit;
+}
+function kinetic(t) {''')
+# background symbols: no words, and they fade out before the presenter's area
+rep('["{ }", "$", "git", "</>", "+", "#", ">_", "✓", "main", "//"]', '["{ }", "$", "+", "</>", "+", "#", ">_", "✓", "*", "//"]')
+rep("#bgfx { inset: 0; z-index: 1;", "#bgfx { inset: 0; z-index: 1; -webkit-mask-image: linear-gradient(180deg, #000 0, #000 52%, transparent 60%); mask-image: linear-gradient(180deg, #000 0, #000 52%, transparent 60%);")
 
 rep("width:540px;min-height:300px;", "width:540px;min-height:150px;")   # terminals only as tall as their lines
 
@@ -55,8 +82,9 @@ function kinetic(t) {''')
 
 # presenter: aligned pose pictures; calm poses talk, lively ones are short accents that settle into a calm pose
 rep("function avatarSvg(t, talking) {", '''const POSE_MAP = {   // scene pose -> [accent picture or null, seconds, picture to settle into]
-  present: [null, 0, "point1"], point: ["point", 1.5, "point1"], idea: ["idea", 1.6, "cross"], think: ["think", 1.8, "cross"],
-  cheer: ["cheer", 2.4, "thumb"], cross: [null, 0, "cross"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"], idle: [null, 0, "cross"],
+  present: [null, 0, "cross"], idle: [null, 0, "cross"], cross: [null, 0, "cross"],      // the default: calm, talking
+  point: [null, 0, "point1"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"],
+  cheer: ["cheer", 3, "cross"], idea: ["idea", 1.6, "cross"], think: ["think", 1.8, "cross"],
 };
 function avatarPose(t, talking, A) {
   let st = 0, name = "idle";

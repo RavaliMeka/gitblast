@@ -1,13 +1,13 @@
 const S = [
-  { t: 0,  title: 'New feature, <hl c="red">no breakage</hl>?', pose: [[0,"shrug"],[3,"think"]], mood: "curious",
+  { t: 0,  title: 'New feature, <hl c="red">no breakage</hl>?', pose: [[0,"shrug"]], mood: "curious",
     cap: [[0,"One bad change can break your whole app."],[3,"So how do pros add features safely?"]], prop: "hook" },
-  { t: 5,  title: 'Meet <hl c="green">branches</hl>', pose: [[0,"idea"],[2,"present"]], mood: "happy",
+  { t: 5,  title: 'Meet <hl c="green">branches</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"That's what branches are for."],[2,"Think of a branch as a second save slot."],[5,"You experiment there... main stays safe."]], prop: "slots" },
-  { t: 14, title: 'Home line: <hl c="blue">main</hl>', pose: [[0,"point"]], mood: "happy",
+  { t: 14, title: 'Home line: <hl c="blue">main</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"Your real code lives on the main branch."]], prop: "main" },
   { t: 17, step: 1, title: 'Create a <hl c="green">branch</hl>', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"To start something new,"],[2,"run git switch -c feature."]], prop: "create" },
-  { t: 23, title: 'Commits ride <hl c="green">feature</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 23, title: 'Commits ride <hl c="green">feature</hl>', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"Now you're on the feature branch."],[2,"Every commit lands here..."],[4.5,"main doesn't change."]], prop: "commits" },
   { t: 30, title: 'Broke it? <hl c="red">Delete it</hl>', pose: [[0,"shrug"]], mood: "curious",
     cap: [[0,"Totally broke it?"],[1,"Just delete the branch."],[3,"Main is untouched."]], prop: "broke" },
@@ -17,7 +17,7 @@ const S = [
     cap: [[0,"Working with a team?"],[2,"Push your branch and open a pull request,"],[5,"so others can review it first."]], prop: "pr" },
   { t: 51, title: 'Branch. Commit. <hl c="green">Merge.</hl>', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"Branch. Commit. Merge."],[3,"That's the whole idea."]], prop: "recap" },
-  { t: 56, title: 'Next: <hl c="red">merge conflicts</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 56, title: 'Next: <hl c="red">merge conflicts</hl>', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"Next up: merge conflicts."],[2,"If this helped,"],[3,"follow along for more."]], prop: "follow" },
 ];
 let END = 61.5;

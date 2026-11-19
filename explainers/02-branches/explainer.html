@@ -51,15 +51,15 @@
   #meta { left: 60px; right: 60px; top: 64px; display: flex; justify-content: space-between; font: 600 24px "DejaVu Sans Mono", monospace; color: #8b877c; letter-spacing: 1px; z-index: 9; }
   #meta b { color: #ff5a1f; font-weight: 700; }
   #tl { left: 60px; right: 60px; top: 118px; height: 30px; z-index: 9; }
-  #kin { left: 60px; right: 60px; top: 190px; height: 330px; z-index: 9; text-align: left; font-weight: 800; font-size: 86px; line-height: 1.12; letter-spacing: -2.5px; color: #bdb9ad; }
+  #kin { left: 60px; right: 60px; top: 190px; height: 330px; z-index: 9; text-align: left; font-weight: 800; font-size: 80px; line-height: 1.12; letter-spacing: -2.5px; color: #bdb9ad; }
   #kin .w { display: inline-block; margin-right: .24em; position: relative; }
   #kin .now, #kin .said { color: #151515; }
   #kin .box { position: absolute; inset: 4px -14px 0 -14px; border-radius: 14px; background: #ff5a1f; rotate: -1.5deg; }
   #kin .tk { position: absolute; right: -52px; top: -40px; transform-origin: 0 100%; rotate: 20deg; }
   #kin .w:has(.box) { color: #fff; font-family: "DejaVu Sans Mono", monospace; font-size: .82em; letter-spacing: -2px; margin: 0 .36em 0 .14em; }
-  #prop { left: 60px; top: 540px; z-index: 3; transform-origin: 0 0; filter: drop-shadow(0 26px 30px rgba(60,50,20,.16)); }
-  #char { left: 260px; top: 1075px; width: 880px; height: 1804px; z-index: 6; overflow: visible; }
-  #bgfx { inset: 0; z-index: 1; font: 700 64px "DejaVu Sans Mono", monospace; color: #151515; }
+  #prop { left: 60px; top: 450px; z-index: 3; transform-origin: 0 0; filter: drop-shadow(0 26px 30px rgba(60,50,20,.16)); }
+  #char { left: 280px; top: 1120px; width: 840px; height: 1722px; z-index: 6; overflow: visible; }
+  #bgfx { inset: 0; z-index: 1; -webkit-mask-image: linear-gradient(180deg, #000 0, #000 52%, transparent 60%); mask-image: linear-gradient(180deg, #000 0, #000 52%, transparent 60%); font: 700 64px "DejaVu Sans Mono", monospace; color: #151515; }
   #bgfx span { position: absolute; opacity: .06; }
   #wipe { inset: 0; z-index: 7; pointer-events: none; overflow: hidden; }
   #wipe div { position: absolute; top: -10%; bottom: -10%; width: 46%; }
@@ -93,15 +93,15 @@
 
 /* ---------- Script: scenes, captions, poses ---------- */
 const S = [
-  { t: 0,  title: 'New feature, <hl c="red">no breakage</hl>?', pose: [[0,"shrug"],[3,"think"]], mood: "curious",
+  { t: 0,  title: 'New feature, <hl c="red">no breakage</hl>?', pose: [[0,"shrug"]], mood: "curious",
     cap: [[0,"One bad change can break your whole app."],[3,"So how do pros add features safely?"]], prop: "hook" },
-  { t: 5,  title: 'Meet <hl c="green">branches</hl>', pose: [[0,"idea"],[2,"present"]], mood: "happy",
+  { t: 5,  title: 'Meet <hl c="green">branches</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"That's what branches are for."],[2,"Think of a branch as a second save slot."],[5,"You experiment there... main stays safe."]], prop: "slots" },
-  { t: 14, title: 'Home line: <hl c="blue">main</hl>', pose: [[0,"point"]], mood: "happy",
+  { t: 14, title: 'Home line: <hl c="blue">main</hl>', pose: [[0,"present"]], mood: "happy",
     cap: [[0,"Your real code lives on the main branch."]], prop: "main" },
   { t: 17, step: 1, title: 'Create a <hl c="green">branch</hl>', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"To start something new,"],[2,"run git switch -c feature."]], prop: "create" },
-  { t: 23, title: 'Commits ride <hl c="green">feature</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 23, title: 'Commits ride <hl c="green">feature</hl>', pose: [[0,"point"]], mood: "happy",
     cap: [[0,"Now you're on the feature branch."],[2,"Every commit lands here..."],[4.5,"main doesn't change."]], prop: "commits" },
   { t: 30, title: 'Broke it? <hl c="red">Delete it</hl>', pose: [[0,"shrug"]], mood: "curious",
     cap: [[0,"Totally broke it?"],[1,"Just delete the branch."],[3,"Main is untouched."]], prop: "broke" },
@@ -111,7 +111,7 @@ const S = [
     cap: [[0,"Working with a team?"],[2,"Push your branch and open a pull request,"],[5,"so others can review it first."]], prop: "pr" },
   { t: 51, title: 'Branch. Commit. <hl c="green">Merge.</hl>', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"Branch. Commit. Merge."],[3,"That's the whole idea."]], prop: "recap" },
-  { t: 56, title: 'Next: <hl c="red">merge conflicts</hl>', pose: [[0,"present"]], mood: "happy",
+  { t: 56, title: 'Next: <hl c="red">merge conflicts</hl>', pose: [[0,"thumb"]], mood: "happy",
     cap: [[0,"Next up: merge conflicts."],[2,"If this helped,"],[3,"follow along for more."]], prop: "follow" },
 ];
 let END = 61.5;
@@ -444,8 +444,9 @@ function charSvg(t, talking, mood) {
 // window.AVATAR = { closed, mid, open, wide?, blink } (SVG data URIs), set by render.mjs --avatar
 window.AVATAR = null;
 const POSE_MAP = {   // scene pose -> [accent picture or null, seconds, picture to settle into]
-  present: [null, 0, "point1"], point: ["point", 1.5, "point1"], idea: ["idea", 1.6, "cross"], think: ["think", 1.8, "cross"],
-  cheer: ["cheer", 2.4, "thumb"], cross: [null, 0, "cross"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"], idle: [null, 0, "cross"],
+  present: [null, 0, "cross"], idle: [null, 0, "cross"], cross: [null, 0, "cross"],      // the default: calm, talking
+  point: [null, 0, "point1"], thumb: [null, 0, "thumb"], shrug: [null, 0, "shrug"], peace: [null, 0, "peace"],
+  cheer: ["cheer", 3, "cross"], idea: ["idea", 1.6, "cross"], think: ["think", 1.8, "cross"],
 };
 function avatarPose(t, talking, A) {
   let st = 0, name = "idle";
@@ -542,6 +543,27 @@ const warpNew = (sc, oldLt) => mapPW(anchors(sc), oldLt, 0, 1);
 const warpOld = (sc, newLt) => sc.oldCaps ? mapPW(anchors(sc), newLt, 1, 0) : newLt;
 
 const KEY = new Set(["break", "safely", "branches", "branch", "save", "slot", "safe", "main", "switch", "feature", "commit", "delete", "untouched", "merge", "push", "pull", "request", "review", "conflicts"]);
+// Each scene's visual is measured once and scaled to fit the visual area (960 x 540 px, starting at y 540),
+// so nothing ever sits behind the presenter, whose head starts below that area. Narrow visuals are centred.
+const FIT = { W: 960, H: 680, MAX: 1.5 };
+function fitScale(sc) {
+  if (sc.fit) return sc.fit;
+  const box = document.createElement("div"); box.style.cssText = "position:absolute;left:0;top:0;width:600px;visibility:hidden";
+  $("stage").appendChild(box);
+  const k = $("stage").getBoundingClientRect().width / 1080, len = sc.oldLen ?? (sc.end - sc.t);
+  let w = 10, h = 10;
+  [.35, .7, 1].forEach(f => {
+    box.innerHTML = P[sc.prop](len * f - .05); const o = box.getBoundingClientRect();
+    box.querySelectorAll("*").forEach(e => {
+      if (["svg", "g", "defs", "clipPath", "filter"].includes(e.tagName) || e.closest("defs")) return;
+      const r = e.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) { w = Math.max(w, (r.right - o.left) / k); h = Math.max(h, (r.bottom - o.top) / k); }
+    });
+  });
+  box.remove();
+  sc.fit = Math.min(FIT.MAX, FIT.W / w, FIT.H / h); sc.fitX = Math.max(0, (FIT.W - w * sc.fit) / 2);
+  return sc.fit;
+}
 function tm() {
   if (window.TIMING) return window.TIMING;
   if (!window.SYN) {
@@ -611,7 +633,7 @@ function render(t) {
   // scene changes stay quiet: no full-screen wipe, the new visual just slides in
   $("wipe").innerHTML = "";
   // drifting code symbols in the background
-  $("bgfx").innerHTML = ["{ }", "$", "git", "</>", "+", "#", ">_", "✓", "main", "//"].map((g, i) => { const hx = (Math.sin(i * 12.9) * 43758.5 % 1 + 1) % 1, hy = (Math.sin(i * 78.2) * 12543.1 % 1 + 1) % 1;
+  $("bgfx").innerHTML = ["{ }", "$", "+", "</>", "+", "#", ">_", "✓", "*", "//"].map((g, i) => { const hx = (Math.sin(i * 12.9) * 43758.5 % 1 + 1) % 1, hy = (Math.sin(i * 78.2) * 12543.1 % 1 + 1) % 1;
     return `<span style="left:${hx * 960 + Math.sin(t * .3 + i) * 30}px;top:${((hy * 1900 - t * (14 + i * 3)) % 1960 + 1960) % 1960 - 60}px;transform:rotate(${Math.sin(t * .2 + i * 2) * 14}deg);font-size:${46 + (i % 3) * 22}px">${g}</span>`; }).join("");
   // voice equalizer next to the handle
   { const env = window.VOICE ? (window.VOICE.env[Math.floor(t * window.VOICE.fps)] || 0) : 0;
@@ -623,7 +645,7 @@ function render(t) {
       return `<rect x="${x}" y="${y}" width="${14 + i % 3 * 6}" height="${10 + i % 2 * 12}" rx="3" fill="${["#ff5a1f", "#151515", "#22a45d", "#2f6fe4", "#ffd84a"][i % 5]}" opacity="${clamp(2.4 - ct)}" transform="rotate(${i * 40 + ct * 400} ${x} ${y})"/>`; }).join("")}</svg>` : ""; }
   // presenter gives a small bounce on each scene change
   $("char").style.transform = `scale(${1 + punch * .012})`; $("char").style.transformOrigin = "50% 100%";
-  $("prop").style.transform = `translate(${Math.sin(t * .5 + si) * 12 + lerp(-50, 0, easeOut(lt / .4))}px, ${Math.cos(t * .4) * 9}px) rotate(${lerp(si % 2 ? 1.5 : -1.5, Math.sin(t * .6 + si) * .8, enter)}deg) scale(${lerp(1.24, 1.3, sk) * lerp(.9, 1, enter) * (1 + punch * .04)})`;
+  $("prop").style.transform = `translate(${fitScale(sc) * 0 + sc.fitX + Math.sin(t * .5 + si) * 8 + lerp(-50, 0, easeOut(lt / .4))}px, ${Math.cos(t * .4) * 9}px) rotate(${lerp(si % 2 ? 1.5 : -1.5, Math.sin(t * .6 + si) * .8, enter)}deg) scale(${fitScale(sc) * lerp(1, 1.03, sk) * lerp(.9, 1, enter) * (1 + punch * .04)})`;
   $("prop").style.filter = `blur(${(1 - enter) * 4}px) drop-shadow(0 26px 30px rgba(60,50,20,.16))`;
   $("prop").style.opacity = clamp(lt / .3);
   $("kin").innerHTML = kinetic(t);
