@@ -85,7 +85,8 @@ def load_uri(u):
 # lips are blended in, colour-matched to the pose. Poses that already have an open mouth are left as they are.
 TALKABLE = {"cross", "peace", "thumb", "shrug", "point1"}
 EYES = (330, 318, 590, 392)        # glasses band in the 900px face frame, used to fit the head
-MOUTH = (459, 487, 76, 50)         # mouth ellipse in the 900px face frame (big enough to cover a pose's own open mouth)
+MOUTH = (459, 494, 96, 68)         # whole-mouth ellipse in the 900px face frame: moustache edge down to the top of the goatee
+NOSE = (398, 372, 522, 446)        # nose band, used to fine-tune the position (the nose does not move with expressions)
 
 def fit_face(face, pose):
     fa = np.asarray(face)[..., 3].astype(float) / 255
@@ -104,7 +105,17 @@ def fit_face(face, pose):
                 if C.shape != R.shape: continue
                 e = np.abs(R - C).mean()
                 if best is None or e < best[0]: best = (e, s, ox0 + dx, oy0 + dy)
-    return best
+    # fine-tune the position on the nose, one pixel at a time
+    e, s, ox, oy = best
+    F = np.asarray(face.convert("L").resize((round(900 * s), round(900 * s)), Image.LANCZOS)).astype(float)
+    x0, y0, x1, y1 = [round(v * s) for v in NOSE]; R = F[y0:y1, x0:x1]; fine = None
+    for dx in range(-12, 13):
+        for dy in range(-12, 13):
+            C = P[oy + dy + y0:oy + dy + y1, ox + dx + x0:ox + dx + x1]
+            if C.shape != R.shape: continue
+            e2 = np.abs((R - R.mean()) - (C - C.mean())).mean()
+            if fine is None or e2 < fine[0]: fine = (e2, dx, dy)
+    return (fine[0], s, ox + fine[1], oy + fine[2])
 
 def talk_variant(pose, face_mid, fit):
     e, s, ox, oy = fit
@@ -114,8 +125,8 @@ def talk_variant(pose, face_mid, fit):
     yy, xx = np.mgrid[0:SIZE, 0:SIZE]
     cx, cy, rx, ry = ox + MOUTH[0] * s, oy + MOUTH[1] * s, MOUTH[2] * s, MOUTH[3] * s
     dist = np.sqrt(((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2)
-    m = np.clip((1 - dist) / .4, 0, 1)
-    ring = (dist > 1.0) & (dist < 1.35)
+    m = np.clip((1 - dist) / .3, 0, 1)
+    ring = (dist > .95) & (dist < 1.2)
     off = A[ring][:, :3].mean(0) - B[ring][:, :3].mean(0)          # match skin and beard tone around the lips
     res = A.copy(); res[..., :3] = A[..., :3] * (1 - m[..., None]) + np.clip(B[..., :3] + off, 0, 255) * m[..., None]
     return Image.fromarray(res.astype(np.uint8), "RGBA")
