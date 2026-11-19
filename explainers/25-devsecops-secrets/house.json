@@ -1,0 +1,32 @@
+{
+  "title": "Secret scanning explained",
+  "meta": "ep.25 · devsecops secrets",
+  "keys": [
+    "password",
+    "everything",
+    "forgets",
+    "secret",
+    "scanning",
+    "keys",
+    "passwords",
+    "patterns",
+    "tokens",
+    "gitleaks",
+    "commit",
+    "deleting",
+    "history",
+    "rotate",
+    "store",
+    "variable",
+    "block",
+    "pushed",
+    "hook",
+    "git",
+    "images"
+  ],
+  "series": "devsecops",
+  "accent": "#e11d48",
+  "bg": "#fdecf0",
+  "grid": "#f3d3da",
+  "rest": "stand"
+}

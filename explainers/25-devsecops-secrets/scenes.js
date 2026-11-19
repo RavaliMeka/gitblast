@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "One leaked <hl c=\"red\">password</hl>", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "One pushed password can cost you everything."], [3.6, "And Git never forgets."]], prop: "leak" },
+  { t: 6.6, title: "Secret <hl c=\"red\">scanning</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Secret scanning catches keys and passwords in your code."]], prop: "hero" },
+  { t: 11.6, title: "It looks for <hl c=\"blue\">patterns</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "It looks for patterns:"], [1.8, "API keys, tokens, private keys."]], prop: "patterns" },
+  { t: 17, step: 1, title: "Scan with <hl c=\"blue\">Gitleaks</hl>", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "Scan your repo with Gitleaks:"], [2.6, "gitleaks detect"], [4.4, "It checks every commit, not just the latest."]], prop: "scan" },
+  { t: 26, step: 2, title: "Deleting isn't <hl c=\"red\">enough</hl>", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "Found one? Deleting the line is not enough."], [3.6, "It's still in your history."]], prop: "history" },
+  { t: 33, step: 3, title: "<hl c=\"green\">Rotate</hl> it first", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "Rotate the key first."], [2, "Then move it to a secret store, or an environment variable."]], prop: "rotate" },
+  { t: 41, title: "Block it <hl c=\"green\">early</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Best of all: block it before it's pushed,"], [3.4, "with a pre-commit hook, or push protection."]], prop: "block" },
+  { t: 48.4, title: "Secrets in <hl c=\"green\">one line</hl>", pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0, "Scan, rotate, and keep secrets out of Git."]], prop: "recap" },
+  { t: 52.4, title: "Next: <hl c=\"red\">images</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "Next: scanning container images."], [2.6, "Follow for part six."]], prop: "next" },
+];
+let END = 57.5;

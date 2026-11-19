@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "Code you <hl c=\"red\">didn't</hl> write", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "Most of your app is code you didn't write."], [3.4, "So who checks those libraries?"]], prop: "share" },
+  { t: 6.4, title: "What is <hl c=\"red\">SCA</hl>?", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "SCA does."], [1.4, "Software Composition Analysis."]], prop: "hero" },
+  { t: 11, title: "Every <hl c=\"blue\">dependency</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "It lists every dependency you use,"], [2.8, "and compares them with known vulnerabilities."]], prop: "deps" },
+  { t: 18, title: "A <hl c=\"amber\">recall list</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Like a product recall list,"], [2.2, "for your ingredients."]], prop: "recall" },
+  { t: 23, step: 1, title: "Try <hl c=\"blue\">npm audit</hl>", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "Try it now: npm audit"], [2.6, "It found one: lodash 4.17.20,"], [5.8, "a known command injection flaw."]], prop: "audit" },
+  { t: 32.6, step: 2, title: "Upgrade to <hl c=\"green\">fix</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "The fix is usually an upgrade."], [2.6, "npm audit fix"], [4.6, "Now you're on 4.17.21. Patched."]], prop: "fix" },
+  { t: 41, step: 3, title: "Your <hl c=\"blue\">SBOM</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "SCA can also build an SBOM,"], [2.6, "a full ingredient list of your software."]], prop: "sbom" },
+  { t: 47.4, title: "SCA in <hl c=\"green\">one line</hl>", pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0, "SCA: know what you ship, patch what's broken."]], prop: "recap" },
+  { t: 51.4, title: "Next: <hl c=\"red\">DAST</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "Next: DAST, attacking your running app."], [3, "Follow for part four."]], prop: "next" },
+];
+let END = 56.5;

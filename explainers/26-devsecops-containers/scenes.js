@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "What's <hl c=\"red\">inside</hl>?", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "Your Docker image has hundreds of packages inside."], [3.8, "Any one of them could be vulnerable."]], prop: "inside" },
+  { t: 7, title: "Image <hl c=\"red\">scanning</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Image scanning checks them all."]], prop: "hero" },
+  { t: 10.6, title: "Every <hl c=\"blue\">layer</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "It reads every layer:"], [1.8, "the base image, system packages, and your libraries."]], prop: "layers" },
+  { t: 17.6, step: 1, title: "Scan with <hl c=\"blue\">Trivy</hl>", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "Scan it with Trivy:"], [1.8, "trivy image my-app:latest"], [4.6, "You get a list, sorted by severity."]], prop: "scan" },
+  { t: 26, step: 2, title: "A <hl c=\"green\">smaller</hl> base", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "Fix one: use a small, up-to-date base image."], [3.6, "Fewer packages, fewer problems."]], prop: "base" },
+  { t: 33.4, step: 3, title: "<hl c=\"green\">Rebuild</hl> often", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Fix two: rebuild often, so patches get in."]], prop: "rebuild" },
+  { t: 37.6, title: "Scan in <hl c=\"blue\">CI</hl>", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "Then add the scan to your pipeline,"], [2.8, "and fail the build on critical findings."]], prop: "ci" },
+  { t: 45.6, title: "Three <hl c=\"green\">habits</hl>", pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0, "Small base. Rebuild often. Scan every build."]], prop: "recap" },
+  { t: 50.6, title: "Your DevSecOps <hl c=\"red\">toolkit</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "That's your DevSecOps toolkit!"], [2.6, "Follow for more."]], prop: "done" },
+];
+let END = 57;

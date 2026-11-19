@@ -1,0 +1,29 @@
+{
+  "title": "Container image scanning explained",
+  "meta": "ep.26 · devsecops containers",
+  "keys": [
+    "hundreds",
+    "packages",
+    "vulnerable",
+    "image",
+    "scanning",
+    "layer",
+    "base",
+    "libraries",
+    "trivy",
+    "severity",
+    "small",
+    "fewer",
+    "rebuild",
+    "patches",
+    "fail",
+    "critical",
+    "scan",
+    "toolkit"
+  ],
+  "series": "devsecops",
+  "accent": "#e11d48",
+  "bg": "#fdecf0",
+  "grid": "#f3d3da",
+  "rest": "stand"
+}

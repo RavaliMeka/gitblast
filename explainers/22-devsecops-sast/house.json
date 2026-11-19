@@ -1,0 +1,31 @@
+{
+  "title": "SAST explained",
+  "meta": "ep.22 · devsecops sast",
+  "keys": [
+    "reading",
+    "sast",
+    "static",
+    "scans",
+    "running",
+    "security",
+    "mistakes",
+    "sql",
+    "injection",
+    "semgrep",
+    "exact",
+    "line",
+    "parameterized",
+    "fast",
+    "pull",
+    "request",
+    "false",
+    "alarms",
+    "early",
+    "sca"
+  ],
+  "series": "devsecops",
+  "accent": "#e11d48",
+  "bg": "#fdecf0",
+  "grid": "#f3d3da",
+  "rest": "stand"
+}

@@ -1,0 +1,28 @@
+{
+  "title": "What is DevSecOps?",
+  "meta": "ep.21 · devsecops intro",
+  "keys": [
+    "security",
+    "end",
+    "most",
+    "devsecops",
+    "automatically",
+    "left",
+    "early",
+    "cheap",
+    "sast",
+    "sca",
+    "dast",
+    "secret",
+    "passwords",
+    "pipeline",
+    "push",
+    "blocked",
+    "fixed"
+  ],
+  "series": "devsecops",
+  "accent": "#e11d48",
+  "bg": "#fdecf0",
+  "grid": "#f3d3da",
+  "rest": "stand"
+}

@@ -23,6 +23,9 @@ BLOCKS = _svg('<g fill="ACC"><rect x="6" y="36" width="22" height="22" rx="4"/><
 CLOUD = _svg('<path d="M18 46 C8 46 6 34 15 31 C15 20 30 16 35 25 C42 20 53 25 51 34 C59 36 57 46 49 46 Z" fill="none" stroke="ACC" stroke-width="5" stroke-linejoin="round"/>')
 GRAPH = _svg('<g stroke="ACC" stroke-width="5" fill="none" stroke-linecap="round"><path d="M18 14 V50"/><path d="M18 32 C18 22 46 28 46 18"/></g><g fill="ACC"><circle cx="18" cy="14" r="7"/><circle cx="18" cy="50" r="7"/><circle cx="46" cy="16" r="7"/></g>')
 
+SHIELD = _svg('<path d="M32 5 L55 13 V32 C55 46 44 54 32 59 C20 54 9 46 9 32 V13 Z" fill="ACC"/><path d="M22 32 L29 39 L43 24" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>')
+LOCK = _svg('<path d="M21 28 V20 a11 11 0 0 1 22 0 V28" fill="none" stroke="ACC" stroke-width="6"/><rect x="13" y="28" width="38" height="28" rx="6" fill="ACC"/>')
+
 def _strip(tile, w, h=44):   # one repeating tile, drawn in a w x h box
     return f'<svg width="1080" height="{h}" style="display:block"><defs><pattern id="strip" width="{w}" height="{h}" patternUnits="userSpaceOnUse">{tile}</pattern></defs><rect width="1080" height="{h}" fill="url(#strip)"/></svg>'
 
@@ -35,6 +38,8 @@ ART = {
               "strip": _strip('<path d="M0 22 H60" stroke="ACC" stroke-width="6" stroke-dasharray="26 10"/><circle cx="66" cy="22" r="9" fill="ACC"/>', 84)},
     "terraform": {"badge": BLOCKS, "shapes": [BLOCKS, CLOUD, BLOCKS, CLOUD, BLOCKS],
                   "strip": _strip('<g fill="ACC"><rect x="2" y="20" width="22" height="24" rx="3"/><rect x="28" y="6" width="22" height="38" rx="3" opacity=".6"/><rect x="54" y="26" width="22" height="18" rx="3" opacity=".8"/></g>', 80)},
+    "devsecops": {"badge": SHIELD, "shapes": [SHIELD, LOCK, SHIELD, LOCK, SHIELD],
+                  "strip": _strip('<path d="M24 6 L40 12 V26 C40 34 32 40 24 43 C16 40 8 34 8 26 V12 Z" fill="none" stroke="ACC" stroke-width="4"/>', 48)},
     "git": {"badge": GRAPH, "shapes": None, "strip": None},
 }
 

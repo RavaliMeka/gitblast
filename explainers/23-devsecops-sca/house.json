@@ -1,0 +1,31 @@
+{
+  "title": "SCA explained",
+  "meta": "ep.23 · devsecops sca",
+  "keys": [
+    "didn't",
+    "libraries",
+    "sca",
+    "software",
+    "composition",
+    "analysis",
+    "dependency",
+    "vulnerabilities",
+    "recall",
+    "npm",
+    "audit",
+    "lodash",
+    "injection",
+    "upgrade",
+    "fix",
+    "patched",
+    "sbom",
+    "ingredient",
+    "ship",
+    "dast"
+  ],
+  "series": "devsecops",
+  "accent": "#e11d48",
+  "bg": "#fdecf0",
+  "grid": "#f3d3da",
+  "rest": "stand"
+}

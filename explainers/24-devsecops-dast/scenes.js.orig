@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "Clean scan. <hl c=\"red\">Safe?</hl>", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "Your code scan is clean."], [2.2, "So is the running app safe?"], [4.4, "Not yet."]], prop: "q" },
+  { t: 6.4, title: "What is <hl c=\"red\">DAST</hl>?", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "That's what DAST is for."], [2.2, "Dynamic Application Security Testing."]], prop: "hero" },
+  { t: 12, title: "From the <hl c=\"blue\">outside</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "It tests your app from the outside, while it's running,"], [4, "just like an attacker would."]], prop: "outside" },
+  { t: 19, title: "Recipe vs <hl c=\"amber\">dish</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "SAST reads the recipe."], [2.2, "DAST tastes the dish."]], prop: "taste" },
+  { t: 24, step: 1, title: "Scan with <hl c=\"blue\">ZAP</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "Point a scanner like OWASP ZAP at a test site:"], [3.8, "zap-baseline.py, dash t, then your staging URL."]], prop: "zap" },
+  { t: 32.4, step: 2, title: "What it <hl c=\"red\">finds</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "It crawls your pages and sends tricky requests,"], [3.4, "then reports what it found:"], [5.6, "a missing security header, for example."]], prop: "report" },
+  { t: 41.4, step: 3, title: "Scan what you <hl c=\"red\">own</hl>", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "Important: only scan apps you own,"], [2.8, "and use staging, not production."]], prop: "own" },
+  { t: 47.4, title: "DAST in <hl c=\"green\">one line</hl>", pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0, "DAST: test the running app, from the outside."]], prop: "recap" },
+  { t: 51.4, title: "Next: <hl c=\"red\">secrets</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Next: secret scanning."], [2.2, "Follow for part five."]], prop: "next" },
+];
+let END = 56.5;

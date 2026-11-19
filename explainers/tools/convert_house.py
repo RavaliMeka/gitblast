@@ -9,6 +9,7 @@ if len(sys.argv) > 3:
     shutil.copy(sys.argv[2], os.path.join(ep, "scenes.js")); shutil.copy(sys.argv[3], os.path.join(ep, "props.js"))
 
 SERIES = [  # first episode, label, accent, paper, grid dots
+    (21, "devsecops", "#e11d48", "#fdecf0", "#f3d3da"),
     (17, "terraform", "#7b42bc", "#f1e9fb", "#e3d8f1"),
     (13, "ci/cd", "#0f9d58", "#e6f5ea", "#d5e9da"),
     (9, "kubernetes", "#3d5afe", "#e8ecfd", "#d9def5"),

@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "Security at the <hl c=\"red\">end</hl>?", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "Most teams test security at the very end."], [3.4, "That's when fixes cost the most."]], prop: "late" },
+  { t: 6.6, title: "Meet <hl c=\"red\">DevSecOps</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "DevSecOps fixes that."], [1.8, "Security checks run at every step, automatically."]], prop: "hero" },
+  { t: 12.4, step: 1, title: "Shift <hl c=\"red\">left</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "It's called shifting left:"], [2.2, "catch problems early, while they're cheap to fix."]], prop: "shift" },
+  { t: 19, title: "Check <hl c=\"green\">early</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Like building a house:"], [1.9, "check the wiring before the walls go up."]], prop: "house" },
+  { t: 24.6, step: 2, title: "Four <hl c=\"red\">checks</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "Four checks do most of the work."], [2.6, "SAST reads your code."], [4.8, "SCA checks your libraries."], [7, "DAST attacks the running app."], [9.4, "And secret scanning finds leaked passwords."]], prop: "four" },
+  { t: 37.4, step: 3, title: "Inside your <hl c=\"blue\">pipeline</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "They all run inside your CI pipeline,"], [2.8, "on every push."]], prop: "pipe" },
+  { t: 42.6, title: "Fail? <hl c=\"red\">Blocked</hl>", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "A check fails? The merge is blocked,"], [3, "until it's fixed."]], prop: "block" },
+  { t: 47.6, title: "Dev. Sec. <hl c=\"green\">Ops.</hl>", pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0, "Dev. Sec. Ops."], [1.8, "One team, one pipeline."]], prop: "recap" },
+  { t: 52.2, title: "Next: <hl c=\"red\">SAST</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Next: SAST, scanning your code."], [2.6, "Follow for part two."]], prop: "next" },
+];
+let END = 58.5;

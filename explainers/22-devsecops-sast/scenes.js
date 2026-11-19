@@ -1,0 +1,21 @@
+const S = [
+  { t: 0, title: "Bugs found by <hl c=\"red\">reading</hl>", pose: [[0,"shrug"]], mood: "happy",
+    cap: [[0, "Can a tool find security bugs just by reading your code?"], [4.2, "Yes. It's called SAST."]], prop: "q" },
+  { t: 7, title: "What is <hl c=\"red\">SAST</hl>?", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "Static Application Security Testing."], [2.6, "It scans your source code, without running it."]], prop: "hero" },
+  { t: 13.6, title: "A security <hl c=\"blue\">spell-checker</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "Think of a spell-checker,"], [2, "but for security mistakes."]], prop: "spell" },
+  { t: 18.4, step: 1, title: "The classic <hl c=\"red\">mistake</hl>", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "Here's a classic:"], [1.6, "a SQL query glued together with user input."], [5, "That's SQL injection."]], prop: "bad" },
+  { t: 26.4, step: 2, title: "Run the <hl c=\"blue\">scan</hl>", pose: [[0,"point"]], mood: "happy",
+    cap: [[0, "Run a scanner like Semgrep:"], [2.4, "semgrep scan --config auto"], [5.2, "It flags the exact line."]], prop: "scan" },
+  { t: 35, step: 3, title: "The <hl c=\"green\">fix</hl>", pose: [[0,"both"]], mood: "happy",
+    cap: [[0, "The fix: a parameterized query."], [3, "Now the input can't change the SQL."]], prop: "fix" },
+  { t: 42.4, title: "Good to <hl c=\"blue\">know</hl>", pose: [[0,"present"]], mood: "happy",
+    cap: [[0, "SAST is fast, and runs on every pull request."], [3.6, "But it can raise false alarms, so review the findings."]], prop: "know" },
+  { t: 50, title: "SAST in <hl c=\"green\">one line</hl>", pose: [[0,"thumb"]], mood: "happy",
+    cap: [[0, "SAST: reads code, finds risky patterns, early."]], prop: "recap" },
+  { t: 54, title: "Next: <hl c=\"red\">SCA</hl>", pose: [[0,"peace"]], mood: "happy",
+    cap: [[0, "Next: SCA, checking your dependencies."], [3, "Follow for part three."]], prop: "next" },
+];
+let END = 59.5;

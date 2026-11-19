@@ -79,8 +79,12 @@ def place(im, close=0, zoom=1):
     a[..., 3] *= np.clip((yb - yy) / .1, 0, 1)                   # fade the bottom of the hoodie
     return Image.fromarray(a.astype(np.uint8), "RGBA"), (round(s, 3), ox, oy)
 
+SOFT = set()   # poses whose source pictures are small and soft: sharpened a little so they match the crisp ones
 def uri(img):
-    b = io.BytesIO(); img.save(b, "WEBP", quality=88)
+    if SOFT:
+        r, g, bl, al = img.split(); rgb = Image.merge("RGB", (r, g, bl)).filter(ImageFilter.UnsharpMask(radius=2.2, percent=85, threshold=2))
+        img = Image.merge("RGBA", (*rgb.split(), al))
+    b = io.BytesIO(); img.save(b, "WEBP", quality=93)
     return "data:image/webp;base64," + base64.b64encode(b.getvalue()).decode()
 
 def load_uri(u):
@@ -202,6 +206,7 @@ for k in list(KEYS.values()) + ["poseBlinkTalk"]: d[k] = {}
 for arg in sys.argv[3:]:
     name, path = arg.split("=", 1)
     if "@" in name: continue
+    SOFT.clear(); SOFT.update({name} & {"peace", "shrug", "cross"})
     THR[0] = {"peace": 46}.get(name, 24)   # this set has a noisier background
     if name in own:
         LOW, EYE, CL = GEOM[name][:3]; base = Image.open(path)

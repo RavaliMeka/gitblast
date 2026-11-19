@@ -1,0 +1,28 @@
+{
+  "title": "DAST explained",
+  "meta": "ep.24 · devsecops dast",
+  "keys": [
+    "clean",
+    "running",
+    "safe",
+    "dast",
+    "dynamic",
+    "outside",
+    "attacker",
+    "recipe",
+    "dish",
+    "zap",
+    "staging",
+    "crawls",
+    "requests",
+    "header",
+    "own",
+    "production",
+    "secret"
+  ],
+  "series": "devsecops",
+  "accent": "#e11d48",
+  "bg": "#fdecf0",
+  "grid": "#f3d3da",
+  "rest": "stand"
+}
