@@ -78,12 +78,17 @@ def chime():
     return x
 
 caps = T["caps"]
-scene_first = [0, 3, 6, 8, 10, 13, 15, 17, 19, 21, 24, 26]
+# optional: score.py timing.json outdir "scene first captions" "chapter captions" "chime caption text"
+# a soft pop on every new scene, a whoosh only on chapter changes, one chime on the win line
+scene_first = [int(v) for v in sys.argv[3].split(",")] if len(sys.argv) > 3 else [0, 3, 6, 8, 10, 13, 15, 17, 19, 21, 24, 26]
+chapters = [int(v) for v in sys.argv[4].split(",")] if len(sys.argv) > 4 else scene_first[1:]
+win = sys.argv[5] if len(sys.argv) > 5 else "and your code is live"
 for i in scene_first[1:]:
-    st = caps[i]["start"] - .25
-    add(st - .3, whoosh()); add(st + .05, pop())
-add(caps[23 - 0]["start"] - 0 if False else caps[23]["start"] - 1e9, np.zeros(1))  # placeholder no-op
-live = next(c for c in caps if c["text"].startswith("and your code is live"))
+    st = caps[i]["start"] - .3
+    add(st + .05, pop() * (.6 if i not in chapters else 1))
+for i in chapters:
+    add(caps[i]["start"] - .3 - .32, whoosh())
+live = next(c for c in caps if c["text"].lower().startswith(win.lower()))
 add(live["start"] + .05, chime())
 
 def save(name, x):
