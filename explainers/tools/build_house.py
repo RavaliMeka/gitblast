@@ -126,6 +126,11 @@ rep('$("wipe").innerHTML = "";', '''{ const ch = S.find(x => x.step && x.t > 0 &
 rep("#wipe { inset: 0; z-index: 7;", "#wipe { inset: 0; z-index: 5;")
 # the incoming visual of a chapter appears as the wipe passes over it
 rep("function kinetic(t) {", "const CHAPTER_IN = .14;\nfunction kinetic(t) {")
+# the opening hook is on screen from the very first frame (greyed), and darkens word by word as it is spoken,
+# so the preview frame and muted autoplay already show what the video is about
+rep('  if (ci < 0) return "";', '  if (ci < 0) ci = 0;')
+rep('    if (!shown) return "";', '    if (!shown) return ci === 0 ? `<span class="w"><span class="m"><span>${tk}</span></span></span>` : "";')
+rep("const style = ``, rise = `transform:translateY(${", "const style = ``, rise = ci === 0 ? `` : `transform:translateY(${")
 # titles written for older themes use colour names the house page does not know
 rep("color:${COL[c][0]};--mark:${COL[c][1]}", "color:${(COL[c] || COL.blue)[0]};--mark:${(COL[c] || COL.blue)[1]}")
 # series art: badge beside the episode label, themed background shapes, a strip along the bottom edge

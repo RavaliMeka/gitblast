@@ -596,7 +596,7 @@ const CHAPTER_IN = .14;
 function kinetic(t) {
   const C = tm().caps;
   let ci = -1; C.forEach((c, i) => { if (t >= c.start - .05) ci = i; });
-  if (ci < 0) return "";
+  if (ci < 0) ci = 0;
   const c = C[ci], next = C[ci + 1];
   if (t > c.end + .9 && (!next || t < next.start - .05)) return "";          // clear during long pauses
   const toks = c.text.split(" ");
@@ -607,8 +607,8 @@ function kinetic(t) {
     const clean = tk.toLowerCase().replace(/[^a-z0-9]/g, "");
     const box = i === cur && KEY.has(clean);
     const cls = i === cur ? "now" : i < cur ? "said" : "";
-    if (!shown) return "";
-    const style = ``, rise = `transform:translateY(${(1 - easeOut(clamp((t - (st - .06)) / .26))) * 105}%)`;
+    if (!shown) return ci === 0 ? `<span class="w"><span class="m"><span>${tk}</span></span></span>` : "";
+    const style = ``, rise = ci === 0 ? `` : `transform:translateY(${(1 - easeOut(clamp((t - (st - .06)) / .26))) * 105}%)`;
     return `<span class="w ${cls}" style="${style}">${box ? `<span class="box" style="transform:scale(${1 + .14 * (1 - easeOut((t - st) / .22))})"></span><svg class="tk" width="60" height="60" viewBox="0 0 60 60" style="opacity:${clamp(1 - (t - st) / .5)};transform:scale(${.5 + clamp((t - st) / .3) * .8})"><path d="M8 40 L20 30 M26 46 L28 28 M44 44 L36 30" stroke="#ff5a1f" stroke-width="6" stroke-linecap="round"/></svg>` : ""}<span class="m"><span style="${rise}">${tk}</span></span></span>`;
   }).join("");
 }
